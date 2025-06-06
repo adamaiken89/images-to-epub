@@ -37,20 +37,20 @@ This project converts a folder of `.webp` images into an EPUB file using Python.
 
 ## Usage
 
-1. **Activate the virtual environment (if not already active):**
+1. **Create and Activate the virtual environment (if not already active):**
 
    ```sh
-   source epubenv/bin/activate
+   python3 -m venv epubenv && source epubenv/bin/activate
    ```
 
 2. **Run the script:**
 
    ```sh
-   python webp_to_epub.py
+   python run.py
    ```
 
 3. **A folder selection dialog will appear.**
-   - Select the folder containing your `.webp` images.
+   - Select the folder containing your `.webp` / `.jpg` images.
    - The script will generate an EPUB file in your Downloads folder, named after the selected folder.
 
 ## Notes
