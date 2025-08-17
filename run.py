@@ -22,6 +22,8 @@ if not img_files:
 if not img_files:
     img_files = sorted([f for f in os.listdir(img_dir) if f.lower().endswith('.png')])
 
+if not img_files:
+    img_files = sorted([f for f in os.listdir(img_dir) if f.lower().endswith('.jpeg')])
 
 book = epub.EpubBook()
 book.set_identifier(uuid.uuid4().urn)
