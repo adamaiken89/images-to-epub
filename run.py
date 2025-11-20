@@ -14,16 +14,9 @@ img_dir = filedialog.askdirectory(initialdir='~/Downloads',
 folder_name = os.path.basename(img_dir)
 output_epub = os.path.join(os.path.expanduser('~/Downloads'), f"{folder_name}.epub")
 
-# Get all .webp files, sorted by filename
-img_files = sorted([f for f in os.listdir(img_dir) if f.lower().endswith('.webp')])
-if not img_files:
-    img_files = sorted([f for f in os.listdir(img_dir) if f.lower().endswith('.jpg')])
-
-if not img_files:
-    img_files = sorted([f for f in os.listdir(img_dir) if f.lower().endswith('.png')])
-
-if not img_files:
-    img_files = sorted([f for f in os.listdir(img_dir) if f.lower().endswith('.jpeg')])
+# Get all supported image files, sorted by filename
+valid_exts = ('.webp', '.jpg', '.jpeg', '.png')
+img_files = sorted([f for f in os.listdir(img_dir) if f.lower().endswith(valid_exts)])
 
 book = epub.EpubBook()
 book.set_identifier(uuid.uuid4().urn)
