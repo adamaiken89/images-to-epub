@@ -31,9 +31,6 @@ if img_files:
             im = im.convert("RGB")
             im.save(output, format="JPEG")
             cover_data = output.getvalue()
-    cover_id = "cover.jpg"
-    epub_cover = epub.EpubItem(uid=cover_id, file_name=f"images/{cover_id}", media_type="image/jpeg", content=cover_data)
-    book.add_item(epub_cover)
     book.set_cover("images/cover.jpg", cover_data)
 
 
