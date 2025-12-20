@@ -11,19 +11,6 @@
   "basedpyright.reportUnusedClass": true,
   "python.analysis.typeCheckingMode": "basic",
   "python.analysis.autoImportCompletions": true,
-  "python.analysis.diagnosticMode": "workspace",
-  "cSpell.words": [
-    "columnspan",
-    "epubenv",
-    "padx",
-    "pady",
-    "pycache",
-    "scrollregion",
-    "subfolders",
-    "tkfont",
-    "Tkinter",
-    "venv",
-    "xscrollcommand",
-    "yscrollcommand"
-  ]
+  "python.analysis.diagnosticMode": "workspace"
 }
+

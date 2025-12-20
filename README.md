@@ -1,6 +1,15 @@
-# webp_to_epub
+# Images to EPUB Converter
 
-This project converts a folder of `.webp` images into an EPUB file using Python.
+This project converts folders of images (`.webp`, `.jpg`, `.jpeg`, `.png`) into EPUB files using Python. It features a graphical user interface that allows you to select multiple folders and process them individually.
+
+## Features
+
+- **Graphical User Interface**: Easy-to-use GUI with directory tree view
+- **Multiple Folder Selection**: Select and process multiple folders at once
+- **Directory Tree View**: Browse and select folders containing images
+- **Individual Processing**: Each selected folder generates its own EPUB file
+- **Progress Tracking**: See real-time progress and completion status
+- **Dark Mode Support**: UI adapts to dark mode with readable text colors
 
 ## Requirements
 
@@ -49,18 +58,32 @@ This project converts a folder of `.webp` images into an EPUB file using Python.
    python run.py
    ```
 
-3. **A folder selection dialog will appear.**
-   - Select the folder containing your `.webp` / `.jpg` images.
-   - The script will generate an EPUB file in your Downloads folder, named after the selected folder.
+3. **Using the GUI:**
+   - Click **"Select Folder"** to choose a base directory
+   - The directory tree will show all subfolders that contain image files
+   - Click on folders in the tree to select/deselect them (selected folders show a ☑ checkbox)
+   - Use **"Select All"** or **"Deselect All"** for bulk operations
+   - Click **"Process Selected Folders"** to generate EPUB files
+   - Each selected folder will be processed individually to create its own EPUB file
 
-## Notes
+## Supported Image Formats
 
-- The script requires a GUI for the folder selection dialog (Tkinter).
-- If you want to run the script without a GUI, you can modify it to hardcode the image directory or accept a command-line argument.
+- `.webp`
+- `.jpg` / `.jpeg`
+- `.png`
 
 ## Output
 
-- The generated EPUB file will be named `<selected_folder>.epub` and saved in your Downloads folder.
+- Each processed folder generates an EPUB file named `<folder_name>.epub`
+- EPUB files are saved in your Downloads folder (`~/Downloads`)
+- The first image in each folder is used as the cover image
+
+## Notes
+
+- The script requires a GUI (Tkinter) - it cannot run without a graphical interface
+- Only folders containing image files will be displayed in the tree
+- Images are automatically converted to JPEG format in the EPUB
+- Processing runs in a background thread to keep the UI responsive
 
 ---
 
