@@ -206,11 +206,11 @@ class FolderSelectorUI:
 
         self.root_checkbox = ttk.Checkbutton(
             root_frame,
-            text="Select All",
+            text="   Select All",
             variable=self.root_var,
             command=lambda: self.controller.on_root_checkbox_toggle(self.root_var.get())
         )
-        self.root_checkbox.grid(row=0, column=0, sticky=tk.W, padx=5, pady=3)
+        self.root_checkbox.grid(row=0, column=0, sticky=tk.W, padx=(5, 5), pady=3)
 
         # Apply bold font to the checkbox label
         self.root_checkbox.configure(style="Bold.TCheckbutton")
