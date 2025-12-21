@@ -68,9 +68,21 @@ class FolderSelectorUI:
         self.folder_label = ttk.Label(parent, text="No folder selected", foreground="gray")
         self.folder_label.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=5)
 
-        ttk.Button(parent, text="Select Folder", command=self.controller.on_select_base_folder).grid(
-            row=0, column=2, padx=5
+        # Button frame for Select and Refresh buttons
+        button_frame = ttk.Frame(parent)
+        button_frame.grid(row=0, column=2, padx=5)
+
+        ttk.Button(button_frame, text="Select Folder", command=self.controller.on_select_base_folder).pack(
+            side=tk.LEFT, padx=2
         )
+
+        self.refresh_button = ttk.Button(
+            button_frame,
+            text="Refresh",
+            command=self.controller.on_refresh_folders,
+            state="disabled"
+        )
+        self.refresh_button.pack(side=tk.LEFT, padx=2)
 
     def _setup_folder_tree(self, parent):
         """Set up scrollable folder tree with checkboxes."""
@@ -143,6 +155,7 @@ class FolderSelectorUI:
             populate_folders=self.populate_folders,
             update_status=self.update_status,
             update_process_button=self.update_process_button,
+            update_refresh_button=self.update_refresh_button,
             start_progress=self.start_progress,
             stop_progress=self.stop_progress,
             show_message=self.show_message
@@ -318,6 +331,10 @@ class FolderSelectorUI:
     def update_process_button(self, enabled):
         """Update process button state."""
         self.process_button.config(state="normal" if enabled else "disabled")
+
+    def update_refresh_button(self, enabled):
+        """Update refresh button state."""
+        self.refresh_button.config(state="normal" if enabled else "disabled")
 
     def start_progress(self):
         """Start the progress bar."""

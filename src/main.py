@@ -42,19 +42,38 @@ class EPUBGeneratorController:
 
         if folder:
             self.base_dir = folder
-            self.ui_callbacks['update_folder_label'](folder, selected=True)
+            self._load_folders()
 
-            # Find and organize folders
-            folders_with_images, all_folders = find_folders_with_images(self.base_dir)
-            self.folders_with_images = folders_with_images
-            folders_data = organize_folders_by_hierarchy(all_folders, self.base_dir)
+    def on_refresh_folders(self):
+        """Handle refresh folders action - reload folders from current directory."""
+        if self.base_dir:
+            self._load_folders()
+        else:
+            self.ui_callbacks['show_message']("No Folder Selected", "Please select a folder first.", "warning")
 
-            # Update UI
-            self.ui.populate_folders(folders_data, self.base_dir)
-            total_folders = len([f for f in all_folders.values() if f['has_images'] or f['has_subfolders']])
-            self.ui_callbacks['update_status'](
-                f"Found {total_folders} folders. Click folders or checkboxes to select/deselect them individually."
-            )
+    def _load_folders(self):
+        """Load and display folders from the current base directory."""
+        if not self.base_dir:
+            return
+
+        self.ui_callbacks['update_folder_label'](self.base_dir, selected=True)
+        self.ui_callbacks['update_refresh_button'](True)
+
+        # Find and organize folders
+        folders_with_images, all_folders = find_folders_with_images(self.base_dir)
+        self.folders_with_images = folders_with_images
+        folders_data = organize_folders_by_hierarchy(all_folders, self.base_dir)
+
+        # Clear current selections when refreshing
+        self.selected_folders.clear()
+
+        # Update UI
+        self.ui.populate_folders(folders_data, self.base_dir)
+        total_folders = len([f for f in all_folders.values() if f['has_images'] or f['has_subfolders']])
+        self.ui_callbacks['update_status'](
+            f"Found {total_folders} folders. Click folders or checkboxes to select/deselect them individually."
+        )
+        self._update_selection_status()
 
     def on_checkbox_toggle(self, folder_path, checked):
         """Handle checkbox toggle."""
