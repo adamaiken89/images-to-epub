@@ -6,7 +6,8 @@ from src.epub_converter import (
     create_epub_from_folder,
     find_folders_with_images,
     organize_folders_by_hierarchy,
-    get_subfolders_with_images
+    get_subfolders_with_images,
+    pad_image_filenames
 )
 from src.ui import FolderSelectorUI
 
@@ -137,8 +138,8 @@ class EPUBGeneratorController:
             self.ui_callbacks['show_message']("No Selection", "Please select at least one folder.", "warning")
             return
 
-        # Disable process button during processing
         self.ui_callbacks['update_process_button'](False)
+        self.ui_callbacks['update_pad_button'](False)
         self.ui_callbacks['start_progress']()
 
         # Process in a separate thread to keep UI responsive
@@ -196,17 +197,84 @@ class EPUBGeneratorController:
         self.ui_callbacks['update_status'](
             f"Completed: {success_count} successful, {fail_count} failed"
         )
-        self.ui_callbacks['update_process_button'](len(self.selected_folders) > 0)
+        has_selection = len(self.selected_folders) > 0
+        self.ui_callbacks['update_process_button'](has_selection)
+        self.ui_callbacks['update_pad_button'](has_selection)
+
+    def on_pad_filenames(self):
+        """Handle pad filenames action."""
+        if not self.selected_folders:
+            self.ui_callbacks['show_message']("No Selection", "Please select at least one folder.", "warning")
+            return
+
+        self.ui_callbacks['update_process_button'](False)
+        self.ui_callbacks['update_pad_button'](False)
+        self.ui_callbacks['start_progress']()
+
+        thread = threading.Thread(target=self._pad_filenames_thread)
+        thread.daemon = True
+        thread.start()
+
+    def _pad_filenames_thread(self):
+        """Pad filenames in a separate thread."""
+        results = []
+        folders_to_process = []
+        for folder_path in self.selected_folders:
+            if folder_path in self.folders_with_images:
+                folders_to_process.append(folder_path)
+            else:
+                subfolders = get_subfolders_with_images(folder_path, self.folders_with_images)
+                folders_to_process.extend(subfolders)
+
+        total = len(folders_to_process)
+
+        for idx, folder_path in enumerate(folders_to_process, 1):
+            folder_name = os.path.basename(folder_path)
+            self.root.after(0, lambda f=folder_name, i=idx, t=total:
+                          self.ui_callbacks['update_status'](f"Padding {f} ({i}/{t})..."))
+
+            success, message = pad_image_filenames(folder_path)
+            results.append((folder_path, success, message))
+
+        self.root.after(0, self._padding_complete, results)
+
+    def _padding_complete(self, results):
+        """Handle completion of filename padding."""
+        self.ui_callbacks['stop_progress']()
+
+        success_count = sum(1 for _, success, _ in results if success)
+        fail_count = len(results) - success_count
+
+        result_text = f"Padding complete!\n\n"
+        result_text += f"Success: {success_count}\n"
+        result_text += f"Failed: {fail_count}\n\n"
+
+        if fail_count > 0:
+            result_text += "Failed folders:\n"
+            for folder_path, success, message in results:
+                if not success:
+                    folder_name = os.path.basename(folder_path)
+                    result_text += f"  - {folder_name}: {message}\n"
+
+        self.ui_callbacks['show_message']("Padding Complete", result_text)
+        self.ui_callbacks['update_status'](
+            f"Padding done: {success_count} successful, {fail_count} failed"
+        )
+        has_selection = len(self.selected_folders) > 0
+        self.ui_callbacks['update_process_button'](has_selection)
+        self.ui_callbacks['update_pad_button'](has_selection)
 
     def _update_selection_status(self):
         """Update selection status in UI."""
         if self.selected_folders:
             self.ui_callbacks['update_process_button'](True)
+            self.ui_callbacks['update_pad_button'](True)
             self.ui_callbacks['update_status'](
                 f"{len(self.selected_folders)} folder(s) selected - Click folders or checkboxes to select/deselect"
             )
         else:
             self.ui_callbacks['update_process_button'](False)
+            self.ui_callbacks['update_pad_button'](False)
             self.ui_callbacks['update_status']("No folders selected - Click folders or checkboxes to select")
 
         # Update root checkbox state
