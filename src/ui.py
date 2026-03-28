@@ -130,6 +130,14 @@ class FolderSelectorUI:
         button_frame = ttk.Frame(parent)
         button_frame.grid(row=3, column=0, columnspan=3, pady=10)
 
+        self.pad_button = ttk.Button(
+            button_frame,
+            text="Pad Filenames",
+            command=self.controller.on_pad_filenames,
+            state="disabled"
+        )
+        self.pad_button.pack(side=tk.LEFT, padx=5)
+
         self.process_button = ttk.Button(
             button_frame,
             text="Process Selected Folders",
@@ -155,6 +163,7 @@ class FolderSelectorUI:
             populate_folders=self.populate_folders,
             update_status=self.update_status,
             update_process_button=self.update_process_button,
+            update_pad_button=self.update_pad_button,
             update_refresh_button=self.update_refresh_button,
             start_progress=self.start_progress,
             stop_progress=self.stop_progress,
@@ -331,6 +340,10 @@ class FolderSelectorUI:
     def update_process_button(self, enabled):
         """Update process button state."""
         self.process_button.config(state="normal" if enabled else "disabled")
+
+    def update_pad_button(self, enabled):
+        """Update pad filenames button state."""
+        self.pad_button.config(state="normal" if enabled else "disabled")
 
     def update_refresh_button(self, enabled):
         """Update refresh button state."""

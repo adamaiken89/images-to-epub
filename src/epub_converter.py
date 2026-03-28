@@ -165,6 +165,95 @@ def organize_folders_by_hierarchy(all_folders, base_dir):
     return folder_dict
 
 
+def _extract_numeric_prefix(name):
+    """
+    Extract the leading numeric prefix and the remaining suffix from a filename stem.
+
+    Returns (prefix, suffix) where prefix is the leading digits and suffix is
+    everything after. Returns (None, None) if there is no leading digit.
+
+    Examples:
+        "42"           → ("42", "")
+        "1-afdasfsd"   → ("1",  "-afdasfsd")
+        "11_hello"     → ("11", "_hello")
+        "abc"          → (None, None)
+    """
+    idx = 0
+    while idx < len(name) and name[idx].isdigit():
+        idx += 1
+    if idx == 0:
+        return None, None
+    return name[:idx], name[idx:]
+
+
+def pad_image_filenames(img_dir):
+    """
+    Rename image files so their leading numeric prefix is zero-padded to a
+    uniform width determined by the longest numeric prefix in the folder.
+
+    Handles both purely numeric names (1.jpg, 122.png) and names with a
+    separator + arbitrary suffix (1-abc.jpg, 122-xyz.png).
+
+    Args:
+        img_dir: Path to the folder containing images
+
+    Returns:
+        tuple: (success: bool, message: str)
+    """
+    valid_exts = ('.webp', '.jpg', '.jpeg', '.png')
+    try:
+        all_files = os.listdir(img_dir)
+    except PermissionError:
+        return False, f"Permission denied: {img_dir}"
+    except Exception as e:
+        return False, f"Error reading folder: {str(e)}"
+
+    # (original_filename, numeric_prefix, suffix, extension)
+    numeric_images = []
+    for f in all_files:
+        name, ext = os.path.splitext(f)
+        if ext.lower() not in valid_exts:
+            continue
+        prefix, suffix = _extract_numeric_prefix(name)
+        if prefix is not None:
+            numeric_images.append((f, prefix, suffix, ext))
+
+    if not numeric_images:
+        return True, f"Skipped (no numeric-prefixed images): {os.path.basename(img_dir)}"
+
+    max_width = max(len(prefix) for _, prefix, _, _ in numeric_images)
+
+    if all(len(prefix) == max_width for _, prefix, _, _ in numeric_images):
+        return True, f"Already padded: {os.path.basename(img_dir)}"
+
+    rename_plan = []
+    for original, prefix, suffix, ext in numeric_images:
+        padded_name = prefix.zfill(max_width) + suffix + ext
+        if original != padded_name:
+            rename_plan.append((original, padded_name))
+
+    if not rename_plan:
+        return True, f"Already padded: {os.path.basename(img_dir)}"
+
+    # Two-pass rename via temp names to avoid collisions
+    try:
+        tmp_names = {}
+        for original, _ in rename_plan:
+            tmp = f"__pad_tmp_{uuid.uuid4().hex}_{original}"
+            os.rename(os.path.join(img_dir, original), os.path.join(img_dir, tmp))
+            tmp_names[original] = tmp
+
+        for original, padded in rename_plan:
+            os.rename(
+                os.path.join(img_dir, tmp_names[original]),
+                os.path.join(img_dir, padded),
+            )
+
+        return True, f"Padded {len(rename_plan)} file(s) in {os.path.basename(img_dir)}"
+    except Exception as e:
+        return False, f"Error renaming files: {str(e)}"
+
+
 def get_subfolders_with_images(folder_path, folders_with_images):
     """
     Get all subfolders of a given folder that contain images.

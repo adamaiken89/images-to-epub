@@ -1,7 +1,7 @@
 {
   "python.linting.enabled": true,
   "python.linting.pylintEnabled": false,
-  "python.languageServer": "Basedpyright",
+  "python.languageServer": "None",
   "basedpyright.typeCheckingMode": "basic",
   "basedpyright.reportMissingImports": true,
   "basedpyright.reportMissingTypeStubs": false,
