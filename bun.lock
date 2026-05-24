@@ -6,6 +6,7 @@
       "name": "images-to-epub",
       "dependencies": {
         "@opentui/react": "^0.2.15",
+        "i18next": "^26.2.0",
         "jszip": "^3.10.1",
         "react": "^19.0.0",
         "sharp": "^0.34.1",
@@ -125,6 +126,8 @@
     "fd-slicer": ["fd-slicer@1.1.0", "", { "dependencies": { "pend": "~1.2.0" } }, "sha512-cE1qsB/VwyQozZ+q1dGxR8LBYNZeofhEdUNGSMbQD3Gw2lAzX9Zb3uIU6Ebc/Fmyjo9AWWfnn0AUCHqtevs/8g=="],
 
     "get-east-asian-width": ["get-east-asian-width@1.6.0", "", {}, "sha512-QRbvDIbx6YklUe6RxeTeleMR0yv3cYH6PsPZHcnVn7xv7zO1BHN8r0XETu8n6Ye3Q+ahtSarc3WgtNWmehIBfA=="],
+
+    "i18next": ["i18next@26.2.0", "", { "peerDependencies": { "typescript": "^5 || ^6" }, "optionalPeers": ["typescript"] }, "sha512-zwBHldHdTmwN7r6UNc7lC6GWNN+YYg3DrRSeHR5PRRBf5QnJZcYHrQc0uaU26qZeYxR7iFZD+Y315dPnKP47wA=="],
 
     "immediate": ["immediate@3.0.6", "", {}, "sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ=="],
 

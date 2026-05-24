@@ -1,7 +1,7 @@
 import { createTextAttributes } from "@opentui/core";
 import { useStore } from "../store";
 import { colors } from "../utils/colors";
-import { text } from "../utils/text";
+import { t } from "../utils/i18n";
 
 const BOLD = createTextAttributes({ bold: true });
 
@@ -11,10 +11,10 @@ export function Header() {
   return (
     <box flexDirection="column" marginBottom={1}>
       <text fg={colors.title} attributes={BOLD}>
-        {text.header.title}
+        {t("header.title")}
       </text>
       <text fg={colors.path}>
-        <u>{baseDir || text.header.noDir}</u>
+        <u>{baseDir || t("header.noDir")}</u>
       </text>
     </box>
   );

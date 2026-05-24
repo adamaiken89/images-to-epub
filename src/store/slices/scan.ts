@@ -6,7 +6,7 @@ import {
   organizeFoldersByHierarchy,
 } from "../../utils/fs";
 import type { AppState, TreeItem } from "../types";
-import { text } from "../../utils/text";
+import { t } from "../../utils/i18n";
 
 function getInitialDir(): string | null {
   const arg = process.argv[2];
@@ -19,7 +19,7 @@ export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "bas
   zipCount: 0,
 
   loadFolders: async (dir: string) => {
-    set({ status: { type: "progress", message: text.scan.scanning } });
+    set({ status: { type: "progress", message: t("scan.scanning") } });
     const { allFolders } = await findFoldersWithImages(dir);
     const hierarchy = organizeFoldersByHierarchy(allFolders, dir);
     const zips = await findZipFiles(dir);
@@ -46,7 +46,7 @@ export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "bas
       const parts = rel.split(/[/\\]/);
       newItems.push({
         id: `zip:${zipPath}`,
-        label: text.tree.zipPrefix + parts[parts.length - 1],
+        label: t("tree.zipPrefix") + parts[parts.length - 1],
         depth: Math.max(0, parts.length - 1),
         isZip: true,
         entry: null,
@@ -70,8 +70,8 @@ export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "bas
       zipCount,
       status:
         folderCount === 0 && zipCount === 0
-          ? { type: "info", message: text.scan.noResults }
-          : { type: "info", message: text.selection.zeroItems },
+          ? { type: "info", message: t("scan.noResults") }
+          : { type: "info", message: t("selection.zeroItems") },
     });
   },
 

@@ -2,13 +2,13 @@ import { memo } from "react";
 import { createTextAttributes } from "@opentui/core";
 import type { TreeItem } from "../store";
 import { colors } from "../utils/colors";
-import { text } from "../utils/text";
+import { t } from "../utils/i18n";
 
 const BOLD = createTextAttributes({ bold: true });
 
 function TreeItemRowRaw({ item, isFocused }: { item: TreeItem; isFocused: boolean }) {
   const indent = "  ".repeat(item.depth);
-  const checkbox = item.checked ? text.tree.checkboxOn : text.tree.checkboxOff;
+  const checkbox = item.checked ? t("tree.checkboxOn") : t("tree.checkboxOff");
   const line = `${indent}${checkbox} ${item.label}`;
 
   return (
