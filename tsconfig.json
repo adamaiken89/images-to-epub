@@ -15,6 +15,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "jsx": "react-jsx",
+    "jsxImportSource": "@opentui/react",
     "types": ["bun-types"]
   },
   "include": ["src/**/*", "tests/**/*"],
