@@ -14,17 +14,18 @@
   },
   "dependencies": {
     "@opentui/react": "^0.2.15",
-    "extract-zip": "^2.0.1",
     "jszip": "^3.10.1",
     "react": "^19.0.0",
     "sharp": "^0.34.1",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "yauzl": "^2.10.0",
+    "zustand": "^5.0.13"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/extract-zip": "^2.0.0",
     "@types/react": "^19.0.0",
     "@types/uuid": "^10.0.0",
+    "@types/yauzl": "^2.10.0",
     "typescript": "^5.8.0"
   },
   "peerDependencies": {
