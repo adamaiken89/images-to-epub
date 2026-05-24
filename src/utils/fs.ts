@@ -1,5 +1,5 @@
 import { readdir, stat } from "fs/promises";
-import { join, relative, normalize, dirname, basename, sep } from "path";
+import { join, relative, normalize, dirname, sep } from "path";
 import { homedir } from "os";
 
 export const VALID_IMAGE_EXTS = new Set([".webp", ".jpg", ".jpeg", ".png"]);
@@ -42,8 +42,8 @@ export async function findFoldersWithImages(
         const name = entry.name.toLowerCase();
         if (entry.isFile()) {
           const ext = name.slice(name.lastIndexOf("."));
-          if (VALID_IMAGE_EXTS.has(ext)) hasImages = true;
-          if (name.endsWith(".zip")) hasZips = true;
+          if (VALID_IMAGE_EXTS.has(ext)) {hasImages = true;}
+          if (name.endsWith(".zip")) {hasZips = true;}
         }
       }
     } catch {
@@ -80,8 +80,8 @@ export async function findFoldersWithImages(
     let parent = dirname(folderPath);
     while (parent) {
       const parentNorm = normalize(parent);
-      if (parentNorm === baseDirNorm) break;
-      if (!parentNorm.startsWith(baseDirNorm + sep) && parentNorm !== baseDirNorm) break;
+      if (parentNorm === baseDirNorm) {break;}
+      if (!parentNorm.startsWith(baseDirNorm + sep) && parentNorm !== baseDirNorm) {break;}
 
       const meta = allFolders.get(parentNorm);
       if (meta) {
@@ -104,7 +104,7 @@ export function organizeFoldersByHierarchy(
   for (const [folderPath, metadata] of allFolders) {
     if (metadata.hasImages || metadata.hasSubfolders || metadata.hasZips) {
       const relPath = relative(baseDir, folderPath);
-      if (relPath === "") continue; // Skip the base dir itself
+      if (relPath === "") {continue;} // Skip the base dir itself
       const parts = relPath.split(sep);
       result.set(relPath, { parts, path: folderPath, metadata });
     }
@@ -114,7 +114,7 @@ export function organizeFoldersByHierarchy(
 
 export async function findZipFiles(baseDir: string): Promise<string[]> {
   const zipFiles: string[] = [];
-  if (!baseDir) return zipFiles;
+  if (!baseDir) {return zipFiles;}
 
   try {
     await stat(baseDir);

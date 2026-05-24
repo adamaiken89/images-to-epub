@@ -8,7 +8,7 @@ import { getFoldersToProcess } from "./selection";
 import { t } from "../../utils/i18n";
 
 function getEffectiveSelection(selectedIds: Set<string>, items: AppState["items"]): Set<string> {
-  if (selectedIds.size > 0) return selectedIds;
+  if (selectedIds.size > 0) {return selectedIds;}
   return new Set(items.map((i) => i.id));
 }
 
@@ -19,7 +19,7 @@ async function batchProcess(
   processor: (target: string) => Promise<{ success: boolean; message?: string }>,
   collectFailures = false
 ): Promise<void> {
-  if (targets.length === 0) return;
+  if (targets.length === 0) {return;}
 
   let successCount = 0;
   let failCount = 0;
@@ -77,17 +77,17 @@ export const createBatchSlice: StateCreator<
     const zips = Array.from(ids)
       .filter((id) => id.startsWith("zip:"))
       .map((id) => id.slice(4));
-    if (zips.length === 0) return;
+    if (zips.length === 0) {return;}
     set({ isProcessing: true });
     await batchProcess(set, get, zips, unzipFile);
-    if (baseDir) await get().loadFolders(baseDir);
+    if (baseDir) {await get().loadFolders(baseDir);}
   },
 
   padSelected: async () => {
     const { selectedIds, items } = get();
     const ids = getEffectiveSelection(selectedIds, items);
     const folders = getFoldersToProcess(ids, items);
-    if (folders.length === 0) return;
+    if (folders.length === 0) {return;}
     set({ isProcessing: true });
     await batchProcess(set, get, folders, padImageFilenames);
   },

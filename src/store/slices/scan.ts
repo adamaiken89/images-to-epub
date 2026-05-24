@@ -55,7 +55,7 @@ export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "bas
     }
 
     newItems.sort((a, b) => {
-      if (a.depth !== b.depth) return a.depth - b.depth;
+      if (a.depth !== b.depth) {return a.depth - b.depth;}
       return a.label.localeCompare(b.label);
     });
 

@@ -11,7 +11,7 @@ const STATUS_COLORS: Record<string, string> = {
 export function StatusBar() {
   const status = useStore((s) => s.status);
 
-  if (!status.message) return null;
+  if (!status.message) {return null;}
 
   return (
     <text marginTop={1} fg={STATUS_COLORS[status.type] || colors.statusInfo}>

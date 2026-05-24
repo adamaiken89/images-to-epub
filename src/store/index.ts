@@ -44,6 +44,6 @@ export const useStore = create<AppState>()((...a) => ({
 
   refresh: async () => {
     const { baseDir } = a[1]();
-    if (baseDir) await a[1]().loadFolders(baseDir);
+    if (baseDir) {await a[1]().loadFolders(baseDir);}
   },
 }));

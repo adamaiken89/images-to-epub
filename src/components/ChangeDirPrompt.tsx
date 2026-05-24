@@ -14,7 +14,7 @@ export function ChangeDirPrompt() {
   const changeDir = useStore((s) => s.changeDir);
   const cancelChangeDir = useStore((s) => s.cancelChangeDir);
 
-  if (!changeDirMode) return null;
+  if (!changeDirMode) {return null;}
 
   return <PromptInner key={promptKey} baseDir={baseDir} subdirs={subdirs} changeDir={changeDir} cancelChangeDir={cancelChangeDir} />;
 }
@@ -45,8 +45,8 @@ function PromptInner({
         textColor={colors.inputText}
         onSubmit={() => {
           const val = inputValue.trim();
-          if (val) changeDir(val);
-          else cancelChangeDir();
+          if (val) {changeDir(val);}
+          else {cancelChangeDir();}
         }}
         onChange={(v: string) => setInputValue(v)}
       />

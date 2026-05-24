@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { existsSync, mkdtempSync, writeFileSync } from "fs";
+import { existsSync, mkdtempSync, writeFileSync, rmSync } from "fs";
 import JSZip from "jszip";
 import { tmpdir } from "os";
 import { join } from "path";
@@ -8,7 +8,6 @@ import { unzipFile } from "../src/utils/zip";
 
 function cleanup(base: string) {
   try {
-    const { rmSync } = require("fs");
     rmSync(base, { recursive: true, force: true });
   } catch {
     // ignore
@@ -36,7 +35,7 @@ async function createZipWithNoUtf8Flag(
   for (const [name, content] of Object.entries(files)) {
     zip.file(name, content);
   }
-  let buf = await zip.generateAsync({ type: "nodebuffer" });
+  const buf = await zip.generateAsync({ type: "nodebuffer" });
 
   // Patch all local file headers (signature 0x504b0304) and central directory
   // headers (signature 0x504b0102) to clear the UTF-8 flag (0x800).
@@ -60,7 +59,7 @@ describe("unzipFile", () => {
   let base: string;
 
   afterEach(() => {
-    if (base) cleanup(base);
+    if (base) {cleanup(base);}
   });
 
   it("extracts a valid zip file", async () => {

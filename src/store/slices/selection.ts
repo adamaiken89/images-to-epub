@@ -42,7 +42,7 @@ export const createSelectionSlice: StateCreator<
 
   toggleItem: (index: number) => {
     const { items, selectedIds } = get();
-    if (index < 0 || index >= items.length) return;
+    if (index < 0 || index >= items.length) {return;}
     const item = items[index];
 
     const newSelected = new Set(selectedIds);
@@ -55,7 +55,7 @@ export const createSelectionSlice: StateCreator<
     set({
       selectedIds: newSelected,
       items: items.map((it, i) => {
-        if (i === index) return { ...it, checked: !it.checked };
+        if (i === index) {return { ...it, checked: !it.checked };}
         return it;
       }),
       status: { type: "info", message: t("selection.item", { count: newSelected.size }) },
