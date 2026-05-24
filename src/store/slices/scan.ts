@@ -71,7 +71,7 @@ export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "bas
       status:
         folderCount === 0 && zipCount === 0
           ? { type: "info", message: t("scan.noResults") }
-          : { type: "info", message: t("selection.zeroItems") },
+          : { type: "info", message: t("selection.item", { count: 0 }) },
     });
   },
 
