@@ -1,6 +1,7 @@
 """Business logic for EPUB conversion and folder scanning."""
 
 import os
+import zipfile
 from ebooklib import epub
 from PIL import Image
 import io
@@ -110,19 +111,25 @@ def find_folders_with_images(base_dir):
 
     valid_exts = ('.webp', '.jpg', '.jpeg', '.png')
 
-    # First pass: find all folders with images directly
+    # First pass: find all folders with images and/or zips
     for root_dir, _, files in os.walk(base_dir):
         has_images = any(f.lower().endswith(valid_exts) for f in files)
+        has_zips = any(f.lower().endswith('.zip') for f in files)
         if has_images:
             folders_with_images.append(root_dir)
-            all_folders[root_dir] = {'has_images': True, 'has_subfolders': False}
-        else:
-            all_folders[root_dir] = {'has_images': False, 'has_subfolders': False}
+        all_folders[root_dir] = {
+            'has_images': has_images,
+            'has_subfolders': False,
+            'has_zips': has_zips,
+        }
 
-    # Second pass: mark parent folders that have subfolders with images
-    for folder_path in folders_with_images:
+    # Second pass: mark ancestor folders for anything that needs tree visibility
+    # (folders with images OR folders with zips)
+    visible_folders = [p for p, m in all_folders.items()
+                       if m['has_images'] or m.get('has_zips')]
+    base_dir_norm = os.path.normpath(base_dir)
+    for folder_path in visible_folders:
         parent = os.path.dirname(folder_path)
-        base_dir_norm = os.path.normpath(base_dir)
         while parent:
             parent_norm = os.path.normpath(parent)
             if parent_norm == base_dir_norm:
@@ -137,7 +144,11 @@ def find_folders_with_images(base_dir):
             if parent_norm in all_folders:
                 all_folders[parent_norm]['has_subfolders'] = True
             else:
-                all_folders[parent_norm] = {'has_images': False, 'has_subfolders': True}
+                all_folders[parent_norm] = {
+                    'has_images': False,
+                    'has_subfolders': True,
+                    'has_zips': False,
+                }
             parent = os.path.dirname(parent)
 
     return folders_with_images, all_folders
@@ -156,8 +167,7 @@ def organize_folders_by_hierarchy(all_folders, base_dir):
     """
     folder_dict = {}
     for folder_path, metadata in all_folders.items():
-        # Only include folders that have images or have subfolders with images
-        if metadata['has_images'] or metadata['has_subfolders']:
+        if metadata['has_images'] or metadata['has_subfolders'] or metadata.get('has_zips'):
             rel_path = os.path.relpath(folder_path, base_dir)
             parts = Path(rel_path).parts
             folder_dict[rel_path] = (parts, folder_path, metadata)
@@ -280,4 +290,47 @@ def get_subfolders_with_images(folder_path, folders_with_images):
             continue
 
     return subfolders
+
+
+def find_zip_files(base_dir):
+    """
+    Find all zip files under base_dir.
+
+    Args:
+        base_dir: Base directory to search
+
+    Returns:
+        list: List of absolute paths to .zip files
+    """
+    zip_files = []
+    if not base_dir or not os.path.exists(base_dir):
+        return zip_files
+    for root_dir, _, files in os.walk(base_dir):
+        for f in sorted(files):
+            if f.lower().endswith('.zip'):
+                zip_files.append(os.path.join(root_dir, f))
+    return zip_files
+
+
+def unzip_file(zip_path):
+    """
+    Extract a zip file into a folder with the same name (minus .zip) in
+    the same parent directory.
+
+    Args:
+        zip_path: Path to the .zip file
+
+    Returns:
+        tuple: (success: bool, message: str)
+    """
+    folder_name = os.path.splitext(os.path.basename(zip_path))[0]
+    extract_dir = os.path.join(os.path.dirname(zip_path), folder_name)
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zf:
+            zf.extractall(extract_dir)
+        return True, f"Extracted: {os.path.basename(zip_path)}"
+    except zipfile.BadZipFile:
+        return False, f"Bad zip file: {os.path.basename(zip_path)}"
+    except Exception as e:
+        return False, f"Error extracting {os.path.basename(zip_path)}: {str(e)}"
 
