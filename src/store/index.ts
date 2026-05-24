@@ -14,8 +14,13 @@ export const useStore = create<AppState>()((...a) => ({
   ...createBatchSlice(...a),
 
   changeDirMode: false,
+  showHelp: true,
   subdirs: [],
   promptKey: 0,
+
+  toggleHelp: () => {
+    a[0]({ showHelp: !a[1]().showHelp });
+  },
 
   openChangeDir: () => {
     const dir = a[1]().baseDir;
