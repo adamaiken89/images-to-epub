@@ -3,6 +3,7 @@ import { testRender } from "@opentui/react/test-utils";
 import { Header } from "../src/components/Header";
 import { InfoMessage } from "../src/components/InfoMessage";
 import { HelpModal } from "../src/components/HelpModal";
+import { StatusBar } from "../src/components/StatusBar";
 import { useStore } from "../src/store";
 
 async function render(node: any, width = 60, height = 10) {
@@ -72,14 +73,20 @@ describe("component rendering", () => {
     expect(frame).toContain("hide");
   });
 
-  it("renders InfoMessage with status message when no results", async () => {
+  it("renders StatusBar with status message", async () => {
     useStore.setState({
-      folderCount: 0,
-      zipCount: 0,
-      status: { type: "info", message: "No folders found." },
+      status: { type: "info", message: "0 item(s) selected" },
     });
-    const frame = await render(<InfoMessage />);
-    expect(frame).toContain("No folders found.");
+    const frame = await render(<StatusBar />);
+    expect(frame).toContain("0 item(s) selected");
+  });
+
+  it("renders StatusBar with error message", async () => {
+    useStore.setState({
+      status: { type: "error", message: "Permission denied" },
+    });
+    const frame = await render(<StatusBar />);
+    expect(frame).toContain("Permission denied");
   });
 
   it("renders HelpModal with shortcuts", async () => {
