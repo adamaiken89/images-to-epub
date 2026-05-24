@@ -1,6 +1,7 @@
 import type { StateCreator } from "zustand";
 import { getSubfoldersWithImages } from "../../utils/fs";
 import type { AppState, TreeItem } from "../types";
+import { text } from "../../utils/text";
 
 export function getFoldersToProcess(
   selectedSet: Set<string>,
@@ -57,7 +58,7 @@ export const createSelectionSlice: StateCreator<
         if (i === index) return { ...it, checked: !it.checked };
         return it;
       }),
-      status: { type: "info", message: `${newSelected.size} item(s) selected` },
+      status: { type: "info", message: `${newSelected.size} ${text.selection.itemsSelected}` },
     });
   },
 
@@ -67,7 +68,7 @@ export const createSelectionSlice: StateCreator<
     set({
       selectedIds: allIds,
       items: items.map((it) => ({ ...it, checked: true })),
-      status: { type: "info", message: `${allIds.size} item(s) selected` },
+      status: { type: "info", message: `${allIds.size} ${text.selection.itemsSelected}` },
     });
   },
 
@@ -76,7 +77,7 @@ export const createSelectionSlice: StateCreator<
     set({
       selectedIds: new Set(),
       items: items.map((it) => ({ ...it, checked: false })),
-      status: { type: "info", message: "0 item(s) selected" },
+      status: { type: "info", message: text.selection.zeroItems },
     });
   },
 });

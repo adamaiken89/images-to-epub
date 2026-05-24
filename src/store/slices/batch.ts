@@ -5,6 +5,7 @@ import { padImageFilenames } from "../../utils/pad";
 import { unzipFile } from "../../utils/zip";
 import type { AppState } from "../types";
 import { getFoldersToProcess } from "./selection";
+import { text } from "../../utils/text";
 
 function getEffectiveSelection(selectedIds: Set<string>, items: AppState["items"]): Set<string> {
   if (selectedIds.size > 0) return selectedIds;
@@ -39,11 +40,11 @@ async function batchProcess(
     }
   }
 
-  const suffix = failed.length > 0 ? " | " + failed.join("; ") : "";
+  const suffix = failed.length > 0 ? text.batch.separator + failed.join("; ") : "";
   set({
     status: {
       type: "done",
-      message: `Done! Success: ${successCount}, Failed: ${failCount}${suffix}`,
+      message: `${text.batch.done} ${text.batch.success} ${successCount}, ${text.batch.failed} ${failCount}${suffix}`,
     },
     isProcessing: false,
   });
@@ -55,7 +56,7 @@ export const createBatchSlice: StateCreator<
   [],
   Pick<AppState, "status" | "isProcessing" | "processFolders" | "unzipSelected" | "padSelected">
 > = (set, get) => ({
-  status: { type: "info", message: "0 item(s) selected" },
+  status: { type: "info", message: text.selection.zeroItems },
   isProcessing: false,
 
   processFolders: async () => {
