@@ -1,18 +1,16 @@
-import { useState, useCallback, useEffect, useRef } from "react";
-import { useKeyboard } from "@opentui/react";
-import { createTextAttributes } from "@opentui/core";
+import { basename } from 'path';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { createTextAttributes } from '@opentui/core';
+import { useKeyboard } from '@opentui/react';
+
+import { createEpubFromFolder } from './utils/epub';
 import {
-  findFoldersWithImages,
-  organizeFoldersByHierarchy,
-  findZipFiles,
-  getSubfoldersWithImages,
-  findDefaultBaseDir,
-  type FolderEntry,
-} from "./utils/fs";
-import { padImageFilenames } from "./utils/pad";
-import { unzipFile } from "./utils/zip";
-import { createEpubFromFolder } from "./utils/epub";
-import { basename } from "path";
+    findDefaultBaseDir, findFoldersWithImages, findZipFiles, getSubfoldersWithImages,
+    organizeFoldersByHierarchy, type FolderEntry
+} from './utils/fs';
+import { padImageFilenames } from './utils/pad';
+import { unzipFile } from './utils/zip';
 
 interface TreeItem {
   id: string;
@@ -447,21 +445,21 @@ export default function App() {
           marginBottom={1}
           flexDirection="column"
         >
-          <text fg="#66ccff" attributes={BOLD_ATTRS}>
+          <text fg="#66ccff" attributes={BOLD_ATTRS} marginBottom={1}>
             Keyboard Controls:
           </text>
-          <text>{"\u2191 / \u2193  Navigate items"}</text>
-          <text>{"Space     Toggle checkbox"}</text>
-          <text>{"Enter     Process selected folders"}</text>
-          <text>{"a         Select All"}</text>
-          <text>{"d         Deselect All"}</text>
-          <text>{"p         Process EPUBs"}</text>
-          <text>{"u         Unzip selected"}</text>
-          <text>{"z         Pad filenames"}</text>
-          <text>{"c         Change directory"}</text>
-          <text>{"r         Refresh folders"}</text>
-          <text>{"h / ?     Toggle help"}</text>
-          <text>{"q / ESC   Quit"}</text>
+          <box flexDirection="row"><text width={12} fg="#aaaaaa">Up/Down</text><text>Navigate items</text></box>
+          <box flexDirection="row"><text width={12} fg="#aaaaaa">Space</text><text>Toggle checkbox</text></box>
+          <box flexDirection="row"><text width={12} fg="#aaaaaa">Enter</text><text>Process selected folders</text></box>
+          <box flexDirection="row"><text width={12} fg="#aaaaaa">a</text><text>Select All</text></box>
+          <box flexDirection="row"><text width={12} fg="#aaaaaa">d</text><text>Deselect All</text></box>
+          <box flexDirection="row"><text width={12} fg="#aaaaaa">p</text><text>Process EPUBs</text></box>
+          <box flexDirection="row"><text width={12} fg="#aaaaaa">u</text><text>Unzip selected</text></box>
+          <box flexDirection="row"><text width={12} fg="#aaaaaa">z</text><text>Pad filenames</text></box>
+          <box flexDirection="row"><text width={12} fg="#aaaaaa">c</text><text>Change directory</text></box>
+          <box flexDirection="row"><text width={12} fg="#aaaaaa">r</text><text>Refresh folders</text></box>
+          <box flexDirection="row"><text width={12} fg="#aaaaaa">h / ?</text><text>Toggle help</text></box>
+          <box flexDirection="row"><text width={12} fg="#aaaaaa">q / ESC</text><text>Quit</text></box>
         </box>
       )}
 
