@@ -154,6 +154,18 @@ export function getSubfoldersWithImages(
   });
 }
 
+export async function getSubdirs(dir: string): Promise<string[]> {
+  try {
+    const entries = await readdir(dir, { withFileTypes: true });
+    return entries
+      .filter((e) => e.isDirectory() && !e.name.startsWith("."))
+      .map((e) => e.name)
+      .sort();
+  } catch {
+    return [];
+  }
+}
+
 export async function findDefaultBaseDir(): Promise<string> {
   return join(homedir(), "Downloads");
 }

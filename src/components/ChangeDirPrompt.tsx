@@ -1,40 +1,35 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createTextAttributes } from "@opentui/core";
 import { useStore } from "../store";
-import { readdir } from "fs/promises";
-import { join } from "path";
 import { colors } from "../utils/colors";
 
 const BOLD = createTextAttributes({ bold: true });
 
-async function getSubdirs(dir: string): Promise<string[]> {
-  try {
-    const entries = await readdir(dir, { withFileTypes: true });
-    return entries
-      .filter((e) => e.isDirectory() && !e.name.startsWith("."))
-      .map((e) => e.name)
-      .sort();
-  } catch {
-    return [];
-  }
-}
-
 export function ChangeDirPrompt() {
   const changeDirMode = useStore((s) => s.changeDirMode);
   const baseDir = useStore((s) => s.baseDir);
+  const subdirs = useStore((s) => s.subdirs);
+  const promptKey = useStore((s) => s.promptKey);
   const changeDir = useStore((s) => s.changeDir);
   const cancelChangeDir = useStore((s) => s.cancelChangeDir);
-  const [inputValue, setInputValue] = useState(baseDir);
-  const [subdirs, setSubdirs] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (changeDirMode) {
-      setInputValue(baseDir);
-      getSubdirs(baseDir).then(setSubdirs);
-    }
-  }, [changeDirMode, baseDir]);
 
   if (!changeDirMode) return null;
+
+  return <PromptInner key={promptKey} baseDir={baseDir} subdirs={subdirs} changeDir={changeDir} cancelChangeDir={cancelChangeDir} />;
+}
+
+function PromptInner({
+  baseDir,
+  subdirs,
+  changeDir,
+  cancelChangeDir,
+}: {
+  baseDir: string;
+  subdirs: string[];
+  changeDir: (path: string) => void;
+  cancelChangeDir: () => void;
+}) {
+  const [inputValue, setInputValue] = useState(baseDir);
 
   return (
     <box border borderColor={colors.keyHighlight} padding={1} marginBottom={1} flexDirection="column">

@@ -40,6 +40,8 @@ export interface AppState {
 
   // Navigation
   changeDirMode: boolean;
+  subdirs: string[];
+  promptKey: number;
   openChangeDir: () => void;
   changeDir: (path: string) => Promise<void>;
   cancelChangeDir: () => void;
