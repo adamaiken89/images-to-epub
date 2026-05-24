@@ -47,4 +47,12 @@ export interface AppState {
   changeDir: (path: string) => Promise<void>;
   cancelChangeDir: () => void;
   refresh: () => Promise<void>;
+
+  // Rename
+  renameMode: boolean;
+  renameTarget: string | null;
+  renameKey: number;
+  openRename: () => void;
+  renameSubmit: (newName: string) => Promise<void>;
+  cancelRename: () => void;
 }

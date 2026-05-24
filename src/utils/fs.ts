@@ -1,4 +1,4 @@
-import { readdir, stat } from "fs/promises";
+import { readdir, stat, rename } from "fs/promises";
 import { join, relative, normalize, dirname, sep } from "path";
 import { homedir } from "os";
 
@@ -168,4 +168,15 @@ export async function getSubdirs(dir: string): Promise<string[]> {
 
 export async function findDefaultBaseDir(): Promise<string> {
   return join(homedir(), "Downloads");
+}
+
+export async function renameFolder(oldPath: string, newName: string): Promise<{ success: boolean; message: string }> {
+  const parent = dirname(oldPath);
+  const newPath = join(parent, newName);
+  try {
+    await rename(oldPath, newPath);
+    return { success: true, message: newPath };
+  } catch (err) {
+    return { success: false, message: (err as Error).message };
+  }
 }

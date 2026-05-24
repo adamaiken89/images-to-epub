@@ -6,19 +6,25 @@ export interface KeyHandlerContext {
   renderer: CliRenderer;
   isProcessing: boolean;
   changeDirMode: boolean;
+  renameMode: boolean;
   showHelp: boolean;
   itemsLength: number;
   focusIndex: number;
 }
 
 export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
-  const { renderer, isProcessing, changeDirMode, showHelp, itemsLength, focusIndex } = ctx;
+  const { renderer, isProcessing, changeDirMode, renameMode, showHelp, itemsLength, focusIndex } = ctx;
   const store = useStore.getState();
 
   if (isProcessing) {return;}
 
   if (changeDirMode) {
     if (key.name === "escape") {store.cancelChangeDir();}
+    return;
+  }
+
+  if (renameMode) {
+    if (key.name === "escape") {store.cancelRename();}
     return;
   }
 
@@ -61,6 +67,9 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
       break;
     case "r":
       store.refresh();
+      break;
+    case "n":
+      store.openRename();
       break;
     case "q":
     case "escape":

@@ -10,6 +10,7 @@
     "toNavigate": "to navigate,",
     "toToggle": "to toggle,",
     "toProcess": "to process.",
+    "toRename": "to rename,",
     "hide": "hide",
     "help": "help"
   },
@@ -29,6 +30,7 @@
     "pad": "Pad filenames",
     "changeDir": "Change dir",
     "refresh": "Refresh",
+    "rename": "Rename folder",
     "quit": "Quit",
     "or": "or",
     "closeHelp": "Close help"
@@ -38,6 +40,12 @@
     "placeholder": "Enter directory path...",
     "subdirs": "Subdirs:",
     "more": "...(+{{count}})",
+    "escCancel": "ESC to cancel"
+  },
+  "rename": {
+    "title": "Rename Folder:",
+    "placeholder": "Enter new folder name...",
+    "hint": "Add ### Author to set EPUB author metadata",
     "escCancel": "ESC to cancel"
   },
   "error": {
