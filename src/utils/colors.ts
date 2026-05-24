@@ -21,7 +21,6 @@ export const colors = {
 
   treeItem: "#cccccc",
   treeItemZip: "#888888",
-  treeItemSelectAll: "#66ccff",
 
   dim: "#888888",
   subdirName: "#aaaaaa",

@@ -24,19 +24,6 @@ export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "bas
     const zips = await findZipFiles(dir);
 
     const newItems: TreeItem[] = [];
-    const hasEntries = hierarchy.size > 0 || zips.length > 0;
-
-    if (hasEntries) {
-      newItems.push({
-        id: "select-all",
-        label: "Select All",
-        depth: 0,
-        isZip: false,
-        isSelectAll: true,
-        entry: null,
-        checked: false,
-      });
-    }
 
     const sortedEntries = Array.from(hierarchy.entries()).sort((a, b) =>
       a[1].parts.join("/").localeCompare(b[1].parts.join("/"))
@@ -48,7 +35,6 @@ export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "bas
         label: entry.parts[entry.parts.length - 1],
         depth: Math.max(0, entry.parts.length - 1),
         isZip: false,
-        isSelectAll: false,
         entry,
         checked: false,
       });
@@ -62,23 +48,21 @@ export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "bas
         label: "\u{1F4E6} " + parts[parts.length - 1],
         depth: Math.max(0, parts.length - 1),
         isZip: true,
-        isSelectAll: false,
         entry: null,
         checked: false,
       });
     }
 
-    const tail = newItems.slice(1).sort((a, b) => {
+    newItems.sort((a, b) => {
       if (a.depth !== b.depth) return a.depth - b.depth;
       return a.label.localeCompare(b.label);
     });
-    const finalItems = hasEntries ? [newItems[0], ...tail] : [];
 
     const folderCount = sortedEntries.length;
     const zipCount = zips.length;
 
     set({
-      items: finalItems,
+      items: newItems,
       selectedIds: new Set(),
       focusIndex: 0,
       folderCount,

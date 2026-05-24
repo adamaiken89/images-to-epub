@@ -8,15 +8,13 @@ const BOLD = createTextAttributes({ bold: true });
 function TreeItemRowRaw({ item, isFocused }: { item: TreeItem; isFocused: boolean }) {
   const indent = "  ".repeat(item.depth);
   const checkbox = item.checked ? "[x]" : "[ ]";
-  const line = item.isSelectAll
-    ? `${checkbox} ${item.label}`
-    : `${indent}${checkbox} ${item.label}`;
+  const line = `${indent}${checkbox} ${item.label}`;
 
   return (
     <text
-      fg={isFocused ? colors.focusFg : item.isZip ? colors.treeItemZip : item.isSelectAll ? colors.treeItemSelectAll : colors.treeItem}
+      fg={isFocused ? colors.focusFg : item.isZip ? colors.treeItemZip : colors.treeItem}
       bg={isFocused ? colors.focusBg : "transparent"}
-      attributes={isFocused || item.isSelectAll ? BOLD : undefined}
+      attributes={isFocused ? BOLD : undefined}
     >
       {line}
     </text>

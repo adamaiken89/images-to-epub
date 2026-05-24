@@ -8,7 +8,7 @@ import { getFoldersToProcess } from "./selection";
 
 function getEffectiveSelection(selectedIds: Set<string>, items: AppState["items"]): Set<string> {
   if (selectedIds.size > 0) return selectedIds;
-  return new Set(items.filter((i) => !i.isSelectAll).map((i) => i.id));
+  return new Set(items.map((i) => i.id));
 }
 
 async function batchProcess(

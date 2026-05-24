@@ -5,7 +5,6 @@ export interface TreeItem {
   label: string;
   depth: number;
   isZip: boolean;
-  isSelectAll: boolean;
   entry: FolderEntry | null;
   checked: boolean;
 }

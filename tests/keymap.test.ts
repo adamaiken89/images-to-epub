@@ -17,20 +17,10 @@ describe("handleKey", () => {
     useStore.setState({
       items: [
         {
-          id: "select-all",
-          label: "Select All",
-          depth: 0,
-          isZip: false,
-          isSelectAll: true,
-          entry: null,
-          checked: false,
-        },
-        {
           id: "folder:/test/books/manga1",
           label: "manga1",
           depth: 0,
           isZip: false,
-          isSelectAll: false,
           entry: null,
           checked: false,
         },
@@ -39,7 +29,6 @@ describe("handleKey", () => {
           label: "manga2",
           depth: 1,
           isZip: false,
-          isSelectAll: false,
           entry: null,
           checked: false,
         },
@@ -57,7 +46,7 @@ describe("handleKey", () => {
       isProcessing: false,
       changeDirMode: false,
       showHelp: false,
-      itemsLength: 3,
+      itemsLength: 2,
       focusIndex: 0,
     });
     expect(useStore.getState().focusIndex).toBe(1);
@@ -69,7 +58,7 @@ describe("handleKey", () => {
       isProcessing: false,
       changeDirMode: false,
       showHelp: false,
-      itemsLength: 3,
+      itemsLength: 2,
       focusIndex: 1,
     });
     expect(useStore.getState().focusIndex).toBe(0);
@@ -81,7 +70,7 @@ describe("handleKey", () => {
       isProcessing: false,
       changeDirMode: false,
       showHelp: false,
-      itemsLength: 3,
+      itemsLength: 2,
       focusIndex: 0,
     });
     expect(useStore.getState().focusIndex).toBe(0);
@@ -93,10 +82,10 @@ describe("handleKey", () => {
       isProcessing: false,
       changeDirMode: false,
       showHelp: false,
-      itemsLength: 3,
-      focusIndex: 2,
+      itemsLength: 2,
+      focusIndex: 1,
     });
-    expect(useStore.getState().focusIndex).toBe(2);
+    expect(useStore.getState().focusIndex).toBe(1);
   });
 
   it("toggles item at focus index on space", () => {
@@ -105,11 +94,11 @@ describe("handleKey", () => {
       isProcessing: false,
       changeDirMode: false,
       showHelp: false,
-      itemsLength: 3,
-      focusIndex: 1,
+      itemsLength: 2,
+      focusIndex: 0,
     });
     const state = useStore.getState();
-    expect(state.items[1].checked).toBe(true);
+    expect(state.items[0].checked).toBe(true);
     expect(state.selectedIds.has("folder:/test/books/manga1")).toBe(true);
   });
 
@@ -119,19 +108,19 @@ describe("handleKey", () => {
       isProcessing: false,
       changeDirMode: false,
       showHelp: false,
-      itemsLength: 3,
-      focusIndex: 1,
+      itemsLength: 2,
+      focusIndex: 0,
     });
     handleKey(key("space"), {
       renderer: mockRenderer,
       isProcessing: false,
       changeDirMode: false,
       showHelp: false,
-      itemsLength: 3,
-      focusIndex: 1,
+      itemsLength: 2,
+      focusIndex: 0,
     });
     const state = useStore.getState();
-    expect(state.items[1].checked).toBe(false);
+    expect(state.items[0].checked).toBe(false);
     expect(state.selectedIds.has("folder:/test/books/manga1")).toBe(false);
   });
 
@@ -141,12 +130,12 @@ describe("handleKey", () => {
       isProcessing: false,
       changeDirMode: false,
       showHelp: false,
-      itemsLength: 3,
+      itemsLength: 2,
       focusIndex: 0,
     });
     const state = useStore.getState();
+    expect(state.items[0].checked).toBe(true);
     expect(state.items[1].checked).toBe(true);
-    expect(state.items[2].checked).toBe(true);
     expect(state.selectedIds.size).toBe(2);
   });
 
@@ -161,12 +150,12 @@ describe("handleKey", () => {
       isProcessing: false,
       changeDirMode: false,
       showHelp: false,
-      itemsLength: 3,
+      itemsLength: 2,
       focusIndex: 0,
     });
     const state = useStore.getState();
+    expect(state.items[0].checked).toBe(false);
     expect(state.items[1].checked).toBe(false);
-    expect(state.items[2].checked).toBe(false);
     expect(state.selectedIds.size).toBe(0);
   });
 
@@ -176,7 +165,7 @@ describe("handleKey", () => {
       isProcessing: true,
       changeDirMode: false,
       showHelp: false,
-      itemsLength: 3,
+      itemsLength: 2,
       focusIndex: 0,
     });
     expect(useStore.getState().focusIndex).toBe(0);
@@ -189,7 +178,7 @@ describe("handleKey", () => {
       isProcessing: false,
       changeDirMode: true,
       showHelp: false,
-      itemsLength: 3,
+      itemsLength: 2,
       focusIndex: 0,
     });
     expect(useStore.getState().changeDirMode).toBe(false);
@@ -201,7 +190,7 @@ describe("handleKey", () => {
       isProcessing: false,
       changeDirMode: false,
       showHelp: false,
-      itemsLength: 3,
+      itemsLength: 2,
       focusIndex: 0,
     });
     expect(useStore.getState().changeDirMode).toBe(true);
@@ -215,7 +204,7 @@ describe("handleKey", () => {
       isProcessing: false,
       changeDirMode: false,
       showHelp: false,
-      itemsLength: 3,
+      itemsLength: 2,
       focusIndex: 0,
     });
     expect(destroyed).toBe(true);
