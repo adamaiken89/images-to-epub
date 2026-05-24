@@ -58,7 +58,7 @@ export const createSelectionSlice: StateCreator<
         if (i === index) return { ...it, checked: !it.checked };
         return it;
       }),
-      status: { type: "info", message: `${newSelected.size} ${t("selection.itemsSelected")}` },
+      status: { type: "info", message: t("selection.item", { count: newSelected.size }) },
     });
   },
 
@@ -68,7 +68,7 @@ export const createSelectionSlice: StateCreator<
     set({
       selectedIds: allIds,
       items: items.map((it) => ({ ...it, checked: true })),
-      status: { type: "info", message: `${allIds.size} ${t("selection.itemsSelected")}` },
+      status: { type: "info", message: t("selection.item", { count: allIds.size }) },
     });
   },
 
@@ -77,7 +77,7 @@ export const createSelectionSlice: StateCreator<
     set({
       selectedIds: new Set(),
       items: items.map((it) => ({ ...it, checked: false })),
-      status: { type: "info", message: t("selection.zeroItems") },
+      status: { type: "info", message: t("selection.item", { count: 0 }) },
     });
   },
 });

@@ -58,7 +58,7 @@ function PromptInner({
               {d}{" "}
             </span>
           ))}
-          {subdirs.length > 15 ? `${t("prompt.morePrefix")}${subdirs.length - 15}${t("prompt.moreSuffix")}` : ""}
+          {subdirs.length > 15 ? t("prompt.more", { count: subdirs.length - 15 }) : ""}
         </text>
       )}
       <text marginTop={1} fg={colors.dim}>

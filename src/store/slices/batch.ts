@@ -27,7 +27,7 @@ async function batchProcess(
 
   for (let i = 0; i < targets.length; i++) {
     set({
-      status: { type: "progress", message: `${i + 1}/${targets.length}: ${basename(targets[i])}...` },
+      status: { type: "progress", message: t("batch.progress", { current: i + 1, total: targets.length, name: basename(targets[i]) }) },
     });
     const result = await processor(targets[i]);
     if (result.success) {
@@ -40,11 +40,11 @@ async function batchProcess(
     }
   }
 
-  const suffix = failed.length > 0 ? t("batch.separator") + failed.join("; ") : "";
+  const suffix = failed.length > 0 ? " | " + failed.join("; ") : "";
   set({
     status: {
       type: "done",
-      message: `${t("batch.done")} ${t("batch.success")} ${successCount}, ${t("batch.failed")} ${failCount}${suffix}`,
+      message: t("batch.done", { success: successCount, failed: failCount }) + suffix,
     },
     isProcessing: false,
   });
@@ -56,7 +56,7 @@ export const createBatchSlice: StateCreator<
   [],
   Pick<AppState, "status" | "isProcessing" | "processFolders" | "unzipSelected" | "padSelected">
 > = (set, get) => ({
-  status: { type: "info", message: t("selection.zeroItems") },
+  status: { type: "info", message: t("selection.item", { count: 0 }) },
   isProcessing: false,
 
   processFolders: async () => {

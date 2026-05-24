@@ -5,8 +5,8 @@
   },
   "info": {
     "found": "Found",
-    "folders": "folder(s)",
-    "zips": "zip(s)",
+    "foldersLabel": "folder(s),",
+    "zipsLabel": "zip(s)",
     "toNavigate": "to navigate,",
     "toToggle": "to toggle,",
     "toProcess": "to process.",
@@ -37,8 +37,7 @@
     "title": "Change Directory:",
     "placeholder": "Enter directory path...",
     "subdirs": "Subdirs:",
-    "morePrefix": "...(+",
-    "moreSuffix": ")",
+    "more": "...(+{{count}})",
     "escCancel": "ESC to cancel"
   },
   "error": {
@@ -49,13 +48,12 @@
     "noResults": "No folders with images or zips found."
   },
   "selection": {
-    "itemsSelected": "item(s) selected",
-    "zeroItems": "0 item(s) selected"
+    "item_zero": "No items selected",
+    "item_one": "{{count}} item selected",
+    "item_other": "{{count}} items selected"
   },
   "batch": {
-    "separator": " | ",
-    "done": "Done!",
-    "success": "Success:",
-    "failed": "Failed:"
+    "progress": "{{current}}/{{total}}: {{name}}...",
+    "done": "Done! Success: {{success}}, Failed: {{failed}}"
   }
 }
