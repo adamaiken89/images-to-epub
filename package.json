@@ -1,0 +1,33 @@
+{
+  "name": "images-to-epub",
+  "version": "2.0.0",
+  "description": "Convert folders of images to EPUB files using Bun + OpenTUI",
+  "module": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun run --watch src/index.ts",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@opentui/react": "^0.2.15",
+    "extract-zip": "^2.0.1",
+    "jszip": "^3.10.1",
+    "react": "^19.0.0",
+    "sharp": "^0.34.1",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/extract-zip": "^2.0.0",
+    "@types/react": "^19.0.0",
+    "@types/uuid": "^10.0.0",
+    "typescript": "^5.8.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
