@@ -1,6 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { createTextAttributes } from "@opentui/core";
 import { colors } from "../utils/colors";
+import { text } from "../utils/text";
 
 const BOLD = createTextAttributes({ bold: true });
 
@@ -28,7 +29,7 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <box flexDirection="column" height="100%" padding={1}>
           <text fg={colors.statusError} attributes={BOLD} marginBottom={1}>
-            Unexpected Error
+            {text.error.unexpected}
           </text>
           <text fg={colors.errorMessage}>{this.state.error.message}</text>
         </box>

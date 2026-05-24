@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createTextAttributes } from "@opentui/core";
 import { useStore } from "../store";
 import { colors } from "../utils/colors";
+import { text } from "../utils/text";
 
 const BOLD = createTextAttributes({ bold: true });
 
@@ -34,11 +35,11 @@ function PromptInner({
   return (
     <box border borderColor={colors.keyHighlight} padding={1} marginBottom={1} flexDirection="column">
       <text fg={colors.keyHighlight} attributes={BOLD}>
-        Change Directory:
+        {text.prompt.title}
       </text>
       <input
         value={inputValue}
-        placeholder="Enter directory path..."
+        placeholder={text.prompt.placeholder}
         focused={true}
         backgroundColor={colors.inputBg}
         textColor={colors.inputText}
@@ -51,17 +52,17 @@ function PromptInner({
       />
       {subdirs.length > 0 && (
         <text marginTop={1} fg={colors.dim}>
-          Subdirs:{" "}
+          {text.prompt.subdirs}{" "}
           {subdirs.slice(0, 15).map((d) => (
             <span fg={colors.subdirName} key={d}>
               {d}{" "}
             </span>
           ))}
-          {subdirs.length > 15 ? `...(+${subdirs.length - 15})` : ""}
+          {subdirs.length > 15 ? `${text.prompt.morePrefix}${subdirs.length - 15}${text.prompt.moreSuffix}` : ""}
         </text>
       )}
       <text marginTop={1} fg={colors.dim}>
-        ESC to cancel
+        {text.prompt.escCancel}
       </text>
     </box>
   );
