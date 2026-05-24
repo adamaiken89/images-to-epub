@@ -13,6 +13,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 export default function App() {
   const renderer = useRenderer();
   const init = useStore((s) => s.init);
+  const showHelp = useStore((s) => s.showHelp);
 
   useEffect(() => {
     init();
@@ -30,9 +31,8 @@ export default function App() {
     <box flexDirection="column" height="100%" padding={1}>
       <ErrorBoundary>
         <Header />
-        <HelpModal />
         <ChangeDirPrompt />
-        <TreeView />
+        {showHelp ? <HelpModal /> : <TreeView />}
         <InfoMessage />
         <StatusBar />
       </ErrorBoundary>

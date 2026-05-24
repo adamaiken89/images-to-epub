@@ -1,18 +1,12 @@
 import { createTextAttributes } from "@opentui/core";
-import { useStore } from "../store";
 import { colors } from "../utils/colors";
 
 const BOLD = createTextAttributes({ bold: true });
 
 export function HelpModal() {
-  const showHelp = useStore((s) => s.showHelp);
-  const changeDirMode = useStore((s) => s.changeDirMode);
-
-  if (!showHelp || changeDirMode) return null;
-
   return (
-    <box border borderColor={colors.keyHighlight} padding={1} marginTop={1} flexDirection="column">
-      <text fg={colors.keyHighlight} attributes={BOLD}>
+    <box border borderColor={colors.keyHighlight} padding={1} flexGrow={1} flexDirection="column">
+      <text fg={colors.keyHighlight} attributes={BOLD} marginBottom={1}>
         Keyboard Shortcuts
       </text>
       <text fg={colors.controlsText}>
@@ -31,8 +25,7 @@ export function HelpModal() {
         <span fg={colors.keyHighlight}>[q]</span> Quit
       </text>
       <text fg={colors.controlsText}>
-        <span fg={colors.keyHighlight}>[h]</span> Toggle this help{"  "}
-        <span fg={colors.keyHighlight}>[Esc]</span> Close
+        <span fg={colors.keyHighlight}>[Esc]</span> or <span fg={colors.keyHighlight}>[h]</span> Close help
       </text>
     </box>
   );
