@@ -3,6 +3,7 @@ import { mkdtempSync, writeFileSync, readFileSync, existsSync } from "fs";
 import { tmpdir } from "os";
 import { join, basename } from "path";
 import sharp from "sharp";
+import JSZip from "jszip";
 import { createEpubFromFolder } from "../src/utils/epub";
 
 function cleanup(base: string) {
@@ -86,5 +87,36 @@ describe("createEpubFromFolder", () => {
 
     const epubPath = join(outputDir, `${basename(base)}.epub`);
     expect(existsSync(epubPath)).toBe(true);
+  });
+
+  it("includes a cover image inside the EPUB", async () => {
+    base = mkdtempSync(join(tmpdir(), "epub-test-"));
+    outputDir = mkdtempSync(join(tmpdir(), "epub-out-"));
+
+    await createTestImage(join(base, "1.jpg"), "red");
+    await createTestImage(join(base, "2.jpg"), "green");
+
+    const result = await createEpubFromFolder(base, outputDir);
+    expect(result.success).toBe(true);
+
+    const epubPath = join(outputDir, `${basename(base)}.epub`);
+    const epubBuffer = readFileSync(epubPath);
+    const zip = await JSZip.loadAsync(epubBuffer);
+
+    // Cover image must exist inside the zip
+    const coverFile = zip.file("OEBPS/images/cover.jpg");
+    expect(coverFile).not.toBeNull();
+    const coverBuffer = await coverFile!.async("nodebuffer");
+    expect(coverBuffer.length).toBeGreaterThan(0);
+
+    // Cover XHTML page must reference it
+    const coverXhtml = await zip.file("OEBPS/cover.xhtml")!.async("string");
+    expect(coverXhtml).toInclude("images/cover.jpg");
+
+    // OPF manifest must declare cover-image property
+    const opf = await zip.file("OEBPS/content.opf")!.async("string");
+    expect(opf).toInclude('properties="cover-image"');
+    expect(opf).toInclude('id="cover-image"');
+    expect(opf).toInclude('href="images/cover.jpg"');
   });
 });
