@@ -3,6 +3,7 @@ import type { AppState } from "./types";
 import { createScanSlice } from "./slices/scan";
 import { createSelectionSlice } from "./slices/selection";
 import { createBatchSlice } from "./slices/batch";
+import { getSubdirs } from "../utils/fs";
 
 export type { AppState, TreeItem, StatusMessage } from "./types";
 export { getFoldersToProcess } from "./slices/selection";
@@ -13,9 +14,13 @@ export const useStore = create<AppState>()((...a) => ({
   ...createBatchSlice(...a),
 
   changeDirMode: false,
+  subdirs: [],
+  promptKey: 0,
 
   openChangeDir: () => {
-    a[0]({ changeDirMode: true });
+    const dir = a[1]().baseDir;
+    getSubdirs(dir).then((dirs) => a[0]({ subdirs: dirs }));
+    a[0]({ changeDirMode: true, promptKey: a[1]().promptKey + 1 });
   },
 
   changeDir: async (path: string) => {
