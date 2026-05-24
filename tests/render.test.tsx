@@ -1,11 +1,9 @@
 import { describe, it, expect } from "bun:test";
 import { testRender } from "@opentui/react/test-utils";
-import { text, box, u, span } from "@opentui/react";
 import { Header } from "../src/components/Header";
 import { InfoMessage } from "../src/components/InfoMessage";
 import { HelpModal } from "../src/components/HelpModal";
 import { useStore } from "../src/store";
-import { colors } from "../src/utils/colors";
 
 async function render(node: any, width = 60, height = 10) {
   const { captureCharFrame, renderOnce } = await testRender(node, { width, height });

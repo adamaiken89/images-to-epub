@@ -30,11 +30,11 @@ export default function App() {
   return (
     <box flexDirection="column" height="100%" padding={1}>
       <ErrorBoundary>
-        <Header />
+        <box flexShrink={0}><Header /></box>
         <ChangeDirPrompt />
         {showHelp ? <HelpModal /> : <TreeView />}
-        <InfoMessage />
-        <StatusBar />
+        <box flexShrink={0}><InfoMessage /></box>
+        <box flexShrink={0}><StatusBar /></box>
       </ErrorBoundary>
     </box>
   );
