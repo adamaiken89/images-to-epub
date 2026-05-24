@@ -73,6 +73,13 @@ src/
 - `import type` for type-only imports
 - OpenTUI components: `text`, `box`, `scrollbox`, `input`, `span`, `u`, `br`
 
+## Git commits
+
+- Follow [Conventional Commits](https://www.conventionalcommits.org/) style: `type(scope): description`
+- Types: `feat`, `fix`, `refactor`, `chore`, `test`, `docs`, `style`
+- e.g. `feat(author): extract from folder name after ### delimiter`
+- One feature per branch
+
 ## Color conventions
 
 - Title: `#66ccff` bold

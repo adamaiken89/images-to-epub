@@ -34,7 +34,9 @@ export async function createEpubFromFolder(
   }
 
   const folderName = basename(imgDir);
-  const outputEpub = join(outputDir, `${folderName}.epub`);
+  const delimIndex = folderName.indexOf("###");
+  const cleanName = delimIndex >= 0 ? folderName.slice(0, delimIndex).trim() : folderName;
+  const outputEpub = join(outputDir, `${cleanName}.epub`);
 
   // Get sorted image files
   let imgFiles: string[];
@@ -56,8 +58,7 @@ export async function createEpubFromFolder(
 
   try {
     const bookId = `urn:uuid:${uuidv4()}`;
-    const delimIndex = folderName.indexOf("###");
-    const title = delimIndex >= 0 ? folderName.slice(0, delimIndex).trim() : folderName;
+    const title = cleanName;
     const author = delimIndex >= 0 ? folderName.slice(delimIndex + 3).trim() : null;
     const lang = "zh";
 
