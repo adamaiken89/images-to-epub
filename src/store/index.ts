@@ -64,14 +64,32 @@ export const useStore = create<AppState>()((...a) => ({
       a[0]({ renameMode: false, renameTarget: null });
       return;
     }
-    const result = await renameFolder(renameTarget, newName.trim());
-    a[0]({
-      renameMode: false,
-      renameTarget: null,
-      status: { type: result.success ? "info" : "error", message: result.success ? `Renamed to: ${newName.trim()}` : result.message },
-    });
-    if (result.success && baseDir) {
-      await a[1]().loadFolders(baseDir);
+    try {
+      const result = await renameFolder(renameTarget, newName.trim());
+      if (!result.success) {
+        console.error("renameFolder failed:", result.message);
+        a[0]({
+          renameMode: false,
+          renameTarget: null,
+          status: { type: "error", message: `Rename failed: ${result.message}` },
+        });
+        return;
+      }
+      a[0]({
+        renameMode: false,
+        renameTarget: null,
+        status: { type: "info", message: `Renamed to: ${newName.trim()}` },
+      });
+      if (baseDir) {
+        await a[1]().loadFolders(baseDir);
+      }
+    } catch (err) {
+      console.error("renameSubmit unexpected error:", err);
+      a[0]({
+        renameMode: false,
+        renameTarget: null,
+        status: { type: "error", message: `Rename error: ${(err as Error).message}` },
+      });
     }
   },
 

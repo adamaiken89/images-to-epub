@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { createTextAttributes } from "@opentui/core";
 import { basename } from "path";
 import { useStore } from "../store";
@@ -28,29 +27,22 @@ function PromptInner({
   renameSubmit: (name: string) => void;
   cancelRename: () => void;
 }) {
-  const [inputValue, setInputValue] = useState(renameTarget ? basename(renameTarget) : "");
-
-  useEffect(() => {
-    setInputValue(renameTarget ? basename(renameTarget) : "");
-  }, [renameTarget]);
-
   return (
     <box border borderColor={colors.keyHighlight} padding={1} marginBottom={1} flexDirection="column">
       <text fg={colors.keyHighlight} attributes={BOLD}>
         {t("rename.title")}
       </text>
       <input
-        value={inputValue}
+        value={renameTarget ? basename(renameTarget) : ""}
         placeholder={t("rename.placeholder")}
         focused={true}
         backgroundColor={colors.inputBg}
         textColor={colors.inputText}
-        onSubmit={() => {
-          const val = inputValue.trim();
+        onSubmit={((value: string) => {
+          const val = value.trim();
           if (val) {renameSubmit(val);}
           else {cancelRename();}
-        }}
-        onChange={(v: string) => setInputValue(v)}
+        }) as unknown as ((event: object) => void) & ((value: string) => void)}
       />
       <text marginTop={1} fg={colors.dim}>
         {t("rename.hint")}

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { createTextAttributes } from "@opentui/core";
 import { useStore } from "../store";
 import { colors } from "../utils/colors";
@@ -30,25 +29,22 @@ function PromptInner({
   changeDir: (path: string) => void;
   cancelChangeDir: () => void;
 }) {
-  const [inputValue, setInputValue] = useState(baseDir);
-
   return (
     <box border borderColor={colors.keyHighlight} padding={1} marginBottom={1} flexDirection="column">
       <text fg={colors.keyHighlight} attributes={BOLD}>
         {t("prompt.title")}
       </text>
       <input
-        value={inputValue}
+        value={baseDir}
         placeholder={t("prompt.placeholder")}
         focused={true}
         backgroundColor={colors.inputBg}
         textColor={colors.inputText}
-        onSubmit={() => {
-          const val = inputValue.trim();
+        onSubmit={((value: string) => {
+          const val = value.trim();
           if (val) {changeDir(val);}
           else {cancelChangeDir();}
-        }}
-        onChange={(v: string) => setInputValue(v)}
+        }) as unknown as ((event: object) => void) & ((value: string) => void)}
       />
       {subdirs.length > 0 && (
         <text marginTop={1} fg={colors.dim}>
