@@ -44,27 +44,6 @@ export const createSelectionSlice: StateCreator<
     if (index < 0 || index >= items.length) return;
     const item = items[index];
 
-    if (item.isSelectAll) {
-      const newChecked = !item.checked;
-      const allIds = new Set(
-        items.filter((i) => !i.isSelectAll).map((i) => i.id)
-      );
-      if (newChecked) {
-        set({
-          selectedIds: allIds,
-          items: items.map((it) => ({ ...it, checked: true })),
-          status: { type: "info", message: `${allIds.size} item(s) selected` },
-        });
-      } else {
-        set({
-          selectedIds: new Set(),
-          items: items.map((it) => ({ ...it, checked: false })),
-          status: { type: "info", message: "0 item(s) selected" },
-        });
-      }
-      return;
-    }
-
     const newSelected = new Set(selectedIds);
     if (newSelected.has(item.id)) {
       newSelected.delete(item.id);
@@ -76,7 +55,6 @@ export const createSelectionSlice: StateCreator<
       selectedIds: newSelected,
       items: items.map((it, i) => {
         if (i === index) return { ...it, checked: !it.checked };
-        if (it.isSelectAll) return { ...it, checked: false };
         return it;
       }),
       status: { type: "info", message: `${newSelected.size} item(s) selected` },
@@ -85,9 +63,7 @@ export const createSelectionSlice: StateCreator<
 
   selectAll: () => {
     const { items } = get();
-    const allIds = new Set(
-      items.filter((i) => !i.isSelectAll).map((i) => i.id)
-    );
+    const allIds = new Set(items.map((i) => i.id));
     set({
       selectedIds: allIds,
       items: items.map((it) => ({ ...it, checked: true })),
