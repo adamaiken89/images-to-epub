@@ -70,7 +70,7 @@ export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "bas
       status:
         folderCount === 0 && zipCount === 0
           ? { type: "info", message: "No folders with images or zips found." }
-          : { type: "", message: "" },
+          : { type: "info", message: "0 item(s) selected" },
     });
   },
 
