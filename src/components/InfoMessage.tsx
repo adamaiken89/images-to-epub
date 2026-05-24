@@ -14,16 +14,9 @@ export function InfoMessage() {
         <>
           Found <span fg={colors.countHighlight}>{folderCount}</span> folder(s),{" "}
           <span fg={colors.countHighlight}>{zipCount}</span> zip(s).{" "}
-          {showHelp && (
-            <>
-              <span fg={colors.keyHighlight}>{"\u2191\u2193"}</span> to navigate,{" "}
-              <span fg={colors.keyHighlight}>Space</span> to toggle.{" "}
-              <span fg={colors.keyHighlight}>[h]</span> hide
-            </>
-          )}
-          {!showHelp && (
-            <span fg={colors.keyHighlight}>[h]</span>
-          )}
+          <span fg={colors.keyHighlight}>{"\u2191\u2193"}</span> to navigate,{" "}
+          <span fg={colors.keyHighlight}>Space</span> to toggle.{" "}
+          <span fg={colors.keyHighlight}>[h]</span> {showHelp ? "hide" : "help"}
         </>
       ) : statusMessage ? (
         statusMessage

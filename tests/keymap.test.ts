@@ -56,6 +56,7 @@ describe("handleKey", () => {
       renderer: mockRenderer,
       isProcessing: false,
       changeDirMode: false,
+      showHelp: false,
       itemsLength: 3,
       focusIndex: 0,
     });
@@ -67,6 +68,7 @@ describe("handleKey", () => {
       renderer: mockRenderer,
       isProcessing: false,
       changeDirMode: false,
+      showHelp: false,
       itemsLength: 3,
       focusIndex: 1,
     });
@@ -78,6 +80,7 @@ describe("handleKey", () => {
       renderer: mockRenderer,
       isProcessing: false,
       changeDirMode: false,
+      showHelp: false,
       itemsLength: 3,
       focusIndex: 0,
     });
@@ -89,6 +92,7 @@ describe("handleKey", () => {
       renderer: mockRenderer,
       isProcessing: false,
       changeDirMode: false,
+      showHelp: false,
       itemsLength: 3,
       focusIndex: 2,
     });
@@ -100,6 +104,7 @@ describe("handleKey", () => {
       renderer: mockRenderer,
       isProcessing: false,
       changeDirMode: false,
+      showHelp: false,
       itemsLength: 3,
       focusIndex: 1,
     });
@@ -113,6 +118,7 @@ describe("handleKey", () => {
       renderer: mockRenderer,
       isProcessing: false,
       changeDirMode: false,
+      showHelp: false,
       itemsLength: 3,
       focusIndex: 1,
     });
@@ -120,6 +126,7 @@ describe("handleKey", () => {
       renderer: mockRenderer,
       isProcessing: false,
       changeDirMode: false,
+      showHelp: false,
       itemsLength: 3,
       focusIndex: 1,
     });
@@ -133,6 +140,7 @@ describe("handleKey", () => {
       renderer: mockRenderer,
       isProcessing: false,
       changeDirMode: false,
+      showHelp: false,
       itemsLength: 3,
       focusIndex: 0,
     });
@@ -152,6 +160,7 @@ describe("handleKey", () => {
       renderer: mockRenderer,
       isProcessing: false,
       changeDirMode: false,
+      showHelp: false,
       itemsLength: 3,
       focusIndex: 0,
     });
@@ -166,6 +175,7 @@ describe("handleKey", () => {
       renderer: mockRenderer,
       isProcessing: true,
       changeDirMode: false,
+      showHelp: false,
       itemsLength: 3,
       focusIndex: 0,
     });
@@ -178,6 +188,7 @@ describe("handleKey", () => {
       renderer: mockRenderer,
       isProcessing: false,
       changeDirMode: true,
+      showHelp: false,
       itemsLength: 3,
       focusIndex: 0,
     });
@@ -189,6 +200,7 @@ describe("handleKey", () => {
       renderer: mockRenderer,
       isProcessing: false,
       changeDirMode: false,
+      showHelp: false,
       itemsLength: 3,
       focusIndex: 0,
     });
@@ -202,6 +214,7 @@ describe("handleKey", () => {
       renderer: r,
       isProcessing: false,
       changeDirMode: false,
+      showHelp: false,
       itemsLength: 3,
       focusIndex: 0,
     });

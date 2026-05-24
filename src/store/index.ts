@@ -14,7 +14,7 @@ export const useStore = create<AppState>()((...a) => ({
   ...createBatchSlice(...a),
 
   changeDirMode: false,
-  showHelp: true,
+  showHelp: false,
   subdirs: [],
   promptKey: 0,
 

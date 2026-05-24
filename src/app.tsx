@@ -3,7 +3,7 @@ import { useKeyboard, useRenderer } from "@opentui/react";
 import { useStore } from "./store";
 import { handleKey } from "./store/handlers/keymap";
 import { Header } from "./components/Header";
-import { ControlsHint } from "./components/ControlsHint";
+import { HelpModal } from "./components/HelpModal";
 import { ChangeDirPrompt } from "./components/ChangeDirPrompt";
 import { TreeView } from "./components/TreeView";
 import { InfoMessage } from "./components/InfoMessage";
@@ -20,8 +20,8 @@ export default function App() {
 
   useKeyboard(
     (key) => {
-      const { isProcessing, changeDirMode, items, focusIndex } = useStore.getState();
-      handleKey(key, { renderer, isProcessing, changeDirMode, itemsLength: items.length, focusIndex });
+      const { isProcessing, changeDirMode, showHelp, items, focusIndex } = useStore.getState();
+      handleKey(key, { renderer, isProcessing, changeDirMode, showHelp, itemsLength: items.length, focusIndex });
     },
     { release: false }
   );
@@ -30,7 +30,7 @@ export default function App() {
     <box flexDirection="column" height="100%" padding={1}>
       <ErrorBoundary>
         <Header />
-        <ControlsHint />
+        <HelpModal />
         <ChangeDirPrompt />
         <TreeView />
         <InfoMessage />
