@@ -9,6 +9,7 @@ A terminal-based application that converts folders of images (`.webp`, `.jpg`, `
 - **Multiple Selection**: Select/deselect multiple folders with checkboxes
 - **ZIP Extraction**: Extract ZIP files before processing
 - **Filename Padding**: Zero-pad numeric prefixes in image filenames
+- **Author Detection**: Extract author from folder names using `###` delimiter (e.g. `Comic ### Author Name`)
 - **Progress Tracking**: Real-time processing status
 - **Keyboard Controls**: Arrow keys to navigate, Space to toggle, Enter to confirm
 
@@ -45,20 +46,38 @@ bun test --coverage  # Run tests with coverage report
 
 ```
 src/
-  index.tsx          # Entry point - OpenTUI renderer setup
-  app.tsx            # Main TUI component with keyboard handling
+  index.tsx            # Entry point - OpenTUI renderer setup
+  app.tsx              # Mount + keyboard bridge (~40 lines)
+  store/
+    types.ts           # AppState, TreeItem, StatusMessage interfaces
+    index.ts           # Composed Zustand store
+    slices/
+      scan.ts          # Folder scanning and loading
+      selection.ts     # Item selection logic
+      batch.ts         # Batch processing (EPUB, unzip, pad)
+    handlers/
+      keymap.ts        # Keyboard handler (pure function)
+  components/
+    Header.tsx         # App header with title
+    ControlsHint.tsx   # Keyboard shortcuts display
+    ChangeDirPrompt.tsx # Directory change input
+    TreeView.tsx       # Scrollable folder tree
+    TreeItemRow.tsx    # Single tree row (memo'd)
+    InfoMessage.tsx    # Status messages
+    StatusBar.tsx      # Footer with colored status
+    ErrorBoundary.tsx  # Error boundary
   utils/
-    fs.ts            # Folder scanning, zip discovery, hierarchy
-    pad.ts           # Numeric filename padding
-    zip.ts           # ZIP extraction
-    epub.ts          # EPUB generation with sharp + jszip
+    colors.ts          # Color constants
+    fs.ts              # Folder scanning, zip discovery, hierarchy
+    pad.ts             # Numeric filename padding
+    zip.ts             # ZIP extraction
+    epub.ts            # EPUB generation with sharp + jszip
 tests/
-  fs.test.ts         # File system utility tests
-  pad.test.ts        # Filename padding tests
-  epub.test.ts       # EPUB generation tests
-  zip.test.ts        # ZIP extraction tests
-legacy/
-  src/               # Original Python implementation
+  fs.test.ts           # File system utility tests
+  pad.test.ts          # Filename padding tests
+  epub.test.ts         # EPUB generation tests
+  zip.test.ts          # ZIP extraction tests
+  keymap.test.ts       # Keyboard handler tests
 ```
 
 ## Supported Image Formats
@@ -79,15 +98,13 @@ legacy/
 |-----|--------|
 | ↑ / ↓ | Navigate items |
 | Space | Toggle checkbox |
-| Enter | Process selected folders |
 | a | Select All |
 | d | Deselect All |
-| p | Process EPUBs |
+| Enter / p | Process selected folders (EPUB) |
 | u | Unzip selected |
 | z | Pad filenames |
 | c | Change directory |
 | r | Refresh folders |
-| h / ? | Toggle help |
 | q / Escape | Quit |
 
 ## Test Coverage
@@ -102,16 +119,15 @@ src/utils/zip.ts   | 100.00% Funcs | 100.00% Lines
 
 Run `bun test --coverage` to see the latest report.
 
-## Migration Notes
+## Tech Stack
 
-This project was migrated from Python (Tkinter + ebooklib + Pillow) to Bun + OpenTUI:
-
-| Python | JS Replacement |
-|--------|---------------|
-| `ebooklib` | Manual EPUB 3 assembly via `jszip` |
-| `Pillow` | `sharp` (native image processing) |
-| `tkinter` | `@opentui/react` (terminal UI) |
-| `zipfile` | `extract-zip` / `jszip` |
+| Purpose | Library |
+|---------|---------|
+| EPUB assembly | Manual EPUB 3 via `jszip` |
+| Image processing | `sharp` |
+| Terminal UI | `@opentui/react` |
+| ZIP extraction | `yauzl` |
+| State management | `zustand` |
 
 ## License
 
