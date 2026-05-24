@@ -56,7 +56,9 @@ export async function createEpubFromFolder(
 
   try {
     const bookId = `urn:uuid:${uuidv4()}`;
-    const title = folderName;
+    const delimIndex = folderName.indexOf("###");
+    const title = delimIndex >= 0 ? folderName.slice(0, delimIndex).trim() : folderName;
+    const author = delimIndex >= 0 ? folderName.slice(delimIndex + 3).trim() : null;
     const lang = "zh";
 
     // Convert cover image (first image in folder)
@@ -215,7 +217,7 @@ export async function createEpubFromFolder(
     <dc:identifier id="book-id">${bookId}</dc:identifier>
     <dc:title>${escapeXml(title)}</dc:title>
     <dc:language>${lang}</dc:language>
-    <dc:creator>Manga</dc:creator>
+    ${author ? `<dc:creator>${escapeXml(author)}</dc:creator>` : ""}
     <meta property="dcterms:modified">${new Date().toISOString().replace(/\.\d{3}Z$/, "Z")}</meta>
     <meta name="cover" content="cover-image"/>
   </metadata>

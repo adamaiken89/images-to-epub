@@ -17,7 +17,7 @@ export function extractNumericPrefix(name: string): [string | null, string | nul
 
 export async function padImageFilenames(imgDir: string): Promise<{ success: boolean; message: string }> {
   try {
-    const allFiles = await readdir(imgDir);
+    await readdir(imgDir);
   } catch (err) {
     const msg = (err as Error).message;
     if (msg.includes("permission")) {
@@ -55,10 +55,6 @@ export async function padImageFilenames(imgDir: string): Promise<{ success: bool
     if (original !== paddedName) {
       renamePlan.push([original, paddedName]);
     }
-  }
-
-  if (renamePlan.length === 0) {
-    return { success: true, message: `Already padded: ${basename(imgDir)}` };
   }
 
   // Two-pass rename via temp names to avoid collisions
