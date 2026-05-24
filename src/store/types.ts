@@ -40,6 +40,8 @@ export interface AppState {
 
   // Navigation
   changeDirMode: boolean;
+  showHelp: boolean;
+  toggleHelp: () => void;
   subdirs: string[];
   promptKey: number;
   openChangeDir: () => void;

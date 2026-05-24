@@ -4,7 +4,7 @@ export const colors = {
   controlsText: "#88ff88",
   keyHighlight: "#ffcc00",
   accent: "#ffcc00",
-  countHighlight: "#ffcc00",
+  countHighlight: "#66ccff",
 
   statusInfo: "#66ccff",
   statusProgress: "#ffcc00",

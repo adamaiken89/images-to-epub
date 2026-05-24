@@ -50,6 +50,9 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
     case "c":
       store.openChangeDir();
       break;
+    case "h":
+      store.toggleHelp();
+      break;
     case "r":
       store.refresh();
       break;
