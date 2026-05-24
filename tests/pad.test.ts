@@ -82,4 +82,10 @@ describe("padImageFilenames", () => {
       .sort();
     expect(files).toEqual(["01.jpg", "22.webp"]);
   });
+
+  it("fails for nonexistent directory", async () => {
+    const result = await padImageFilenames("/nonexistent/path");
+    expect(result.success).toBe(false);
+    expect(result.message).toInclude("Error reading folder");
+  });
 });

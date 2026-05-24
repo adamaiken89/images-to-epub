@@ -10,7 +10,7 @@ export async function unzipFile(zipPath: string): Promise<{ success: boolean; me
     return { success: true, message: `Extracted: ${basename(zipPath)}` };
   } catch (err) {
     const msg = (err as Error).message;
-    if (msg.includes("invalid")) {
+    if (msg.includes("invalid") || msg.includes("end of central directory") || msg.includes("signature")) {
       return { success: false, message: `Bad zip file: ${basename(zipPath)}` };
     }
     return { success: false, message: `Error extracting ${basename(zipPath)}: ${msg}` };
