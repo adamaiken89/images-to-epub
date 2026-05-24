@@ -2,3 +2,8 @@
 __pycache__
 venv
 epubenv
+node_modules
+dist
+*.log
+*.epub
+legacy/
