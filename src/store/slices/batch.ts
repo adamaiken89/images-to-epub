@@ -55,7 +55,7 @@ export const createBatchSlice: StateCreator<
   [],
   Pick<AppState, "status" | "isProcessing" | "processFolders" | "unzipSelected" | "padSelected">
 > = (set, get) => ({
-  status: { type: "info", message: "" },
+  status: { type: "info", message: "0 item(s) selected" },
   isProcessing: false,
 
   processFolders: async () => {

@@ -57,7 +57,7 @@ export const createSelectionSlice: StateCreator<
         if (i === index) return { ...it, checked: !it.checked };
         return it;
       }),
-      status: { type: "info", message: "0 item(s) selected" },
+      status: { type: "info", message: `${newSelected.size} item(s) selected` },
     });
   },
 
@@ -67,7 +67,7 @@ export const createSelectionSlice: StateCreator<
     set({
       selectedIds: allIds,
       items: items.map((it) => ({ ...it, checked: true })),
-      status: { type: "info", message: "0 item(s) selected" },
+      status: { type: "info", message: `${allIds.size} item(s) selected` },
     });
   },
 
