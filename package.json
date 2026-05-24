@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@opentui/react": "^0.2.15",
+    "i18next": "^26.2.0",
     "jszip": "^3.10.1",
     "react": "^19.0.0",
     "sharp": "^0.34.1",

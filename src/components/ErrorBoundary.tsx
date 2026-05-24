@@ -1,19 +1,15 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { createTextAttributes } from "@opentui/core";
 import { colors } from "../utils/colors";
-import { text } from "../utils/text";
+import { t } from "../utils/i18n";
 
 const BOLD = createTextAttributes({ bold: true });
-
-interface Props {
-  children: ReactNode;
-}
 
 interface State {
   error: Error | null;
 }
 
-export class ErrorBoundary extends Component<Props, State> {
+export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
   state: State = { error: null };
 
   static getDerivedStateFromError(error: Error): State {
@@ -29,7 +25,7 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <box flexDirection="column" height="100%" padding={1}>
           <text fg={colors.statusError} attributes={BOLD} marginBottom={1}>
-            {text.error.unexpected}
+            {t("error.unexpected")}
           </text>
           <text fg={colors.errorMessage}>{this.state.error.message}</text>
         </box>
