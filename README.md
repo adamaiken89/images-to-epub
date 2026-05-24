@@ -26,10 +26,11 @@ bun install
 ## Usage
 
 ```sh
-bun start
+bun start                    # Scans ~/Downloads by default
+bun start /path/to/images    # Start with a specific directory
 ```
 
-The app starts scanning `~/Downloads` by default. Navigate the folder tree and press `Space` to toggle items, then `Enter` or `p` to process.
+The app opens a terminal interface showing the folder tree. Press `Space` to toggle items, `Enter` or `p` to process, and `c` to change the scanned directory.
 
 ## Development
 
@@ -84,6 +85,8 @@ legacy/
 | p | Process EPUBs |
 | u | Unzip selected |
 | z | Pad filenames |
+| c | Change directory |
+| r | Refresh folders |
 | h / ? | Toggle help |
 | q / Escape | Quit |
 
@@ -96,6 +99,8 @@ src/utils/fs.ts    | 100.00% Funcs | 97.22% Lines
 src/utils/pad.ts   | 100.00% Funcs | 93.85% Lines
 src/utils/zip.ts   | 100.00% Funcs | 100.00% Lines
 ```
+
+Run `bun test --coverage` to see the latest report.
 
 ## Migration Notes
 

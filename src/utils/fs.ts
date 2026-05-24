@@ -104,7 +104,8 @@ export function organizeFoldersByHierarchy(
   for (const [folderPath, metadata] of allFolders) {
     if (metadata.hasImages || metadata.hasSubfolders || metadata.hasZips) {
       const relPath = relative(baseDir, folderPath);
-      const parts = relPath === "" ? [] : relPath.split(sep);
+      if (relPath === "") continue; // Skip the base dir itself
+      const parts = relPath.split(sep);
       result.set(relPath, { parts, path: folderPath, metadata });
     }
   }

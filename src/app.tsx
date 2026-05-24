@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useKeyboard } from "@opentui/react";
 import { createTextAttributes } from "@opentui/core";
 import {
@@ -12,26 +12,37 @@ import {
 import { padImageFilenames } from "./utils/pad";
 import { unzipFile } from "./utils/zip";
 import { createEpubFromFolder } from "./utils/epub";
+import { basename } from "path";
 
 interface TreeItem {
   id: string;
   label: string;
   depth: number;
   isZip: boolean;
+  isSelectAll: boolean;
   entry: FolderEntry | null;
   checked: boolean;
 }
 
 const BOLD_ATTRS = createTextAttributes({ bold: true });
 
+function getInitialDir(): string | null {
+  const arg = process.argv[2];
+  if (arg) return arg;
+  return null;
+}
+
 export default function App() {
   const [baseDir, setBaseDir] = useState<string>("");
   const [items, setItems] = useState<TreeItem[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [focusIndex, setFocusIndex] = useState(0);
-  const [status, setStatus] = useState("Select a base folder to begin");
+  const [status, setStatus] = useState("Loading...");
   const [isProcessing, setIsProcessing] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [changeDirMode, setChangeDirMode] = useState(false);
+  const [changeDirValue, setChangeDirValue] = useState("");
+  const inputRef = useRef<any>(null);
 
   const loadFolders = useCallback(async (dir: string) => {
     setStatus("Scanning folders...");
@@ -40,19 +51,35 @@ export default function App() {
     const zips = await findZipFiles(dir);
 
     const newItems: TreeItem[] = [];
+
+    // Add "Select All" row if there are any entries
+    const hasEntries = hierarchy.size > 0 || zips.length > 0;
+    if (hasEntries) {
+      newItems.push({
+        id: "select-all",
+        label: "Select All",
+        depth: 0,
+        isZip: false,
+        isSelectAll: true,
+        entry: null,
+        checked: false,
+      });
+    }
+
     const sortedEntries = Array.from(hierarchy.entries()).sort((a, b) =>
       a[1].parts.join("/").localeCompare(b[1].parts.join("/"))
     );
 
     for (const [, entry] of sortedEntries) {
       const depth = entry.parts.length - 1;
-      const label = entry.parts[entry.parts.length - 1] || dir;
+      const label = entry.parts[entry.parts.length - 1];
       const id = `folder:${entry.path}`;
       newItems.push({
         id,
         label,
         depth: Math.max(0, depth),
         isZip: false,
+        isSelectAll: false,
         entry,
         checked: false,
       });
@@ -68,38 +95,83 @@ export default function App() {
         label,
         depth: Math.max(0, depth),
         isZip: true,
+        isSelectAll: false,
         entry: null,
         checked: false,
       });
     }
 
-    newItems.sort((a, b) => {
+    // Sort folders and zips by depth then label, keeping Select All at top
+    const tail = newItems.slice(1).sort((a, b) => {
       if (a.depth !== b.depth) return a.depth - b.depth;
       return a.label.localeCompare(b.label);
     });
+    const finalItems = hasEntries ? [newItems[0], ...tail] : [];
 
-    setItems(newItems);
+    setItems(finalItems);
     setSelectedIds(new Set());
     setFocusIndex(0);
-    setStatus(
-      `Found ${sortedEntries.length} folders, ${zips.length} zip(s). Arrow keys to navigate, Space to toggle.`
-    );
+    const folderCount = sortedEntries.length;
+    const zipCount = zips.length;
+    if (folderCount === 0 && zipCount === 0) {
+      setStatus("No folders with images or zips found.");
+    } else {
+      setStatus(
+        `Found ${folderCount} folder(s), ${zipCount} zip(s). \u2191\u2193 to navigate, Space to toggle.`
+      );
+    }
   }, []);
 
-  const initDefault = useCallback(async () => {
-    const defaultDir = await findDefaultBaseDir();
+  const init = useCallback(async () => {
+    const cliDir = getInitialDir();
+    const defaultDir = cliDir || (await findDefaultBaseDir());
     setBaseDir(defaultDir);
+    setChangeDirValue(defaultDir);
     await loadFolders(defaultDir);
   }, [loadFolders]);
 
   useEffect(() => {
-    initDefault();
-  }, [initDefault]);
+    init();
+  }, [init]);
+
+  // Focus input when changeDirMode opens
+  useEffect(() => {
+    if (changeDirMode && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [changeDirMode]);
+
+  const applySelectAllState = useCallback(
+    (checked: boolean) => {
+      if (checked) {
+        const allIds = new Set(items.filter((i) => !i.isSelectAll).map((i) => i.id));
+        setSelectedIds(allIds);
+        setItems((prev) =>
+          prev.map((it) => (it.isSelectAll ? { ...it, checked: true } : { ...it, checked: true }))
+        );
+        setStatus(`${items.length - 1} item(s) selected`);
+      } else {
+        setSelectedIds(new Set());
+        setItems((prev) =>
+          prev.map((it) => (it.isSelectAll ? { ...it, checked: false } : { ...it, checked: false }))
+        );
+        setStatus("No items selected");
+      }
+    },
+    [items]
+  );
 
   const toggleItem = useCallback(
     (index: number) => {
       if (index < 0 || index >= items.length) return;
       const item = items[index];
+
+      if (item.isSelectAll) {
+        const newChecked = !item.checked;
+        applySelectAllState(newChecked);
+        return;
+      }
+
       const newSelected = new Set(selectedIds);
       if (newSelected.has(item.id)) {
         newSelected.delete(item.id);
@@ -108,29 +180,28 @@ export default function App() {
       }
       setSelectedIds(newSelected);
       setItems((prev) =>
-        prev.map((it, i) => (i === index ? { ...it, checked: !it.checked } : it))
+        prev.map((it, i) => {
+          if (i === index) return { ...it, checked: !it.checked };
+          if (it.isSelectAll) return { ...it, checked: false };
+          return it;
+        })
       );
 
       const count = newSelected.size;
       setStatus(
-        `${count} item(s) selected - [p] Process | [u] Unzip | [z] Pad | [a] Select All | [d] Deselect All`
+        `${count} item(s) selected - [p] Process | [u] Unzip | [z] Pad | [c] Change Dir | [r] Refresh`
       );
     },
-    [items, selectedIds]
+    [items, selectedIds, applySelectAllState]
   );
 
   const selectAll = useCallback(() => {
-    const allIds = new Set(items.map((i) => i.id));
-    setSelectedIds(allIds);
-    setItems((prev) => prev.map((it) => ({ ...it, checked: true })));
-    setStatus(`${items.length} item(s) selected`);
-  }, [items]);
+    applySelectAllState(true);
+  }, [applySelectAllState]);
 
   const deselectAll = useCallback(() => {
-    setSelectedIds(new Set());
-    setItems((prev) => prev.map((it) => ({ ...it, checked: false })));
-    setStatus("No items selected");
-  }, []);
+    applySelectAllState(false);
+  }, [applySelectAllState]);
 
   const getFoldersToProcess = useCallback(
     (selectedSet: Set<string>) => {
@@ -178,13 +249,13 @@ export default function App() {
 
     for (let i = 0; i < folders.length; i++) {
       const folder = folders[i];
-      setStatus(`Processing ${i + 1}/${folders.length}: ${folder}...`);
+      setStatus(`Processing ${i + 1}/${folders.length}: ${basename(folder)}...`);
       const result = await createEpubFromFolder(folder);
       if (result.success) {
         successCount++;
       } else {
         failCount++;
-        failed.push(`${folder}: ${result.message}`);
+        failed.push(`${basename(folder)}: ${result.message}`);
       }
     }
 
@@ -207,7 +278,7 @@ export default function App() {
     let failCount = 0;
 
     for (let i = 0; i < zips.length; i++) {
-      setStatus(`Unzipping ${i + 1}/${zips.length}: ${zips[i]}...`);
+      setStatus(`Unzipping ${i + 1}/${zips.length}: ${basename(zips[i])}...`);
       const result = await unzipFile(zips[i]);
       if (result.success) successCount++;
       else failCount++;
@@ -229,7 +300,7 @@ export default function App() {
     let failCount = 0;
 
     for (let i = 0; i < folders.length; i++) {
-      setStatus(`Padding ${i + 1}/${folders.length}: ${folders[i]}...`);
+      setStatus(`Padding ${i + 1}/${folders.length}: ${basename(folders[i])}...`);
       const result = await padImageFilenames(folders[i]);
       if (result.success) successCount++;
       else failCount++;
@@ -239,9 +310,37 @@ export default function App() {
     setIsProcessing(false);
   }, [selectedIds, getFoldersToProcess]);
 
+  const confirmChangeDir = useCallback(async () => {
+    const currentValue = inputRef.current?.value || changeDirValue;
+    const newDir = currentValue.trim();
+    if (!newDir) {
+      setChangeDirMode(false);
+      return;
+    }
+    setChangeDirMode(false);
+    setBaseDir(newDir);
+    await loadFolders(newDir);
+  }, [changeDirValue, loadFolders]);
+
   useKeyboard(
     (key) => {
       if (isProcessing) return;
+
+      if (changeDirMode) {
+        if (key.name === "escape") {
+          setChangeDirMode(false);
+          setChangeDirValue(baseDir);
+        }
+        // Let the input component handle Enter (onSubmit) and typing
+        return;
+      }
+
+      if (showHelp) {
+        if (key.name === "escape" || key.name === "return" || key.name === "h" || key.name === "?") {
+          setShowHelp(false);
+        }
+        return;
+      }
 
       switch (key.name) {
         case "up":
@@ -254,8 +353,7 @@ export default function App() {
           toggleItem(focusIndex);
           break;
         case "return":
-          if (showHelp) setShowHelp(false);
-          else processFolders();
+          processFolders();
           break;
         case "a":
           selectAll();
@@ -272,9 +370,16 @@ export default function App() {
         case "z":
           padSelected();
           break;
+        case "c":
+          setChangeDirValue(baseDir);
+          setChangeDirMode(true);
+          break;
+        case "r":
+          if (baseDir) loadFolders(baseDir);
+          break;
         case "h":
         case "?":
-          setShowHelp((s) => !s);
+          setShowHelp(true);
           break;
         case "q":
         case "escape":
@@ -289,26 +394,49 @@ export default function App() {
     const indent = "  ".repeat(item.depth);
     const checkbox = item.checked ? "[x]" : "[ ]";
     const isFocused = index === focusIndex;
-    const line = `${indent}${checkbox} ${item.label}`;
+    const line = item.isSelectAll
+      ? `${checkbox} ${item.label}`
+      : `${indent}${checkbox} ${item.label}`;
 
     return (
       <text
         key={item.id}
-        fg={isFocused ? "#ffffff" : item.isZip ? "#888888" : "#cccccc"}
+        fg={isFocused ? "#ffffff" : item.isZip ? "#888888" : item.isSelectAll ? "#66ccff" : "#cccccc"}
         bg={isFocused ? "#3366cc" : "transparent"}
-        attributes={isFocused ? BOLD_ATTRS : undefined}
+        attributes={isFocused || item.isSelectAll ? BOLD_ATTRS : undefined}
       >
         {line}
       </text>
     );
   };
 
+  const folderName = baseDir ? basename(baseDir) : "";
+
   return (
     <box flexDirection="column" height="100%" padding={1}>
       {/* Header */}
       <text fg="#66ccff" attributes={BOLD_ATTRS} marginBottom={1}>
-        EPUB Generator - {baseDir}
+        EPUB Generator - {folderName || baseDir}
       </text>
+
+      {/* Change Directory Prompt */}
+      {changeDirMode && (
+        <box border borderColor="#ffcc00" padding={1} marginBottom={1} flexDirection="column">
+          <text fg="#ffcc00" attributes={BOLD_ATTRS}>
+            Change Directory (type path and press Enter):
+          </text>
+          <input
+            ref={inputRef}
+            value={changeDirValue}
+            placeholder="Enter directory path..."
+            focused={true}
+            backgroundColor="#1a1a1a"
+            textColor="#ffffff"
+            onSubmit={() => confirmChangeDir()}
+          />
+          <text fg="#888888">Press ESC to cancel</text>
+        </box>
+      )}
 
       {/* Help overlay */}
       {showHelp && (
@@ -330,6 +458,8 @@ export default function App() {
           <text>{"p         Process EPUBs"}</text>
           <text>{"u         Unzip selected"}</text>
           <text>{"z         Pad filenames"}</text>
+          <text>{"c         Change directory"}</text>
+          <text>{"r         Refresh folders"}</text>
           <text>{"h / ?     Toggle help"}</text>
           <text>{"q / ESC   Quit"}</text>
         </box>
@@ -351,9 +481,9 @@ export default function App() {
       </text>
 
       {/* Controls hint */}
-      {!showHelp && (
+      {!showHelp && !changeDirMode && (
         <text marginTop={1} fg="#888888">
-          [h] Help | [Space] Toggle | [Enter] Process | [a] All | [d] None | [q] Quit
+          [h] Help | [Space] Toggle | [Enter] Process | [c] Change Dir | [r] Refresh | [q] Quit
         </text>
       )}
     </box>
