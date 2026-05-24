@@ -59,11 +59,14 @@ export async function createEpubFromFolder(
     const title = folderName;
     const lang = "zh";
 
-    // Convert cover image
+    // Convert cover image (first image in folder)
     const coverData = await convertToJpeg(join(imgDir, imgFiles[0]));
 
     // Build zip
     const zip = new JSZip();
+
+    // Add cover image to zip
+    zip.file("OEBPS/images/cover.jpg", coverData);
 
     // mimetype must be uncompressed and first
     zip.file("mimetype", "application/epub+zip", { compression: "STORE" });
@@ -84,9 +87,9 @@ export async function createEpubFromFolder(
     const spineItems: string[] = [];
     const tocItems: string[] = [];
 
-    // Cover image manifest item
+    // Cover image manifest item (EPUB 3 cover-image property)
     manifestItems.push(
-      `<item id="cover-image" href="images/cover.jpg" media-type="image/jpeg"/>`
+      `<item id="cover-image" href="images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>`
     );
 
     // Cover page
