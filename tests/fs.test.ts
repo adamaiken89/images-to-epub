@@ -124,6 +124,14 @@ describe("getSubfoldersWithImages", () => {
     expect(getSubfoldersWithImages("/a", folders)).toEqual(["/a/b/c", "/a/b/d", "/a/x"]);
     expect(getSubfoldersWithImages("/a/b/c", folders)).toEqual([]);
   });
+
+  it("handles empty list", () => {
+    expect(getSubfoldersWithImages("/a", [])).toEqual([]);
+  });
+
+  it("handles exact match", () => {
+    expect(getSubfoldersWithImages("/a/b/c", ["/a/b/c"])).toEqual([]);
+  });
 });
 
 describe("findDefaultBaseDir", () => {
