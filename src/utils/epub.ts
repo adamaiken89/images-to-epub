@@ -1,4 +1,4 @@
-import { readdir, writeFile } from "fs/promises";
+import { mkdir, readdir, writeFile } from "fs/promises";
 import { join, basename, extname } from "path";
 import { homedir } from "os";
 import sharp from "sharp";
@@ -233,6 +233,7 @@ export async function createEpubFromFolder(
 
     // Generate zip buffer and write to file
     const buffer = await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" });
+    await mkdir(outputDir, { recursive: true });
     await writeFile(outputEpub, buffer);
 
     return { success: true, message: `EPUB created: ${outputEpub}` };
