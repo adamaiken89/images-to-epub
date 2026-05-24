@@ -5,6 +5,7 @@ import { handleKey } from "./store/handlers/keymap";
 import { Header } from "./components/Header";
 import { HelpModal } from "./components/HelpModal";
 import { ChangeDirPrompt } from "./components/ChangeDirPrompt";
+import { RenamePrompt } from "./components/RenamePrompt";
 import { TreeView } from "./components/TreeView";
 import { InfoMessage } from "./components/InfoMessage";
 import { StatusBar } from "./components/StatusBar";
@@ -21,8 +22,8 @@ export default function App() {
 
   useKeyboard(
     (key) => {
-      const { isProcessing, changeDirMode, showHelp, items, focusIndex } = useStore.getState();
-      handleKey(key, { renderer, isProcessing, changeDirMode, showHelp, itemsLength: items.length, focusIndex });
+      const { isProcessing, changeDirMode, renameMode, showHelp, items, focusIndex } = useStore.getState();
+      handleKey(key, { renderer, isProcessing, changeDirMode, renameMode, showHelp, itemsLength: items.length, focusIndex });
     },
     { release: false }
   );
@@ -32,6 +33,7 @@ export default function App() {
       <ErrorBoundary>
         <box flexShrink={0}><Header /></box>
         <ChangeDirPrompt />
+        <RenamePrompt />
         {showHelp ? <HelpModal /> : <TreeView />}
         <box flexShrink={0}><InfoMessage /></box>
         <box flexShrink={0}><StatusBar /></box>

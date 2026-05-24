@@ -12,6 +12,19 @@ const mockRenderer = {
   destroy: () => {},
 } as unknown as CliRenderer;
 
+function ctx(overrides: Partial<Parameters<typeof handleKey>[1]> = {}): Parameters<typeof handleKey>[1] {
+  return {
+    renderer: mockRenderer,
+    isProcessing: false,
+    changeDirMode: false,
+    renameMode: false,
+    showHelp: false,
+    itemsLength: 2,
+    focusIndex: 0,
+    ...overrides,
+  };
+}
+
 describe("handleKey", () => {
   beforeEach(() => {
     useStore.setState({
@@ -41,98 +54,42 @@ describe("handleKey", () => {
   });
 
   it("navigates down with arrow key", () => {
-    handleKey(key("down"), {
-      renderer: mockRenderer,
-      isProcessing: false,
-      changeDirMode: false,
-      showHelp: false,
-      itemsLength: 2,
-      focusIndex: 0,
-    });
+    handleKey(key("down"), ctx({ focusIndex: 0 }));
     expect(useStore.getState().focusIndex).toBe(1);
   });
 
   it("navigates up with arrow key", () => {
-    handleKey(key("up"), {
-      renderer: mockRenderer,
-      isProcessing: false,
-      changeDirMode: false,
-      showHelp: false,
-      itemsLength: 2,
-      focusIndex: 1,
-    });
+    handleKey(key("up"), ctx({ focusIndex: 1 }));
     expect(useStore.getState().focusIndex).toBe(0);
   });
 
   it("stays at top when navigating up from index 0", () => {
-    handleKey(key("up"), {
-      renderer: mockRenderer,
-      isProcessing: false,
-      changeDirMode: false,
-      showHelp: false,
-      itemsLength: 2,
-      focusIndex: 0,
-    });
+    handleKey(key("up"), ctx({ focusIndex: 0 }));
     expect(useStore.getState().focusIndex).toBe(0);
   });
 
   it("stays at bottom when navigating down from last index", () => {
-    handleKey(key("down"), {
-      renderer: mockRenderer,
-      isProcessing: false,
-      changeDirMode: false,
-      showHelp: false,
-      itemsLength: 2,
-      focusIndex: 1,
-    });
+    handleKey(key("down"), ctx({ focusIndex: 1 }));
     expect(useStore.getState().focusIndex).toBe(1);
   });
 
   it("toggles item at focus index on space", () => {
-    handleKey(key("space"), {
-      renderer: mockRenderer,
-      isProcessing: false,
-      changeDirMode: false,
-      showHelp: false,
-      itemsLength: 2,
-      focusIndex: 0,
-    });
+    handleKey(key("space"), ctx({ focusIndex: 0 }));
     const state = useStore.getState();
     expect(state.items[0].checked).toBe(true);
     expect(state.selectedIds.has("folder:/test/books/manga1")).toBe(true);
   });
 
   it("toggles item off on second space press", () => {
-    handleKey(key("space"), {
-      renderer: mockRenderer,
-      isProcessing: false,
-      changeDirMode: false,
-      showHelp: false,
-      itemsLength: 2,
-      focusIndex: 0,
-    });
-    handleKey(key("space"), {
-      renderer: mockRenderer,
-      isProcessing: false,
-      changeDirMode: false,
-      showHelp: false,
-      itemsLength: 2,
-      focusIndex: 0,
-    });
+    handleKey(key("space"), ctx({ focusIndex: 0 }));
+    handleKey(key("space"), ctx({ focusIndex: 0 }));
     const state = useStore.getState();
     expect(state.items[0].checked).toBe(false);
     expect(state.selectedIds.has("folder:/test/books/manga1")).toBe(false);
   });
 
   it("selects all on 'a'", () => {
-    handleKey(key("a"), {
-      renderer: mockRenderer,
-      isProcessing: false,
-      changeDirMode: false,
-      showHelp: false,
-      itemsLength: 2,
-      focusIndex: 0,
-    });
+    handleKey(key("a"), ctx({ focusIndex: 0 }));
     const state = useStore.getState();
     expect(state.items[0].checked).toBe(true);
     expect(state.items[1].checked).toBe(true);
@@ -145,14 +102,7 @@ describe("handleKey", () => {
       items: useStore.getState().items.map((it) => ({ ...it, checked: true })),
     });
 
-    handleKey(key("d"), {
-      renderer: mockRenderer,
-      isProcessing: false,
-      changeDirMode: false,
-      showHelp: false,
-      itemsLength: 2,
-      focusIndex: 0,
-    });
+    handleKey(key("d"), ctx({ focusIndex: 0 }));
     const state = useStore.getState();
     expect(state.items[0].checked).toBe(false);
     expect(state.items[1].checked).toBe(false);
@@ -160,53 +110,25 @@ describe("handleKey", () => {
   });
 
   it("ignores key presses when processing", () => {
-    handleKey(key("down"), {
-      renderer: mockRenderer,
-      isProcessing: true,
-      changeDirMode: false,
-      showHelp: false,
-      itemsLength: 2,
-      focusIndex: 0,
-    });
+    handleKey(key("down"), ctx({ isProcessing: true, focusIndex: 0 }));
     expect(useStore.getState().focusIndex).toBe(0);
   });
 
   it("cancels change dir mode on escape", () => {
     useStore.setState({ changeDirMode: true });
-    handleKey(key("escape"), {
-      renderer: mockRenderer,
-      isProcessing: false,
-      changeDirMode: true,
-      showHelp: false,
-      itemsLength: 2,
-      focusIndex: 0,
-    });
+    handleKey(key("escape"), ctx({ changeDirMode: true, focusIndex: 0 }));
     expect(useStore.getState().changeDirMode).toBe(false);
   });
 
   it("opens change dir on 'c'", () => {
-    handleKey(key("c"), {
-      renderer: mockRenderer,
-      isProcessing: false,
-      changeDirMode: false,
-      showHelp: false,
-      itemsLength: 2,
-      focusIndex: 0,
-    });
+    handleKey(key("c"), ctx({ focusIndex: 0 }));
     expect(useStore.getState().changeDirMode).toBe(true);
   });
 
   it("quits on 'q'", () => {
     let destroyed = false;
     const r = { destroy: () => { destroyed = true; } } as unknown as CliRenderer;
-    handleKey(key("q"), {
-      renderer: r,
-      isProcessing: false,
-      changeDirMode: false,
-      showHelp: false,
-      itemsLength: 2,
-      focusIndex: 0,
-    });
+    handleKey(key("q"), ctx({ renderer: r, focusIndex: 0 }));
     expect(destroyed).toBe(true);
   });
 });

@@ -3,7 +3,7 @@ import type { AppState } from "./types";
 import { createScanSlice } from "./slices/scan";
 import { createSelectionSlice } from "./slices/selection";
 import { createBatchSlice } from "./slices/batch";
-import { getSubdirs } from "../utils/fs";
+import { getSubdirs, renameFolder } from "../utils/fs";
 
 export type { AppState, TreeItem, StatusMessage } from "./types";
 export { getFoldersToProcess } from "./slices/selection";
@@ -17,6 +17,10 @@ export const useStore = create<AppState>()((...a) => ({
   showHelp: false,
   subdirs: [],
   promptKey: 0,
+
+  renameMode: false,
+  renameTarget: null,
+  renameKey: 0,
 
   toggleHelp: () => {
     a[0]({ showHelp: !a[1]().showHelp });
@@ -45,5 +49,33 @@ export const useStore = create<AppState>()((...a) => ({
   refresh: async () => {
     const { baseDir } = a[1]();
     if (baseDir) {await a[1]().loadFolders(baseDir);}
+  },
+
+  openRename: () => {
+    const { items, focusIndex } = a[1]();
+    const item = items[focusIndex];
+    if (!item || item.isZip) {return;}
+    a[0]({ renameMode: true, renameTarget: item.entry?.path || null, renameKey: a[1]().renameKey + 1 });
+  },
+
+  renameSubmit: async (newName: string) => {
+    const { renameTarget, baseDir } = a[1]();
+    if (!renameTarget || !newName.trim()) {
+      a[0]({ renameMode: false, renameTarget: null });
+      return;
+    }
+    const result = await renameFolder(renameTarget, newName.trim());
+    a[0]({
+      renameMode: false,
+      renameTarget: null,
+      status: { type: result.success ? "info" : "error", message: result.success ? `Renamed to: ${newName.trim()}` : result.message },
+    });
+    if (result.success && baseDir) {
+      await a[1]().loadFolders(baseDir);
+    }
+  },
+
+  cancelRename: () => {
+    a[0]({ renameMode: false, renameTarget: null });
   },
 }));

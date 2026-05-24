@@ -33,6 +33,9 @@ export function HelpModal() {
         <span fg={colors.keyHighlight}>[r]</span>{t("modal.refresh")}
       </text>
       <text fg={colors.controlsText}>
+        <span fg={colors.keyHighlight}>[n]</span>{t("modal.rename")}
+      </text>
+      <text fg={colors.controlsText}>
         <span fg={colors.keyHighlight}>[q]</span>{t("modal.quit")}
       </text>
       <text fg={colors.controlsText}>

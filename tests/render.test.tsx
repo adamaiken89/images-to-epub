@@ -104,11 +104,12 @@ describe("component rendering", () => {
   });
 
   it("renders HelpModal with shortcuts", async () => {
-    const frame = await render(<HelpModal />);
+    const frame = await render(<HelpModal />, 60, 20);
     expect(frame).toContain("Keyboard Shortcuts");
     expect(frame).toContain("[Space]");
     expect(frame).toContain("[p]");
     expect(frame).toContain("[Esc]");
+    expect(frame).toContain("[n]");
   });
 
   it("renders ErrorBoundary with children when no error", async () => {
