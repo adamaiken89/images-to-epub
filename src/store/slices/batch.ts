@@ -12,7 +12,7 @@ function getEffectiveSelection(selectedIds: Set<string>, items: AppState["items"
 }
 
 async function batchProcess(
-  set: (partial: Partial<AppState>) => void,
+  set: (partial: Partial<AppState> | ((state: AppState) => Partial<AppState>)) => void,
   get: () => AppState,
   targets: string[],
   processor: (target: string) => Promise<{ success: boolean; message?: string }>,
@@ -67,7 +67,7 @@ export const createBatchSlice: StateCreator<
       set({ isProcessing: false });
       return;
     }
-    await batchProcess(set as any, get, folders, createEpubFromFolder, true);
+    await batchProcess(set, get, folders, createEpubFromFolder, true);
   },
 
   unzipSelected: async () => {
@@ -78,7 +78,7 @@ export const createBatchSlice: StateCreator<
       .map((id) => id.slice(4));
     if (zips.length === 0) return;
     set({ isProcessing: true });
-    await batchProcess(set as any, get, zips, unzipFile);
+    await batchProcess(set, get, zips, unzipFile);
     if (baseDir) await get().loadFolders(baseDir);
   },
 
@@ -88,6 +88,6 @@ export const createBatchSlice: StateCreator<
     const folders = getFoldersToProcess(ids, items);
     if (folders.length === 0) return;
     set({ isProcessing: true });
-    await batchProcess(set as any, get, folders, padImageFilenames);
+    await batchProcess(set, get, folders, padImageFilenames);
   },
 });

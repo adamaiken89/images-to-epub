@@ -1,15 +1,16 @@
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { createTextAttributes } from "@opentui/core";
 import { useStore } from "../store";
-import { readdirSync } from "fs";
+import { readdir } from "fs/promises";
 import { join } from "path";
 import { colors } from "../utils/colors";
 
 const BOLD = createTextAttributes({ bold: true });
 
-function getSubdirs(dir: string): string[] {
+async function getSubdirs(dir: string): Promise<string[]> {
   try {
-    return readdirSync(dir, { withFileTypes: true })
+    const entries = await readdir(dir, { withFileTypes: true });
+    return entries
       .filter((e) => e.isDirectory() && !e.name.startsWith("."))
       .map((e) => e.name)
       .sort();
@@ -23,15 +24,13 @@ export function ChangeDirPrompt() {
   const baseDir = useStore((s) => s.baseDir);
   const changeDir = useStore((s) => s.changeDir);
   const cancelChangeDir = useStore((s) => s.cancelChangeDir);
-  const inputRef = useRef<any>(null);
   const [inputValue, setInputValue] = useState(baseDir);
   const [subdirs, setSubdirs] = useState<string[]>([]);
 
   useEffect(() => {
     if (changeDirMode) {
       setInputValue(baseDir);
-      setSubdirs(getSubdirs(baseDir));
-      if (inputRef.current) inputRef.current.focus();
+      getSubdirs(baseDir).then(setSubdirs);
     }
   }, [changeDirMode, baseDir]);
 
@@ -43,14 +42,13 @@ export function ChangeDirPrompt() {
         Change Directory:
       </text>
       <input
-        ref={inputRef}
         value={inputValue}
         placeholder="Enter directory path..."
         focused={true}
         backgroundColor={colors.inputBg}
         textColor={colors.inputText}
         onSubmit={() => {
-          const val = inputRef.current?.value?.trim();
+          const val = inputValue.trim();
           if (val) changeDir(val);
           else cancelChangeDir();
         }}
