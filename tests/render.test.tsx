@@ -6,6 +6,7 @@ import { HelpModal } from "../src/components/HelpModal";
 import { StatusBar } from "../src/components/StatusBar";
 import { useStore } from "../src/store";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function render(node: any, width = 60, height = 10) {
   const { captureCharFrame, renderOnce } = await testRender(node, { width, height });
   await renderOnce();

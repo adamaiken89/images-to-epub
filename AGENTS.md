@@ -7,91 +7,109 @@ src/
   store/
     types.ts                — AppState, TreeItem, StatusMessage interfaces
     slices/
-      scan.ts               — StateCreator<AppState, [], [], Pick<AppState, ...>>
-      selection.ts           — StateCreator<...>, exports getFoldersToProcess
-      batch.ts               — StateCreator<...>, batchProcess helper
+      scan.ts               — folder scanning, loadFolders, init
+      selection.ts          — toggle/selectAll/deselectAll, exports getFoldersToProcess
+      batch.ts              — processFolders/unzipSelected/padSelected, batchProcess helper
     handlers/
-      keymap.ts              — handleKey pure function
-    index.ts                 — compose slices + navigation state/actions
+      keymap.ts             — handleKey(key, ctx) pure function, no React
+    index.ts                — compose slices + navigation state/actions (toggleHelp, openChangeDir, changeDir, cancelChangeDir, refresh)
   components/
-    Header.tsx               — presentational, uses useStore selectors
-    ControlsHint.tsx
-    ChangeDirPrompt.tsx      — uncontrolled via useRef, no store writes per keystroke
-    TreeView.tsx             — subscribes to focusIndex, passes isFocused as prop
-    TreeItemRow.tsx          — memo'd, receives isFocused as prop (no store subscription)
-    InfoMessage.tsx
-    StatusBar.tsx
-    ErrorBoundary.tsx        — class component
+    Header.tsx              — title + baseDir display
+    HelpModal.tsx           — keyboard shortcuts reference (replaces tree view when toggled)
+    ChangeDirPrompt.tsx     — directory input with subdir hints (useState, not useRef)
+    TreeView.tsx            — subscribes to focusIndex, passes isFocused as prop per row
+    TreeItemRow.tsx         — memo'd, receives isFocused as prop (no store subscription)
+    InfoMessage.tsx         — static folder/zip counts + navigation hints (returns null when no results)
+    StatusBar.tsx           — colored status messages by type (returns null when empty)
+    ErrorBoundary.tsx       — class component, catches React errors
   utils/
+    colors.ts               — centralized color constants by usage key
+    i18n.ts                 — i18next init + t() export
     epub.ts, fs.ts, pad.ts, zip.ts  — pure functions, no store imports
+  locales/
+    en.json                 — all UI strings (add locale files for translation)
   app.tsx                   — ~40 lines: mount + keyboard bridge
-  index.tsx                 — entry point
+  index.tsx                 — entry point (render(<App/>))
 ```
 
 ## Dependency direction
 
 `utils/` → nothing (pure functions)
 `store/slices/` → `utils/`, `store/types.ts`
-`store/index.ts` → `store/slices/*`
-`components/` → `store/index.ts`
+`store/index.ts` → `store/slices/*`, `utils/fs.ts`
+`components/` → `store/index.ts`, `utils/`
 `app.tsx` → everything
+
+## Key commands
+
+| Command | What |
+|---------|------|
+| `bun start [dir]` | Run app |
+| `bun run dev` | Watch mode |
+| `bun test` | Run all tests |
+| `bun test <path>` | Single test file |
+| `bun test --coverage` | Coverage report |
+| `bun run lint` | Typecheck (`tsc --noEmit`) |
+
+Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ tests/`).
 
 ## Zustand patterns
 
-- Single store composed via `StateCreator<AppState, [], [], Pick<AppState, ...>>`
-- Actions use `set()` and `get()` from the slice creator
+- Store composed via `StateCreator<AppState, [], [], Pick<AppState, ...>>`
 - Components use `useStore(selector)` for field-level subscription
-- `useStore.getState()` for synchronous reads outside React (keymap, tests)
-- Async actions use `set()` before/after await
+- `useStore.getState()` / `useStore.setState()` for synchronous access outside React (keymap, tests)
+- Async actions use `set()` before/after await; no `useEffect` for side effects in store
+- Navigation state (`changeDirMode`, `showHelp`, `subdirs`, `promptKey`) lives in `store/index.ts` compose function, not in slices
 
 ## Component patterns
 
-- Presentational components only — no business logic
-- Each component subscribes to its minimum needed slices via selectors
-- Use `memo` on list item components with `isFocused` passed as prop (never subscribe to `focusIndex` per row)
-- Uncontrolled inputs use `useRef` — read `inputRef.current?.value` on submit only
+- Presentational only — no business logic
+- `flexShrink={0}` on Header/InfoMessage/StatusBar to prevent compression in small terminals
+- `memo` on list items with `isFocused` passed as prop (never subscribe to `focusIndex` per row)
+- ChangeDirPrompt resets via `key={promptKey}` remount (no `useEffect`)
+- InfoMessage and StatusBar return `null` when they have nothing to display
+
+## i18n
+
+- All user-facing strings in `src/locales/en.json`
+- Import `t` from `../utils/i18n`, call `t("domain.key", { optInterpolation })`
+- Plural forms: `key_zero`, `key_one`, `key_other` (e.g. `selection.item` → "0/1/5 item(s)...")
+- Interpolation: `t("batch.progress", { current, total, name })`
+- Add a locale: create `fr.json`, add to `i18n.ts` resources
 
 ## Keyboard handling
 
-- `store/handlers/keymap.ts` exports `handleKey(key, ctx)` — pure function, no React
-- Keymap reads store via `useStore.getState()` and writes via `useStore.setState()`
-- Context (renderer, isProcessing, changeDirMode, focusIndex, itemsLength) passed in from app.tsx
+- `store/handlers/keymap.ts` exports `handleKey(key, ctx)` — pure function
+- Context (renderer, isProcessing, changeDirMode, showHelp, focusIndex, itemsLength) passed from app.tsx
+- Escape closes change-dir prompt or help modal; Escape outside those modes quits
+
+## TypeScript and toolchain
+
+- `target: ES2024`, `jsxImportSource: "@opentui/react"` (not standard React)
+- No `any` in meaningful code
+- `import type` for type-only imports
+- OpenTUI elements: `text`, `box`, `scrollbox`, `input`, `span`, `u`, `br`
+- `resolveJsonModule: true` — JSON imports work without `assert`
 
 ## Testing
 
-- Runner: `bun test`
-- Test framework: `bun:test` (describe, it, expect)
-- 40+ tests across 5 files
+- Runner: `bun:test` (describe, it, expect)
+- 51 tests across 6 files
 - Keymap tests use `useStore.getState()`/`setState()` directly — no React rendering
+- Render tests use OpenTUI's `testRender` + `captureCharFrame` from `@opentui/react/test-utils`
 - Zip tests create real zip files via JSZip + write to temp dirs
-- Summary count: Line coverage >97%, Function coverage 100%
+- Line coverage >97%, Function coverage 100%
 
-## TypeScript
+## Git conventions
 
-- No `any` in meaningful code (only `as any` for Zustand StateCreator workaround in batch slice)
-- `const` assertions on string literals
-- `import type` for type-only imports
-- OpenTUI components: `text`, `box`, `scrollbox`, `input`, `span`, `u`, `br`
-
-## Git commits
-
-- Follow [Conventional Commits](https://www.conventionalcommits.org/) style: `type(scope): description`
+- Conventional Commits: `type(scope): description`
 - Types: `feat`, `fix`, `refactor`, `chore`, `test`, `docs`, `style`
-- e.g. `feat(author): extract from folder name after ### delimiter`
-- One feature per branch
+- One feature per branch, squash before merge
+- e.g. `feat(i18n): plural forms, zero handling, and interpolation in translations`
 
 ## Color conventions
 
-- Title: `#66ccff` bold
-- Directory path: `#aaaaaa` underlined with `<u>`
-- Controls hint keys: `#ffcc00` inside `<span>`
-- Controls hint text: `#88ff88`
-- Status info: `#66ccff`
-- Status progress: `#ffcc00`
-- Status error: `#ff4444`
-- Status done: `#66ff66`
-- Info message numbers: `#ffcc00`
-- Focused row: `#ffffff` on `#3366cc` background
-- Tree item (normal): `#cccccc`
-- Zip item: `#888888`
-- Select All header: `#66ccff` bold
+All colors defined in `src/utils/colors.ts` with named usage keys:
+- `title`, `path`, `keyHighlight`, `controlsText`, `countHighlight`, `dim`, `inputBg`, `inputText`, `subdirName`, `errorMessage`
+- Status: `statusInfo`, `statusProgress`, `statusError`, `statusDone`
+- Tree items: `treeItemNormal`, `treeItemZip`, `treeItemFocus`

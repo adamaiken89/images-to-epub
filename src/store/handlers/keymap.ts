@@ -15,15 +15,15 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
   const { renderer, isProcessing, changeDirMode, showHelp, itemsLength, focusIndex } = ctx;
   const store = useStore.getState();
 
-  if (isProcessing) return;
+  if (isProcessing) {return;}
 
   if (changeDirMode) {
-    if (key.name === "escape") store.cancelChangeDir();
+    if (key.name === "escape") {store.cancelChangeDir();}
     return;
   }
 
   if (showHelp) {
-    if (key.name === "escape" || key.name === "h") store.toggleHelp();
+    if (key.name === "escape" || key.name === "h") {store.toggleHelp();}
     return;
   }
 

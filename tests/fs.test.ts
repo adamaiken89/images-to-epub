@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach } from "bun:test";
-import { mkdtempSync, mkdirSync, writeFileSync, rmdirSync, unlinkSync } from "fs";
+import { describe, it, expect, afterEach } from "bun:test";
+import { mkdtempSync, mkdirSync, writeFileSync, readdirSync, rmdirSync, rmSync } from "fs";
 import { tmpdir } from "os";
 import { join, dirname } from "path";
 import {
@@ -26,7 +26,6 @@ function createTestDir(structure: Record<string, string | null>): string {
 
 function cleanup(base: string) {
   try {
-    const { readdirSync, statSync, rmSync } = require("fs");
     for (const entry of readdirSync(base)) {
       const full = join(base, entry);
       rmSync(full, { recursive: true, force: true });
@@ -41,7 +40,7 @@ describe("findFoldersWithImages", () => {
   let base: string;
 
   afterEach(() => {
-    if (base) cleanup(base);
+    if (base) {cleanup(base);}
   });
 
   it("returns empty for nonexistent directory", async () => {
@@ -101,7 +100,7 @@ describe("findZipFiles", () => {
   let base: string;
 
   afterEach(() => {
-    if (base) cleanup(base);
+    if (base) {cleanup(base);}
   });
 
   it("finds zip files recursively", async () => {

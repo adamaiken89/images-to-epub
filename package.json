@@ -10,7 +10,8 @@
     "test": "bun test",
     "test:watch": "bun test --watch",
     "build": "bun build src/index.tsx --outdir dist --target bun",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit && eslint src/ tests/",
+    "lint:eslint": "eslint src/ tests/",
   },
   "dependencies": {
     "@opentui/react": "^0.2.15",
@@ -27,7 +28,9 @@
     "@types/react": "^19.0.0",
     "@types/uuid": "^10.0.0",
     "@types/yauzl": "^2.10.0",
-    "typescript": "^5.8.0"
+    "eslint": "^10.4.0",
+    "typescript": "^5.8.0",
+    "typescript-eslint": "^8.59.4"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

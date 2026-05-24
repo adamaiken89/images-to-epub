@@ -1,6 +1,6 @@
 import { createWriteStream, promises as fs } from "fs";
 import { basename, dirname, join } from "path";
-import { pipeline, Readable } from "stream";
+import { pipeline, type Readable } from "stream";
 import { promisify } from "util";
 import yauzl from "yauzl";
 
@@ -12,8 +12,8 @@ function openZipPromise(
 ): Promise<yauzl.ZipFile> {
   return new Promise((resolve, reject) => {
     yauzl.open(path, opts, (err, zipfile) => {
-      if (err) reject(err);
-      else resolve(zipfile);
+      if (err) {reject(err);}
+      else {resolve(zipfile);}
     });
   });
 }
@@ -24,8 +24,8 @@ function openReadStreamPromise(
 ): Promise<Readable> {
   return new Promise((resolve, reject) => {
     zipfile.openReadStream(entry, (err, stream) => {
-      if (err) reject(err);
-      else resolve(stream);
+      if (err) {reject(err);}
+      else {resolve(stream);}
     });
   });
 }
@@ -50,14 +50,16 @@ function decodeFilename(raw: Buffer, generalPurposeBitFlag: number): string {
   }
 
   // Invalid UTF-8 or no recognizable characters → try Shift_JIS (legacy Japanese zips)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sjis = new TextDecoder("shift_jis" as any, { fatal: false }).decode(
     raw,
   );
 
   const sjisHasCJK = /[\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff]/.test(sjis);
-  if (sjisHasCJK) return sjis;
+  if (sjisHasCJK) {return sjis;}
 
   // Fallback: CP437 (what yauzl defaults to, approximated by ISO-8859-1)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return new TextDecoder("iso-8859-1" as any).decode(raw);
 }
 

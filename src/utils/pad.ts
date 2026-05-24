@@ -31,7 +31,7 @@ export async function padImageFilenames(imgDir: string): Promise<{ success: bool
 
   for (const f of allFiles) {
     const ext = extname(f).toLowerCase();
-    if (!VALID_IMAGE_EXTS.has(ext)) continue;
+    if (!VALID_IMAGE_EXTS.has(ext)) {continue;}
     const name = basename(f, ext);
     const [prefix, suffix] = extractNumericPrefix(name);
     if (prefix !== null) {
@@ -68,7 +68,7 @@ export async function padImageFilenames(imgDir: string): Promise<{ success: bool
 
     for (const [original, padded] of renamePlan) {
       const tmp = tmpNames.get(original);
-      if (!tmp) throw new Error(`Missing temp name for ${original}`);
+      if (!tmp) {throw new Error(`Missing temp name for ${original}`);}
       await rename(join(imgDir, tmp), join(imgDir, padded));
     }
 

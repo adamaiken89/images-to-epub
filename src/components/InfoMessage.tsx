@@ -7,7 +7,7 @@ export function InfoMessage() {
   const zipCount = useStore((s) => s.zipCount);
   const showHelp = useStore((s) => s.showHelp);
 
-  if (folderCount === 0 && zipCount === 0) return null;
+  if (folderCount === 0 && zipCount === 0) {return null;}
 
   return (
     <text marginTop={1} fg={colors.dim}>

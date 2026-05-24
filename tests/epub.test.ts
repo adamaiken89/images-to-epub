@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "bun:test";
-import { mkdtempSync, writeFileSync, readFileSync, existsSync } from "fs";
+import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from "fs";
 import { tmpdir } from "os";
 import { join, basename } from "path";
 import sharp from "sharp";
@@ -8,7 +8,6 @@ import { createEpubFromFolder } from "../src/utils/epub";
 
 function cleanup(base: string) {
   try {
-    const { rmSync } = require("fs");
     rmSync(base, { recursive: true, force: true });
   } catch {
     // ignore
@@ -28,8 +27,8 @@ describe("createEpubFromFolder", () => {
   let outputDir: string;
 
   afterEach(() => {
-    if (base) cleanup(base);
-    if (outputDir) cleanup(outputDir);
+    if (base) {cleanup(base);}
+    if (outputDir) {cleanup(outputDir);}
   });
 
   it("returns error for nonexistent directory", async () => {
