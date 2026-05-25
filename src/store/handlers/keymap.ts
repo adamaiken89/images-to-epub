@@ -1,6 +1,6 @@
 import type { KeyEvent } from "@opentui/core";
 import type { CliRenderer } from "@opentui/core";
-import { useStore } from "..";
+import { useStore } from "@/store";
 
 export interface KeyHandlerContext {
   renderer: CliRenderer;

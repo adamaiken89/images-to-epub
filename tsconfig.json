@@ -17,7 +17,11 @@
     "sourceMap": true,
     "jsx": "react-jsx",
     "jsxImportSource": "@opentui/react",
-    "types": ["bun-types"]
+    "types": ["bun-types"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules", "dist", "legacy"]

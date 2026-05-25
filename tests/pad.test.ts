@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach } from "bun:test";
 import { mkdtempSync, writeFileSync, readdirSync, rmSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
-import { extractNumericPrefix, padImageFilenames } from "../src/utils/pad";
+import { extractNumericPrefix, padImageFilenames } from "@/utils/pad";
 
 function createTestDir(files: string[]): string {
   const base = mkdtempSync(join(tmpdir(), "pad-test-"));

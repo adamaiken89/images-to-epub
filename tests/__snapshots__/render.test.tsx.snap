@@ -1,0 +1,53 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`component snapshots Header snapshot with directory 1`] = `
+"EPUB Generator                                              
+/test/path                                                  
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+"
+`;
+
+exports[`component snapshots InfoMessage snapshot with counts 1`] = `
+"                                                            
+Found 3 folder(s), 1 zip(s)                                 
+↑↓ to navigate, [Space] to toggle, [Enter] to process. [n]  
+to rename, [h] help                                         
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+"
+`;
+
+exports[`component snapshots HelpModal snapshot 1`] = `
+"┌──────────────────────────────────────────────────────────┐
+│                                                          │
+│ Keyboard Shortcuts                                       │
+│                                                          │
+│ [Space]Toggle selection                                  │
+│ [a]Select All  [d]Deselect All                           │
+│ [p]Process EPUB                                          │
+│ [u]Unzip                                                 │
+│ [z]Pad filenames                                         │
+│ [c]Change dir                                            │
+│ [r]Refresh                                               │
+│ [n]Rename folder                                         │
+│ [q]Quit                                                  │
+│ [Esc] or [h]Close help                                   │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+│                                                          │
+└──────────────────────────────────────────────────────────┘
+"
+`;

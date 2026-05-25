@@ -4,9 +4,9 @@ import {
   findFoldersWithImages,
   findZipFiles,
   organizeFoldersByHierarchy,
-} from "../../utils/fs";
-import type { AppState, TreeItem } from "../types";
-import { t } from "../../utils/i18n";
+} from "@/utils/fs";
+import type { AppState, TreeItem } from "@/store/types";
+import { t } from "@/utils/i18n";
 
 function getInitialDir(): string | null {
   const arg = process.argv[2];

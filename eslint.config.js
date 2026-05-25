@@ -25,6 +25,17 @@ export default tseslint.config(
       curly: ["error", "all"],
       eqeqeq: ["error", "always", { null: "ignore" }],
       "no-console": ["warn", { allow: ["error", "warn"] }],
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["../**", "../../**"],
+              message: "Use '@/' alias instead of parent-relative imports. Relative imports within the same directory ('./') are fine.",
+            },
+          ],
+        },
+      ],
     },
   }
 );

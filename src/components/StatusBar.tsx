@@ -1,5 +1,5 @@
-import { useStore } from "../store";
-import { colors } from "../utils/colors";
+import { useStore } from "@/store";
+import { colors } from "@/utils/colors";
 
 const STATUS_COLORS: Record<string, string> = {
   info: colors.statusInfo,

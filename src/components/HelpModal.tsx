@@ -1,6 +1,6 @@
 import { createTextAttributes } from "@opentui/core";
-import { colors } from "../utils/colors";
-import { t } from "../utils/i18n";
+import { colors } from "@/utils/colors";
+import { t } from "@/utils/i18n";
 
 const BOLD = createTextAttributes({ bold: true });
 
