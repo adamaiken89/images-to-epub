@@ -22,8 +22,7 @@ export default function App() {
 
   useKeyboard(
     (key) => {
-      const { isProcessing, changeDirMode, renameMode, showHelp, items, focusIndex } = useStore.getState();
-      handleKey(key, { renderer, isProcessing, changeDirMode, renameMode, showHelp, itemsLength: items.length, focusIndex, getState: useStore.getState, setState: useStore.setState });
+      handleKey(key, { renderer, getState: useStore.getState, setState: useStore.setState });
     },
     { release: false }
   );
