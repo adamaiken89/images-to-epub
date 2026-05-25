@@ -88,6 +88,7 @@ export const createSelectionSlice: StateCreator<
         status: { type: "info", message: t("selection.item", { count: newSelected.size }) },
       });
     } else {
+      const targetDepth = item.depth;
       let ancestorChecked = false;
       let ancestorCheckDepth = -1;
       for (const it of items) {
@@ -96,7 +97,7 @@ export const createSelectionSlice: StateCreator<
           ancestorChecked = false;
           ancestorCheckDepth = -1;
         }
-        if (it.checked) {
+        if (it.depth < targetDepth && it.checked) {
           ancestorChecked = true;
           ancestorCheckDepth = it.depth;
         }
