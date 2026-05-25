@@ -9,6 +9,7 @@
     "dev": "bun run --watch src/index.tsx",
     "test": "bun test",
     "test:watch": "bun test --watch",
+    "test:coverage": "bun test --coverage",
     "build": "bun build src/index.tsx --outdir dist --target bun",
     "lint": "tsc --noEmit && eslint src/ tests/",
     "lint:eslint": "eslint src/ tests/",

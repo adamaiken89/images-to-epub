@@ -53,7 +53,7 @@ The app opens a terminal interface showing the folder tree. Press `Space` to tog
 ```sh
 bun run dev      # Watch mode
 bun test         # Run tests
-bun test:watch   # Watch tests
+bun test:coverage # Coverage report + 90% threshold check
 bun test --coverage  # Run tests with coverage report
 ```
 
@@ -125,11 +125,12 @@ tests/
 ## Test Coverage
 
 ```
-All files          | 100.00% Funcs | 97.15% Lines
-src/utils/epub.ts  | 100.00% Funcs | 97.54% Lines
-src/utils/fs.ts    | 100.00% Funcs | 97.22% Lines
-src/utils/pad.ts   | 100.00% Funcs | 93.85% Lines
-src/utils/zip.ts   | 100.00% Funcs | 100.00% Lines
+All files          |   86.75% Funcs |   84.77% Lines
+src/utils/colors.ts|  100.00% Funcs |  100.00% Lines
+src/utils/epub.ts  |  100.00% Funcs |   97.66% Lines
+src/utils/fs.ts    |   84.21% Funcs |   92.00% Lines
+src/utils/pad.ts   |  100.00% Funcs |   95.16% Lines
+src/utils/zip.ts   |   95.24% Funcs |   90.30% Lines
 ```
 
 Run `bun test --coverage` to see the latest report.

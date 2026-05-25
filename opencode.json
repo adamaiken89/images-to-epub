@@ -7,10 +7,5 @@
       "enabled": true
     }
   },
-  "plugin": ["opencode-yaml-hooks"],
-  "permission": {
-    "skill": {
-      "*": "allow"
-    }
-  }
+  "plugin": ["opencode-yaml-hooks"]
 }
