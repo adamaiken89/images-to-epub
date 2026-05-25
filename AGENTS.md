@@ -51,9 +51,10 @@ src/
 | `bun test` | Run all tests |
 | `bun test <path>` | Single test file |
 | `bun test --coverage` | Coverage report |
+| `bun test:coverage` | Coverage report + 90% threshold check |
 | `bun run lint` | Typecheck (`tsc --noEmit`) |
 
-Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ tests/`).
+Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ tests/`). Coverage threshold checked via `bun run test:coverage` (≥90% Funcs + Lines, configured in `bunfig.toml`).
 
 ## Zustand patterns
 
@@ -104,6 +105,7 @@ Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ t
 - Render tests use OpenTUI's `testRender` + `captureCharFrame` from `@opentui/react/test-utils`
 - Zip tests create real zip files via JSZip + write to temp dirs
 - Line coverage >97%, Function coverage 100%
+- `bun run test:coverage` enforces ≥90% Funcs and Lines (configured in `bunfig.toml`, exits non-zero if below)
 
 ## Git conventions
 
@@ -116,9 +118,6 @@ Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ t
 
 - Use `context7` MCP tools for documentation lookups (configured in `opencode.json`)
 - `opencode-yaml-hooks` plugin fires `scripts/session-end.sh` on `session.deleted`:
-  - Fetches `origin/main` and rebases current branch (skipped on `main`/`master`; set `SKIP_REBASE=true` to skip)
-  - Auto-stages changes, commits (`auto: session changes`), pushes, creates PR via `gh` CLI
-- Permission rule: all skills allowed
 
 ## Color conventions
 

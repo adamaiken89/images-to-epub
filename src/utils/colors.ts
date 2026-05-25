@@ -24,4 +24,7 @@ export const colors = {
 
   dim: "#888888",
   subdirName: "#aaaaaa",
+
+  checkboxOn: "#66ff66",
+  checkboxImplicit: "#446644",
 } as const;
