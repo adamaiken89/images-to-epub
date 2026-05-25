@@ -112,21 +112,13 @@ Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ t
 - One feature per branch, squash before merge
 - e.g. `feat(i18n): plural forms, zero handling, and interpolation in translations`
 
-## OpenCode configuration
+## Tooling
 
-- `opencode.json` at project root configures MCP, plugins, and skill permissions
-- Context7 MCP (`https://mcp.context7.com/mcp/oauth`) for documentation lookups — use with `use context7`
-- `opencode-yaml-hooks` plugin for session lifecycle hooks
-- Global skill `find-docs` installed at `~/.config/opencode/skills/find-docs/`
-
-## Session-end hook
-
-- `.opencode/hooks.yaml` fires `scripts/session-end.sh` on `session.deleted`
-- Fetches latest `origin/main` and rebases the current branch (skipped on `main`/`master`)
-- Set `SKIP_REBASE=true` to skip the fetch+rebase step
-- Auto-stages all changes, commits (`auto: session changes`), pushes, and creates a PR if on a non-main branch
-- Requires `opencode-yaml-hooks` plugin (declared in `opencode.json`)
-- Requires `gh` CLI for PR creation
+- Use `context7` MCP tools for documentation lookups (configured in `opencode.json`)
+- `opencode-yaml-hooks` plugin fires `scripts/session-end.sh` on `session.deleted`:
+  - Fetches `origin/main` and rebases current branch (skipped on `main`/`master`; set `SKIP_REBASE=true` to skip)
+  - Auto-stages changes, commits (`auto: session changes`), pushes, creates PR via `gh` CLI
+- Permission rule: all skills allowed
 
 ## Color conventions
 

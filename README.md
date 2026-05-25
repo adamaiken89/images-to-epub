@@ -31,6 +31,21 @@ bun start                    # Scans ~/Downloads by default
 bun start /path/to/images    # Start with a specific directory
 ```
 
+For quick access from anywhere, add this alias to `~/.zshrc`:
+
+```sh
+alias img2epub='cd "/path/to/images_to_epub" && bun start'
+```
+
+Or run the setup script from the project root:
+
+```sh
+bash scripts/setup-alias.sh            # alias named 'img2epub'
+bash scripts/setup-alias.sh myalias    # custom alias name
+```
+
+Then run `img2epub` or `img2epub /path/to/images` from any directory.
+
 The app opens a terminal interface showing the folder tree. Press `Space` to toggle items, `Enter` or `p` to process, and `c` to change the scanned directory.
 
 ## Development
