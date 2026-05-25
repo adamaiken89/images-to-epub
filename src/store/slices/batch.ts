@@ -1,20 +1,28 @@
 import { basename } from "path";
-import type { StateCreator } from "zustand";
+
 import { createEpubFromFolder } from "@utils/epub";
+import { t } from "@utils/i18n";
 import { padImageFilenames } from "@utils/pad";
 import { unzipFile } from "@utils/zip";
-import type { AppState } from "@store/types";
-import { getFoldersToProcess } from "./selection";
-import { t } from "@utils/i18n";
 
+import { getFoldersToProcess } from "./selection";
+
+import type { StateCreator } from "zustand";
+import type { AppState } from "@store/types";
 async function batchProcess(
-  set: (partial: Partial<AppState> | ((state: AppState) => Partial<AppState>)) => void,
+  set: (
+    partial: Partial<AppState> | ((state: AppState) => Partial<AppState>),
+  ) => void,
   get: () => AppState,
   targets: string[],
-  processor: (target: string) => Promise<{ success: boolean; message?: string }>,
-  collectFailures = false
+  processor: (
+    target: string,
+  ) => Promise<{ success: boolean; message?: string }>,
+  collectFailures = false,
 ): Promise<void> {
-  if (targets.length === 0) {return;}
+  if (targets.length === 0) {
+    return;
+  }
 
   let successCount = 0;
   let failCount = 0;
@@ -22,7 +30,14 @@ async function batchProcess(
 
   for (let i = 0; i < targets.length; i++) {
     set({
-      status: { type: "progress", message: t("batch.progress", { current: i + 1, total: targets.length, name: basename(targets[i]) }) },
+      status: {
+        type: "progress",
+        message: t("batch.progress", {
+          current: i + 1,
+          total: targets.length,
+          name: basename(targets[i]),
+        }),
+      },
     });
     const result = await processor(targets[i]);
     if (result.success) {
@@ -39,7 +54,8 @@ async function batchProcess(
   set({
     status: {
       type: "done",
-      message: t("batch.done", { success: successCount, failed: failCount }) + suffix,
+      message:
+        t("batch.done", { success: successCount, failed: failCount }) + suffix,
     },
     isProcessing: false,
   });
@@ -49,7 +65,14 @@ export const createBatchSlice: StateCreator<
   AppState,
   [],
   [],
-  Pick<AppState, "status" | "isProcessing" | "processFolders" | "unzipSelected" | "padSelected">
+  Pick<
+    AppState,
+    | "status"
+    | "isProcessing"
+    | "processFolders"
+    | "unzipSelected"
+    | "padSelected"
+  >
 > = (set, get, _store) => ({
   status: { type: "info", message: t("selection.item", { count: 0 }) },
   isProcessing: false,
@@ -66,20 +89,26 @@ export const createBatchSlice: StateCreator<
   },
 
   unzipSelected: async () => {
-    const { selectedIds, items, baseDir } = get();
+    const { selectedIds, baseDir } = get();
     const zips = Array.from(selectedIds)
       .filter((id) => id.startsWith("zip:"))
       .map((id) => id.slice(4));
-    if (zips.length === 0) {return;}
+    if (zips.length === 0) {
+      return;
+    }
     set({ isProcessing: true });
     await batchProcess(set, get, zips, unzipFile);
-    if (baseDir) {await get().loadFolders(baseDir);}
+    if (baseDir) {
+      await get().loadFolders(baseDir);
+    }
   },
 
   padSelected: async () => {
     const { selectedIds, items } = get();
     const folders = getFoldersToProcess(selectedIds, items);
-    if (folders.length === 0) {return;}
+    if (folders.length === 0) {
+      return;
+    }
     set({ isProcessing: true });
     await batchProcess(set, get, folders, padImageFilenames);
   },
