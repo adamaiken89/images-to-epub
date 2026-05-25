@@ -1,0 +1,67 @@
+{
+  "header": {
+    "title": "EPUB Generator",
+    "noDir": "No directory selected"
+  },
+  "info": {
+    "found": "Found",
+    "foldersLabel": "folder(s),",
+    "zipsLabel": "zip(s)",
+    "toNavigate": "to navigate,",
+    "toToggle": "to toggle,",
+    "toProcess": "to process.",
+    "toRename": "to rename,",
+    "hide": "hide",
+    "help": "help"
+  },
+  "tree": {
+    "noFolders": "No folders found.",
+    "checkboxOn": "[x]",
+    "checkboxOff": "[ ]",
+    "zipPrefix": "\uD83D\uDCE6 "
+  },
+  "modal": {
+    "title": "Keyboard Shortcuts",
+    "toggle": "Toggle selection",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "process": "Process EPUB",
+    "unzip": "Unzip",
+    "pad": "Pad filenames",
+    "changeDir": "Change dir",
+    "refresh": "Refresh",
+    "rename": "Rename folder",
+    "quit": "Quit",
+    "or": "or",
+    "closeHelp": "Close help"
+  },
+  "prompt": {
+    "title": "Change Directory:",
+    "placeholder": "Enter directory path...",
+    "subdirs": "Subdirs:",
+    "more": "...(+{{count}})",
+    "escCancel": "ESC to cancel"
+  },
+  "rename": {
+    "title": "Rename Folder:",
+    "placeholder": "Enter new folder name...",
+    "hint": "Add ### Author to set EPUB author metadata",
+    "escCancel": "ESC to cancel"
+  },
+  "error": {
+    "unexpected": "Unexpected Error"
+  },
+  "scan": {
+    "scanning": "Scanning folders...",
+    "noResults": "No folders with images or zips found."
+  },
+  "selection": {
+    "item_zero": "No items selected",
+    "item_one": "{{count}} item selected",
+    "item_other": "{{count}} items selected"
+  },
+  "batch": {
+    "progress": "{{current}}/{{total}}: {{name}}...",
+    "done": "Done! Success: {{success}}, Failed: {{failed}}"
+  }
+}
