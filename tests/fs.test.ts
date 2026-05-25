@@ -45,8 +45,10 @@ describe("findFoldersWithImages", () => {
 
   it("returns empty for nonexistent directory", async () => {
     const result = await findFoldersWithImages("/nonexistent/path");
-    expect(result.foldersWithImages).toEqual([]);
-    expect(result.allFolders.size).toBe(0);
+    expect(result).toEqual({
+      foldersWithImages: [],
+      allFolders: new Map(),
+    });
   });
 
   it("finds folders with images", async () => {
@@ -55,18 +57,38 @@ describe("findFoldersWithImages", () => {
       "folder2/sub/img2.png": "",
       "folder3/readme.txt": "hello",
     });
-    const { foldersWithImages, allFolders } = await findFoldersWithImages(base);
+    const result = await findFoldersWithImages(base);
 
-    expect(foldersWithImages.length).toBe(2);
-    expect(foldersWithImages.some((p) => p.endsWith("folder1"))).toBe(true);
-    expect(foldersWithImages.some((p) => p.endsWith("sub"))).toBe(true);
+    expect(result).toEqual({
+      foldersWithImages: expect.arrayContaining([
+        expect.stringMatching(/folder1$/),
+        expect.stringMatching(/sub$/),
+      ]),
+      allFolders: expect.any(Map),
+    });
+    expect(result.foldersWithImages).toHaveLength(2);
 
-    // folder1 and sub have images
-    expect(Array.from(allFolders.values()).filter((m) => m.hasImages).length).toBe(2);
-    // folder2 is an ancestor of sub with images
-    expect(
-      Array.from(allFolders.entries()).some(([p, m]) => p.endsWith("folder2") && m.hasSubfolders)
-    ).toBe(true);
+    const allFolders = result.allFolders;
+    const folder1Meta = Array.from(allFolders.entries()).find(([p]) => p.endsWith("folder1"))?.[1];
+    expect(folder1Meta).toEqual({
+      hasImages: true,
+      hasSubfolders: false,
+      hasZips: false,
+    });
+
+    const subMeta = Array.from(allFolders.entries()).find(([p]) => p.endsWith("sub"))?.[1];
+    expect(subMeta).toEqual({
+      hasImages: true,
+      hasSubfolders: false,
+      hasZips: false,
+    });
+
+    const folder2Meta = Array.from(allFolders.entries()).find(([p]) => p.endsWith("folder2"))?.[1];
+    expect(folder2Meta).toEqual({
+      hasImages: false,
+      hasSubfolders: true,
+      hasZips: false,
+    });
   });
 
   it("marks zip presence", async () => {
@@ -74,10 +96,13 @@ describe("findFoldersWithImages", () => {
       "folder1/archive.zip": "",
       "folder1/img.jpg": "",
     });
-    const { allFolders } = await findFoldersWithImages(base);
-    const folder1Meta = Array.from(allFolders.entries()).find(([p]) => p.endsWith("folder1"));
-    expect(folder1Meta?.[1].hasZips).toBe(true);
-    expect(folder1Meta?.[1].hasImages).toBe(true);
+    const result = await findFoldersWithImages(base);
+    const folder1Meta = Array.from(result.allFolders.entries()).find(([p]) => p.endsWith("folder1"));
+    expect(folder1Meta?.[1]).toEqual({
+      hasImages: true,
+      hasSubfolders: false,
+      hasZips: true,
+    });
   });
 });
 
@@ -89,10 +114,10 @@ describe("organizeFoldersByHierarchy", () => {
     ]);
     const result = organizeFoldersByHierarchy(allFolders, "/base");
 
-    expect(result.has("folder1")).toBe(true);
-    expect(result.has("folder2")).toBe(true);
-    expect(result.get("folder1")?.parts).toEqual(["folder1"]);
-    expect(result.get("folder2")?.metadata.hasSubfolders).toBe(true);
+    expect(result).toEqual(new Map([
+      ["folder1", { parts: ["folder1"], path: "/base/folder1", metadata: { hasImages: true, hasSubfolders: false, hasZips: false } }],
+      ["folder2", { parts: ["folder2"], path: "/base/folder2", metadata: { hasImages: false, hasSubfolders: true, hasZips: false } }],
+    ]));
   });
 });
 
@@ -110,9 +135,13 @@ describe("findZipFiles", () => {
       "sub/c.txt": "",
     });
     const zips = await findZipFiles(base);
-    expect(zips.length).toBe(2);
-    expect(zips.some((z) => z.endsWith("a.zip"))).toBe(true);
-    expect(zips.some((z) => z.endsWith("b.zip"))).toBe(true);
+    expect(zips).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/a\.zip$/),
+        expect.stringMatching(/b\.zip$/),
+      ]),
+    );
+    expect(zips).toHaveLength(2);
   });
 });
 

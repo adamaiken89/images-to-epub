@@ -71,8 +71,10 @@ describe("unzipFile", () => {
     });
 
     const result = await unzipFile(zipPath);
-    expect(result.success).toBe(true);
-    expect(result.message).toInclude("Extracted");
+    expect(result).toEqual({
+      success: true,
+      message: expect.stringContaining("Extracted"),
+    });
 
     const extractDir = join(base, "archive");
     expect(existsSync(extractDir)).toBe(true);
@@ -86,13 +88,15 @@ describe("unzipFile", () => {
     writeFileSync(zipPath, "this is not a zip file");
 
     const result = await unzipFile(zipPath);
-    expect(result.success).toBe(false);
-    expect(result.message).toInclude("Bad zip file");
+    expect(result).toEqual({
+      success: false,
+      message: expect.stringContaining("Bad zip file"),
+    });
   });
 
   it("fails for nonexistent file", async () => {
     const result = await unzipFile("/nonexistent/file.zip");
-    expect(result.success).toBe(false);
+    expect(result).toEqual({ success: false, message: expect.any(String) });
   });
 
   it("strips common top-level directory to avoid double-nesting", async () => {
@@ -108,7 +112,7 @@ describe("unzipFile", () => {
     });
 
     const result = await unzipFile(zipPath);
-    expect(result.success).toBe(true);
+    expect(result).toEqual({ success: true, message: expect.any(String) });
 
     const extractDir = join(base, "manga");
     expect(existsSync(extractDir)).toBe(true);
@@ -126,7 +130,7 @@ describe("unzipFile", () => {
     await createZip(zipPath, { "file1.txt": "hello", "file2.txt": "world" });
 
     const result = await unzipFile(zipPath);
-    expect(result.success).toBe(true);
+    expect(result).toEqual({ success: true, message: expect.any(String) });
 
     const extractDir = join(base, "flat");
     expect(existsSync(join(extractDir, "file1.txt"))).toBe(true);
@@ -144,7 +148,7 @@ describe("unzipFile", () => {
     });
 
     const result = await unzipFile(zipPath);
-    expect(result.success).toBe(true);
+    expect(result).toEqual({ success: true, message: expect.any(String) });
 
     const extractDir = join(base, "jp-utf8flag");
     expect(existsSync(join(extractDir, "readme.txt"))).toBe(true);
@@ -162,7 +166,7 @@ describe("unzipFile", () => {
     });
 
     const result = await unzipFile(zipPath);
-    expect(result.success).toBe(true);
+    expect(result).toEqual({ success: true, message: expect.any(String) });
 
     const extractDir = join(base, "jp-noutf8flag");
     expect(existsSync(join(extractDir, "readme.txt"))).toBe(true);

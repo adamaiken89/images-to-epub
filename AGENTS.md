@@ -94,7 +94,10 @@ Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ t
 ## Testing
 
 - Runner: `bun:test` (describe, it, expect)
-- 51 tests across 6 files
+- 56 tests across 7 files
+- Use `toEqual()` on the **full return value** of functions to detect interface changes — if a field is added/removed/renamed on the return type, the test fails immediately
+- For dynamic fields (error messages, file paths), use matchers like `expect.stringContaining(...)`, `expect.stringMatching(/.../)`, `expect.arrayContaining([...])`, or `expect.any(Type)` inside `toEqual()`
+- For complex nested returns, split into multiple `toEqual()` assertions per sub-object rather than one monolithic call — the goal is still full-shape coverage, not single-line brevity
 - Keymap tests use `useStore.getState()`/`setState()` directly — no React rendering
 - Render tests use OpenTUI's `testRender` + `captureCharFrame` from `@opentui/react/test-utils`
 - Zip tests create real zip files via JSZip + write to temp dirs

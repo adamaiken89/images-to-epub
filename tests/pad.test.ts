@@ -40,8 +40,10 @@ describe("padImageFilenames", () => {
   it("pads numeric prefixes to uniform width", async () => {
     base = createTestDir(["1.jpg", "22.jpg", "333.jpg"]);
     const result = await padImageFilenames(base);
-    expect(result.success).toBe(true);
-    expect(result.message).toInclude("Padded 2 file(s)");
+    expect(result).toEqual({
+      success: true,
+      message: expect.stringContaining("Padded 2 file(s)"),
+    });
 
     const files = readdirSync(base).filter((f) => !f.startsWith("__pad_tmp"));
     expect(files.sort()).toEqual(["001.jpg", "022.jpg", "333.jpg"]);
@@ -50,14 +52,19 @@ describe("padImageFilenames", () => {
   it("skips when already padded", async () => {
     base = createTestDir(["001.jpg", "022.jpg", "333.jpg"]);
     const result = await padImageFilenames(base);
-    expect(result.success).toBe(true);
-    expect(result.message).toInclude("Already padded");
+    expect(result).toEqual({
+      success: true,
+      message: expect.stringContaining("Already padded"),
+    });
   });
 
   it("handles suffixes", async () => {
     base = createTestDir(["1-a.jpg", "22-b.jpg"]);
     const result = await padImageFilenames(base);
-    expect(result.success).toBe(true);
+    expect(result).toEqual({
+      success: true,
+      message: expect.stringContaining("Padded"),
+    });
 
     const files = readdirSync(base).filter((f) => !f.startsWith("__pad_tmp"));
     expect(files.sort()).toEqual(["01-a.jpg", "22-b.jpg"]);
@@ -66,15 +73,19 @@ describe("padImageFilenames", () => {
   it("skips non-numeric images", async () => {
     base = createTestDir(["abc.jpg", "def.png"]);
     const result = await padImageFilenames(base);
-    expect(result.success).toBe(true);
-    expect(result.message).toInclude("Skipped");
+    expect(result).toEqual({
+      success: true,
+      message: expect.stringContaining("Skipped"),
+    });
   });
 
   it("ignores non-image files", async () => {
     base = createTestDir(["1.jpg", "readme.txt", "22.webp"]);
     const result = await padImageFilenames(base);
-    expect(result.success).toBe(true);
-    expect(result.message).toInclude("Padded");
+    expect(result).toEqual({
+      success: true,
+      message: expect.stringContaining("Padded"),
+    });
 
     const files = readdirSync(base)
       .filter((f) => !f.startsWith("__pad_tmp") && !f.endsWith(".txt"))
@@ -84,7 +95,9 @@ describe("padImageFilenames", () => {
 
   it("fails for nonexistent directory", async () => {
     const result = await padImageFilenames("/nonexistent/path");
-    expect(result.success).toBe(false);
-    expect(result.message).toInclude("Error reading folder");
+    expect(result).toEqual({
+      success: false,
+      message: expect.stringContaining("Error reading folder"),
+    });
   });
 });
