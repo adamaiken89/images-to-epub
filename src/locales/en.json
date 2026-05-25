@@ -35,6 +35,7 @@
     "rename": "Rename folder",
     "quit": "Quit",
     "or": "or",
+    "setAuthor": "Set author",
     "closeHelp": "Close help"
   },
   "prompt": {
@@ -48,6 +49,12 @@
     "title": "Rename Folder:",
     "placeholder": "Enter new folder name...",
     "hint": "Add ### Author to set EPUB author metadata",
+    "escCancel": "ESC to cancel"
+  },
+  "author": {
+    "title": "Set author for selected folders:",
+    "placeholder": "Enter author name...",
+    "hint": "Appends '### Author' to each folder name",
     "escCancel": "ESC to cancel"
   },
   "error": {

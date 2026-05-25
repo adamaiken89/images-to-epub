@@ -14,17 +14,16 @@ export function HelpModal() {
         <span fg={colors.keyHighlight}>[Space]</span>{t("modal.toggle")}
       </text>
       <text fg={colors.controlsText}>
-        <span fg={colors.keyHighlight}>[a]</span>{t("modal.selectAll")}{"  "}
-        <span fg={colors.keyHighlight}>[d]</span>{t("modal.deselectAll")}
+        <span fg={colors.keyHighlight}>[a]</span>{t("modal.selectAll")}{" "}(toggle)
       </text>
       <text fg={colors.controlsText}>
-        <span fg={colors.keyHighlight}>[p]</span>{t("modal.process")}
+        <span fg={colors.keyHighlight}>[Enter]</span>{t("modal.process")}
+      </text>
+      <text fg={colors.controlsText}>
+        <span fg={colors.keyHighlight}>[p]</span>{t("modal.pad")}
       </text>
       <text fg={colors.controlsText}>
         <span fg={colors.keyHighlight}>[u]</span>{t("modal.unzip")}
-      </text>
-      <text fg={colors.controlsText}>
-        <span fg={colors.keyHighlight}>[z]</span>{t("modal.pad")}
       </text>
       <text fg={colors.controlsText}>
         <span fg={colors.keyHighlight}>[c]</span>{t("modal.changeDir")}
@@ -34,6 +33,9 @@ export function HelpModal() {
       </text>
       <text fg={colors.controlsText}>
         <span fg={colors.keyHighlight}>[n]</span>{t("modal.rename")}
+      </text>
+      <text fg={colors.controlsText}>
+
       </text>
       <text fg={colors.controlsText}>
         <span fg={colors.keyHighlight}>[q]</span>{t("modal.quit")}

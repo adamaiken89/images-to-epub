@@ -447,3 +447,39 @@ describe("init action", () => {
     expect(state.baseDir).not.toBe("");
   });
 });
+
+describe("author mode actions", () => {
+  beforeEach(() => {
+    useStore.setState({
+      baseDir: "/test/books",
+      authorMode: false,
+      isProcessing: false,
+      status: { type: "info", message: "" },
+    });
+  });
+
+  it("openAuthorMode sets authorMode", () => {
+    useStore.getState().openAuthorMode();
+    expect(useStore.getState().authorMode).toBe(true);
+  });
+
+  it("cancelAuthorMode resets authorMode", () => {
+    useStore.setState({ authorMode: true });
+    useStore.getState().cancelAuthorMode();
+    expect(useStore.getState().authorMode).toBe(false);
+  });
+
+  it("submitAuthorName with empty name cancels", async () => {
+    useStore.setState({ authorMode: true });
+    await useStore.getState().submitAuthorName("");
+    expect(useStore.getState().authorMode).toBe(false);
+  });
+
+  it("submitAuthorName with no folders selected shows status", async () => {
+    useStore.setState({ authorMode: true, items: [], selectedIds: new Set() });
+    await useStore.getState().submitAuthorName("Author");
+    const state = useStore.getState();
+    expect(state.authorMode).toBe(false);
+    expect(state.status.message).toContain("No folders selected");
+  });
+});

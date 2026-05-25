@@ -51,7 +51,7 @@ export const createSelectionSlice: StateCreator<
   AppState,
   [],
   [],
-  Pick<AppState, "items" | "selectedIds" | "focusIndex" | "toggleItem" | "selectAll" | "deselectAll">
+  Pick<AppState, "items" | "selectedIds" | "focusIndex" | "toggleItem" | "selectAll">
 > = (set, get, _store) => ({
   items: [],
   selectedIds: new Set(),
@@ -121,21 +121,20 @@ export const createSelectionSlice: StateCreator<
   },
 
   selectAll: () => {
-    const { items } = get();
-    const allIds = new Set(items.map((i) => i.id));
-    set({
-      selectedIds: allIds,
-      items: items.map((it) => ({ ...it, checked: true, excluded: false })),
-      status: { type: "info", message: t("selection.item", { count: allIds.size }) },
-    });
-  },
-
-  deselectAll: () => {
-    const { items } = get();
-    set({
-      selectedIds: new Set(),
-      items: items.map((it) => ({ ...it, checked: false, excluded: false })),
-      status: { type: "info", message: t("selection.item", { count: 0 }) },
-    });
+    const { items, selectedIds } = get();
+    if (selectedIds.size === items.length && items.length > 0) {
+      set({
+        selectedIds: new Set(),
+        items: items.map((it) => ({ ...it, checked: false, excluded: false })),
+        status: { type: "info", message: t("selection.item", { count: 0 }) },
+      });
+    } else {
+      const allIds = new Set(items.map((i) => i.id));
+      set({
+        selectedIds: allIds,
+        items: items.map((it) => ({ ...it, checked: true, excluded: false })),
+        status: { type: "info", message: t("selection.item", { count: allIds.size }) },
+      });
+    }
   },
 });

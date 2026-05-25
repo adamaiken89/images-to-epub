@@ -1,5 +1,5 @@
 import { readdir, stat, rename } from "fs/promises";
-import { join, relative, normalize, dirname, sep } from "path";
+import { basename, join, relative, normalize, dirname, sep } from "path";
 import { homedir } from "os";
 
 export const VALID_IMAGE_EXTS = new Set([".webp", ".jpg", ".jpeg", ".png"]);
@@ -179,4 +179,25 @@ export async function renameFolder(oldPath: string, newName: string): Promise<{ 
   } catch (err) {
     return { success: false, message: (err as Error).message };
   }
+}
+
+export async function batchSetAuthor(
+  folderPaths: string[],
+  authorName: string,
+): Promise<Array<{ path: string; success: boolean; message: string }>> {
+  const results: Array<{ path: string; success: boolean; message: string }> = [];
+  for (const folderPath of folderPaths) {
+    const parent = dirname(folderPath);
+    const oldName = basename(folderPath);
+    const baseName = oldName.split("###")[0].trimEnd();
+    const newName = `${baseName} ### ${authorName}`;
+    const newPath = join(parent, newName);
+    try {
+      await rename(folderPath, newPath);
+      results.push({ path: folderPath, success: true, message: newName });
+    } catch (err) {
+      results.push({ path: folderPath, success: false, message: (err as Error).message });
+    }
+  }
+  return results;
 }

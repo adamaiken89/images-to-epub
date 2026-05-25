@@ -168,3 +168,41 @@ describe("findDefaultBaseDir", () => {
     expect(dir).toInclude("Downloads");
   });
 });
+
+describe("batchSetAuthor", () => {
+  let base: string;
+
+  afterEach(() => {
+    if (base) {cleanup(base);}
+  });
+
+  it("appends ### author to folder names", async () => {
+    const { batchSetAuthor } = await import("@utils/fs");
+    base = createTestDir({
+      "manga1/pic.webp": "",
+      "manga2/pic.jpg": "",
+    });
+    const result = await batchSetAuthor([join(base, "manga1"), join(base, "manga2")], "Test Author");
+    expect(result).toHaveLength(2);
+    expect(result[0].success).toBe(true);
+    expect(result[1].success).toBe(true);
+    expect(result[0].message).toContain("manga1 ### Test Author");
+    expect(result[1].message).toContain("manga2 ### Test Author");
+  });
+
+  it("replaces existing ### suffix", async () => {
+    const { batchSetAuthor } = await import("@utils/fs");
+    base = createTestDir({
+      "manga1 ### OldAuthor/pic.webp": "",
+    });
+    const result = await batchSetAuthor([join(base, "manga1 ### OldAuthor")], "New Author");
+    expect(result[0].success).toBe(true);
+    expect(result[0].message).toContain("manga1 ### New Author");
+  });
+
+  it("returns failure for nonexistent path", async () => {
+    const { batchSetAuthor } = await import("@utils/fs");
+    const result = await batchSetAuthor(["/nonexistent/path"], "Author");
+    expect(result[0].success).toBe(false);
+  });
+});

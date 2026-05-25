@@ -29,7 +29,6 @@ export interface AppState {
   focusIndex: number;
   toggleItem: (index: number) => void;
   selectAll: () => void;
-  deselectAll: () => void;
 
   // Batch
   status: StatusMessage;
@@ -53,4 +52,10 @@ export interface AppState {
   openRename: () => void;
   renameSubmit: (newName: string) => Promise<void>;
   cancelRename: () => void;
+
+  // Batch author
+  authorMode: boolean;
+  openAuthorMode: () => void;
+  submitAuthorName: (name: string) => Promise<void>;
+  cancelAuthorMode: () => void;
 }

@@ -24,6 +24,11 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
     return;
   }
 
+  if (store.authorMode) {
+    if (key.name === "escape") {store.cancelAuthorMode();}
+    return;
+  }
+
   if (store.showHelp) {
     if (key.name === "escape" || key.name === "h") {store.toggleHelp();}
     return;
@@ -40,20 +45,16 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
       store.toggleItem(store.focusIndex);
       break;
     case "return":
-    case "p":
       store.processFolders();
       break;
     case "a":
       store.selectAll();
       break;
-    case "d":
-      store.deselectAll();
+    case "p":
+      store.padSelected();
       break;
     case "u":
       store.unzipSelected();
-      break;
-    case "z":
-      store.padSelected();
       break;
     case "c":
       store.openChangeDir();
@@ -66,6 +67,9 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
       break;
     case "n":
       store.openRename();
+      break;
+    case "m":
+      store.openAuthorMode();
       break;
     case "q":
     case "escape":

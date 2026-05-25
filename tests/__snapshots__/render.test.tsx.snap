@@ -34,16 +34,16 @@ exports[`snapshots HelpModal 1`] = `
 │ Keyboard Shortcuts                                       │
 │                                                          │
 │ [Space]Toggle selection                                  │
-│ [a]Select All  [d]Deselect All                           │
-│ [p]Process EPUB                                          │
+│ [a]Select All (toggle)                                   │
+│ [Enter]Process EPUB                                      │
+│ [p]Pad filenames                                         │
 │ [u]Unzip                                                 │
-│ [z]Pad filenames                                         │
 │ [c]Change dir                                            │
 │ [r]Refresh                                               │
 │ [n]Rename folder                                         │
+│                                                          │
 │ [q]Quit                                                  │
 │ [Esc] or [h]Close help                                   │
-│                                                          │
 │                                                          │
 │                                                          │
 │                                                          │

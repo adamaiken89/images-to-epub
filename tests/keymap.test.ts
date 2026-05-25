@@ -46,6 +46,10 @@ describe("handleKey", () => {
         },
       ],
       focusIndex: 0,
+      authorMode: false,
+      renameMode: false,
+      changeDirMode: false,
+      showHelp: false,
     });
   });
 
@@ -106,7 +110,6 @@ describe("handleKey", () => {
     handleKey(key("escape"), ctx({ renderer: r }));
   });
 
-
   it("escape in changeDirMode cancels", () => {
     useStore.setState({ changeDirMode: true });
     handleKey(key("escape"), ctx());
@@ -119,14 +122,21 @@ describe("handleKey", () => {
     expect(useStore.getState().renameMode).toBe(false);
   });
 
+  it("escape in authorMode cancels", () => {
+    useStore.setState({ authorMode: true });
+    handleKey(key("escape"), ctx());
+    expect(useStore.getState().authorMode).toBe(false);
+  });
+
   it("a selects all", () => {
     handleKey(key("a"), ctx());
     const state = useStore.getState();
     expect(state.selectedIds.size).toBe(2);
   });
 
-  it("d deselects all", () => {
-    handleKey(key("d"), ctx());
+  it("a deselects all when all already selected", () => {
+    useStore.setState({ selectedIds: new Set(["folder:/test/books/manga1", "folder:/test/books/manga2"]) });
+    handleKey(key("a"), ctx());
     expect(useStore.getState().selectedIds.size).toBe(0);
   });
 
@@ -143,16 +153,17 @@ describe("handleKey", () => {
     handleKey(key("u"), ctx());
   });
 
-  it("z triggers pad", () => {
-    handleKey(key("z"), ctx());
+  it("p triggers pad", () => {
+    handleKey(key("p"), ctx());
   });
 
   it("n opens rename", () => {
     handleKey(key("n"), ctx());
   });
 
-  it("p triggers process", () => {
-    handleKey(key("p"), ctx());
+  it("m opens author mode", () => {
+    handleKey(key("m"), ctx());
+    expect(useStore.getState().authorMode).toBe(true);
   });
 
   it("enter triggers process", () => {
@@ -172,6 +183,12 @@ describe("handleKey", () => {
 
   it("renameMode blocks non-escape keys", () => {
     useStore.setState({ renameMode: true, focusIndex: 0 });
+    handleKey(key("space"), ctx());
+    expect(useStore.getState().selectedIds.size).toBe(0);
+  });
+
+  it("authorMode blocks non-escape keys", () => {
+    useStore.setState({ authorMode: true, focusIndex: 0 });
     handleKey(key("space"), ctx());
     expect(useStore.getState().selectedIds.size).toBe(0);
   });

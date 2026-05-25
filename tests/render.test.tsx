@@ -358,3 +358,49 @@ describe("snapshots", () => {
     expect(frame).toMatchSnapshot();
   });
 });
+
+// ── AuthorPrompt ──────────────────────────────────────────────────
+
+describe("AuthorPrompt", () => {
+  it("returns null when authorMode is false", async () => {
+    useStore.setState({ authorMode: false });
+    const { AuthorPrompt } = await import("@components/AuthorPrompt");
+    const frame = await render(<AuthorPrompt />);
+    expect(frame.trim()).toBe("");
+  });
+
+  it("shows author prompt with hint", async () => {
+    useStore.setState({ authorMode: true });
+    const { AuthorPrompt } = await import("@components/AuthorPrompt");
+    const frame = await render(<AuthorPrompt />, 60, 10);
+    expect(frame).toContain("Enter author name...");
+    expect(frame).toContain("Author");
+    expect(frame).toContain("ESC to cancel");
+  });
+});
+
+describe("handleAuthorSubmit", () => {
+  it("calls submitAuthorName with trimmed value", async () => {
+    const { handleAuthorSubmit } = await import("@components/AuthorPrompt");
+    let submitted = "";
+    handleAuthorSubmit("  John Smith  ", (v) => { submitted = v; }, () => {});
+    expect(submitted).toBe("John Smith");
+  });
+
+  it("calls cancelAuthorMode when value is empty after trim", async () => {
+    const { handleAuthorSubmit } = await import("@components/AuthorPrompt");
+    let cancelled = false;
+    handleAuthorSubmit("  ", () => {}, () => { cancelled = true; });
+    expect(cancelled).toBe(true);
+  });
+});
+
+describe("makeAuthorOnSubmit", () => {
+  it("returns a function that delegates to handleAuthorSubmit", async () => {
+    const { makeAuthorOnSubmit } = await import("@components/AuthorPrompt");
+    let submitted = "";
+    const fn = makeAuthorOnSubmit((v) => { submitted = v; }, () => {});
+    fn("Test Author");
+    expect(submitted).toBe("Test Author");
+  });
+});

@@ -1,12 +1,14 @@
+import { basename } from "path";
 import { create } from "zustand";
 import type { AppState } from "./types";
 import { createScanSlice } from "./slices/scan";
 import { createSelectionSlice } from "./slices/selection";
 import { createBatchSlice } from "./slices/batch";
-import { renameFolder } from "@utils/fs";
+import { renameFolder, batchSetAuthor } from "@utils/fs";
+import { getFoldersToProcess } from "./slices/selection";
 
 export type { AppState, TreeItem, StatusMessage } from "./types";
-export { getFoldersToProcess } from "./slices/selection";
+export { getFoldersToProcess };
 
 export const useStore = create<AppState>()((set, get, api) => ({
   ...createScanSlice(set, get, api),
@@ -18,6 +20,8 @@ export const useStore = create<AppState>()((set, get, api) => ({
 
   renameMode: false,
   renameTarget: null,
+
+  authorMode: false,
 
   toggleHelp: () => {
     set({ showHelp: !get().showHelp });
@@ -90,5 +94,52 @@ export const useStore = create<AppState>()((set, get, api) => ({
 
   cancelRename: () => {
     set({ renameMode: false, renameTarget: null });
+  },
+
+  openAuthorMode: () => {
+    set({ authorMode: true });
+  },
+
+  submitAuthorName: async (name: string) => {
+    const { baseDir, selectedIds, items } = get();
+    const trimmed = name.trim();
+    if (!trimmed) {
+      set({ authorMode: false });
+      return;
+    }
+
+    const folders = getFoldersToProcess(selectedIds, items);
+    if (folders.length === 0) {
+      set({ authorMode: false, status: { type: "info", message: "No folders selected" } });
+      return;
+    }
+
+    set({ authorMode: false, isProcessing: true });
+    const results: Array<{ path: string; success: boolean; message: string }> = [];
+    for (let i = 0; i < folders.length; i++) {
+      set({ status: { type: "progress", message: `${i + 1}/${folders.length}: ${basename(folders[i])}...` } });
+      const result = await batchSetAuthor([folders[i]], trimmed);
+      results.push(result[0]);
+    }
+    const successCount = results.filter((r) => r.success).length;
+    const failCount = results.filter((r) => !r.success).length;
+    const failed = results
+      .filter((r) => !r.success)
+      .map((r) => `${r.path.split("/").pop()}: ${r.message}`);
+    const suffix = failed.length > 0 ? " | " + failed.join("; ") : "";
+    set({
+      status: {
+        type: "done",
+        message: `Author set on ${successCount} folder(s), Failed: ${failCount}${suffix}`,
+      },
+      isProcessing: false,
+    });
+    if (baseDir) {
+      await get().loadFolders(baseDir);
+    }
+  },
+
+  cancelAuthorMode: () => {
+    set({ authorMode: false });
   },
 }));

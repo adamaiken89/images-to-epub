@@ -6,6 +6,7 @@ import { Header } from "./components/Header";
 import { HelpModal } from "./components/HelpModal";
 import { ChangeDirPrompt } from "./components/ChangeDirPrompt";
 import { RenamePrompt } from "./components/RenamePrompt";
+import { AuthorPrompt } from "./components/AuthorPrompt";
 import { TreeView } from "./components/TreeView";
 import { InfoMessage } from "./components/InfoMessage";
 import { StatusBar } from "./components/StatusBar";
@@ -33,6 +34,7 @@ export default function App() {
         <box flexShrink={0}><Header /></box>
         <ChangeDirPrompt />
         <RenamePrompt />
+        <AuthorPrompt />
         {showHelp ? <HelpModal /> : <TreeView />}
         <box flexShrink={0}><InfoMessage /></box>
         <box flexShrink={0}><StatusBar /></box>
