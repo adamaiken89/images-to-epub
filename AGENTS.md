@@ -113,6 +113,8 @@ Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ t
 ## Session-end hook
 
 - `.opencode/hooks.yaml` fires `scripts/session-end.sh` on `session.deleted`
+- Fetches latest `origin/main` and rebases the current branch (skipped on `main`/`master`)
+- Set `SKIP_REBASE=true` to skip the fetch+rebase step
 - Auto-stages all changes, commits (`auto: session changes`), pushes, and creates a PR if on a non-main branch
 - Requires `opencode-yaml-hooks` plugin (declared in `opencode.json`)
 - Requires `gh` CLI for PR creation
