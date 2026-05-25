@@ -4,16 +4,16 @@ import {
   findFoldersWithImages,
   findZipFiles,
   organizeFoldersByHierarchy,
-} from "@/utils/fs";
-import type { AppState, TreeItem } from "@/store/types";
-import { t } from "@/utils/i18n";
+} from "@utils/fs";
+import type { AppState, TreeItem } from "@store/types";
+import { t } from "@utils/i18n";
 
 function getInitialDir(): string | null {
   const arg = process.argv[2];
   return arg ?? null;
 }
 
-export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "baseDir" | "folderCount" | "zipCount" | "loadFolders" | "init">> = (set, get) => ({
+export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "baseDir" | "folderCount" | "zipCount" | "loadFolders" | "init">> = (set, get, _store) => ({
   baseDir: "",
   folderCount: 0,
   zipCount: 0,
@@ -77,8 +77,12 @@ export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "bas
 
   init: async () => {
     const cliDir = getInitialDir();
-    const defaultDir = cliDir || (await findDefaultBaseDir());
-    set({ baseDir: defaultDir });
-    await get().loadFolders(defaultDir);
+    try {
+      const defaultDir = cliDir || (await findDefaultBaseDir());
+      set({ baseDir: defaultDir });
+      await get().loadFolders(defaultDir);
+    } catch {
+      set({ status: { type: "error", message: "Failed to initialize" } });
+    }
   },
 });

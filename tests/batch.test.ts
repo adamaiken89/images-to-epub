@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "bun:test";
 import { mkdtempSync, writeFileSync, rmSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
-import { useStore } from "@/store";
+import { useStore } from "@store";
 
 describe("batch processing", () => {
   beforeEach(() => {

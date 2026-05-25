@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import { useStore } from "@/store";
-import { handleKey } from "@/store/handlers/keymap";
+import { useStore } from "@store";
+import { handleKey } from "@store/handlers/keymap";
 import type { KeyEvent } from "@opentui/core";
 import type { CliRenderer } from "@opentui/core";
 
@@ -21,6 +21,8 @@ function ctx(overrides: Partial<Parameters<typeof handleKey>[1]> = {}): Paramete
     showHelp: false,
     itemsLength: 2,
     focusIndex: 0,
+    getState: useStore.getState,
+    setState: useStore.setState,
     ...overrides,
   };
 }

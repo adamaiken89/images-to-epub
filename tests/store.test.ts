@@ -2,8 +2,8 @@ import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { mkdtempSync, writeFileSync, rmSync, mkdirSync } from "fs";
 import { tmpdir } from "os";
 import { join, dirname } from "path";
-import { useStore, getFoldersToProcess } from "@/store";
-import type { TreeItem } from "@/store";
+import { useStore, getFoldersToProcess } from "@store";
+import type { TreeItem } from "@store";
 
 describe("store navigation actions", () => {
   beforeEach(() => {

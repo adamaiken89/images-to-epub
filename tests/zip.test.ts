@@ -4,7 +4,7 @@ import JSZip from "jszip";
 import { tmpdir } from "os";
 import { join } from "path";
 
-import { unzipFile } from "@/utils/zip";
+import { unzipFile } from "@utils/zip";
 
 function cleanup(base: string) {
   try {

@@ -1,6 +1,6 @@
 import type { KeyEvent } from "@opentui/core";
 import type { CliRenderer } from "@opentui/core";
-import { useStore } from "@/store";
+import type { AppState } from "@store/types";
 
 export interface KeyHandlerContext {
   renderer: CliRenderer;
@@ -10,11 +10,13 @@ export interface KeyHandlerContext {
   showHelp: boolean;
   itemsLength: number;
   focusIndex: number;
+  getState: () => AppState;
+  setState: (partial: Partial<AppState>) => void;
 }
 
 export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
-  const { renderer, isProcessing, changeDirMode, renameMode, showHelp, itemsLength, focusIndex } = ctx;
-  const store = useStore.getState();
+  const { renderer, isProcessing, changeDirMode, renameMode, showHelp, itemsLength, focusIndex, getState, setState } = ctx;
+  const store = getState();
 
   if (isProcessing) {return;}
 
@@ -35,10 +37,10 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
 
   switch (key.name) {
     case "up":
-      useStore.setState({ focusIndex: Math.max(0, focusIndex - 1) });
+      setState({ focusIndex: Math.max(0, focusIndex - 1) });
       break;
     case "down":
-      useStore.setState({ focusIndex: Math.min(itemsLength - 1, focusIndex + 1) });
+      setState({ focusIndex: Math.min(itemsLength - 1, focusIndex + 1) });
       break;
     case "space":
       store.toggleItem(focusIndex);

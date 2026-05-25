@@ -1,7 +1,7 @@
 import type { StateCreator } from "zustand";
-import { getSubfoldersWithImages } from "@/utils/fs";
-import type { AppState, TreeItem } from "@/store/types";
-import { t } from "@/utils/i18n";
+import { getSubfoldersWithImages } from "@utils/fs";
+import type { AppState, TreeItem } from "@store/types";
+import { t } from "@utils/i18n";
 
 export function getFoldersToProcess(
   selectedSet: Set<string>,
@@ -35,7 +35,7 @@ export const createSelectionSlice: StateCreator<
   [],
   [],
   Pick<AppState, "items" | "selectedIds" | "focusIndex" | "toggleItem" | "selectAll" | "deselectAll">
-> = (set, get) => ({
+> = (set, get, _store) => ({
   items: [],
   selectedIds: new Set(),
   focusIndex: 0,

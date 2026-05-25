@@ -1,4 +1,4 @@
-import type { FolderEntry } from "@/utils/fs";
+import type { FolderEntry } from "@utils/fs";
 
 export interface TreeItem {
   id: string;

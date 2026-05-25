@@ -4,7 +4,7 @@ import { tmpdir } from "os";
 import { join, basename } from "path";
 import sharp from "sharp";
 import JSZip from "jszip";
-import { createEpubFromFolder } from "@/utils/epub";
+import { createEpubFromFolder } from "@utils/epub";
 
 function cleanup(base: string) {
   try {

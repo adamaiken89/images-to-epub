@@ -1,8 +1,8 @@
 import { memo } from "react";
 import { createTextAttributes } from "@opentui/core";
-import type { TreeItem } from "@/store";
-import { colors } from "@/utils/colors";
-import { t } from "@/utils/i18n";
+import type { TreeItem } from "@store";
+import { colors } from "@utils/colors";
+import { t } from "@utils/i18n";
 
 const BOLD = createTextAttributes({ bold: true });
 

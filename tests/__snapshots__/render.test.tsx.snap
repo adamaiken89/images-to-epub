@@ -1,6 +1,6 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
-exports[`component snapshots Header snapshot with directory 1`] = `
+exports[`snapshots Header with directory 1`] = `
 "EPUB Generator                                              
 /test/path                                                  
                                                             
@@ -14,7 +14,7 @@ exports[`component snapshots Header snapshot with directory 1`] = `
 "
 `;
 
-exports[`component snapshots InfoMessage snapshot with counts 1`] = `
+exports[`snapshots InfoMessage with counts 1`] = `
 "                                                            
 Found 3 folder(s), 1 zip(s)                                 
 ↑↓ to navigate, [Space] to toggle, [Enter] to process. [n]  
@@ -28,7 +28,7 @@ to rename, [h] help
 "
 `;
 
-exports[`component snapshots HelpModal snapshot 1`] = `
+exports[`snapshots HelpModal 1`] = `
 "┌──────────────────────────────────────────────────────────┐
 │                                                          │
 │ Keyboard Shortcuts                                       │
