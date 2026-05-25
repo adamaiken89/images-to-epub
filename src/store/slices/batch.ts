@@ -7,11 +7,6 @@ import type { AppState } from "@store/types";
 import { getFoldersToProcess } from "./selection";
 import { t } from "@utils/i18n";
 
-function getEffectiveSelection(selectedIds: Set<string>, items: AppState["items"]): Set<string> {
-  if (selectedIds.size > 0) {return selectedIds;}
-  return new Set(items.map((i) => i.id));
-}
-
 async function batchProcess(
   set: (partial: Partial<AppState> | ((state: AppState) => Partial<AppState>)) => void,
   get: () => AppState,
@@ -62,8 +57,7 @@ export const createBatchSlice: StateCreator<
   processFolders: async () => {
     const { selectedIds, items } = get();
     set({ isProcessing: true });
-    const ids = getEffectiveSelection(selectedIds, items);
-    const folders = getFoldersToProcess(ids, items);
+    const folders = getFoldersToProcess(selectedIds, items);
     if (folders.length === 0) {
       set({ isProcessing: false });
       return;
@@ -73,8 +67,7 @@ export const createBatchSlice: StateCreator<
 
   unzipSelected: async () => {
     const { selectedIds, items, baseDir } = get();
-    const ids = getEffectiveSelection(selectedIds, items);
-    const zips = Array.from(ids)
+    const zips = Array.from(selectedIds)
       .filter((id) => id.startsWith("zip:"))
       .map((id) => id.slice(4));
     if (zips.length === 0) {return;}
@@ -85,8 +78,7 @@ export const createBatchSlice: StateCreator<
 
   padSelected: async () => {
     const { selectedIds, items } = get();
-    const ids = getEffectiveSelection(selectedIds, items);
-    const folders = getFoldersToProcess(ids, items);
+    const folders = getFoldersToProcess(selectedIds, items);
     if (folders.length === 0) {return;}
     set({ isProcessing: true });
     await batchProcess(set, get, folders, padImageFilenames);

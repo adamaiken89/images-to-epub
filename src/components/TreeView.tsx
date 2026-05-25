@@ -15,7 +15,7 @@ export function TreeView() {
       ancestorChecked = false;
       ancestorCheckDepth = -1;
     }
-    parentSelectedMap[item.id] = !item.checked && ancestorChecked;
+    parentSelectedMap[item.id] = !item.checked && !item.excluded && ancestorChecked;
     if (item.checked) {
       ancestorChecked = true;
       ancestorCheckDepth = item.depth;

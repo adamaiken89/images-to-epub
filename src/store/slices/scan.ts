@@ -38,6 +38,7 @@ export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "bas
         isZip: false,
         entry,
         checked: false,
+        excluded: false,
       });
     }
 
@@ -51,6 +52,7 @@ export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "bas
         isZip: true,
         entry: null,
         checked: false,
+        excluded: false,
       });
     }
 

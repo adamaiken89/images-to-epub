@@ -8,7 +8,7 @@ const BOLD = createTextAttributes({ bold: true });
 
 function TreeItemRowRaw({ item, isFocused, parentSelected }: { item: TreeItem; isFocused: boolean; parentSelected: boolean }) {
   const indent = "  ".repeat(item.depth);
-  const checkbox = item.checked ? t("tree.checkboxOn") : t("tree.checkboxOff");
+  const checkbox = item.checked ? t("tree.checkboxOn") : item.excluded ? t("tree.checkboxSkip") : parentSelected ? t("tree.checkboxImplicit") : t("tree.checkboxOff");
   const line = `${indent}${checkbox} ${item.label}`;
 
   let fg: string;
@@ -16,6 +16,8 @@ function TreeItemRowRaw({ item, isFocused, parentSelected }: { item: TreeItem; i
     fg = colors.focusFg;
   } else if (item.checked) {
     fg = colors.checkboxOn;
+  } else if (item.excluded) {
+    fg = colors.checkboxSkip;
   } else if (parentSelected) {
     fg = colors.checkboxImplicit;
   } else {

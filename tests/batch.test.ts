@@ -17,7 +17,6 @@ describe("batch processing", () => {
   it("collects failures when processFolders encounters errors", async () => {
     const dir = mkdtempSync(join(tmpdir(), "batch-fail-"));
     try {
-      // Create a non-image file so readdir succeeds but no images are found
       writeFileSync(join(dir, "readme.txt"), "not an image");
 
       useStore.setState({
@@ -29,6 +28,7 @@ describe("batch processing", () => {
             isZip: false,
             entry: { parts: ["test-folder"], path: dir, metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
             checked: true,
+            excluded: false,
           },
         ],
         selectedIds: new Set([`folder:${dir}`]),
@@ -50,7 +50,6 @@ describe("batch processing", () => {
   it("succeeds when processing a folder with images", async () => {
     const dir = mkdtempSync(join(tmpdir(), "batch-ok-"));
     try {
-      // Create a real image file
       const sharp = (await import("sharp")).default;
       await sharp({ create: { width: 1, height: 1, channels: 3, background: { r: 255, g: 0, b: 0 } } })
         .webp()
@@ -65,6 +64,7 @@ describe("batch processing", () => {
             isZip: false,
             entry: { parts: ["test-folder"], path: dir, metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
             checked: true,
+            excluded: false,
           },
         ],
         selectedIds: new Set([`folder:${dir}`]),

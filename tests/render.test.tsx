@@ -289,8 +289,8 @@ describe("TreeView", () => {
   it("renders tree items with checkboxes", async () => {
     useStore.setState({
       items: [
-        { id: "folder:/a", label: "Folder A", depth: 0, isZip: false, entry: null, checked: false },
-        { id: "folder:/b", label: "Folder B", depth: 1, isZip: false, entry: null, checked: true },
+        { id: "folder:/a", label: "Folder A", depth: 0, isZip: false, entry: null, checked: false, excluded: false },
+        { id: "folder:/b", label: "Folder B", depth: 1, isZip: false, entry: null, checked: true, excluded: false },
       ],
       focusIndex: 0,
     });
@@ -304,13 +304,37 @@ describe("TreeView", () => {
   it("renders zip items", async () => {
     useStore.setState({
       items: [
-        { id: "zip:/a.zip", label: "\uD83D\uDCE6 a.zip", depth: 0, isZip: true, entry: null, checked: false },
+        { id: "zip:/a.zip", label: "\uD83D\uDCE6 a.zip", depth: 0, isZip: true, entry: null, checked: false, excluded: false },
       ],
       focusIndex: 0,
     });
     const frame = await render(<TreeView />, 60, 5);
     expect(frame).toContain("\uD83D\uDCE6");
     expect(frame).toContain("a.zip");
+  });
+
+  it("renders implicit checkbox for parent-selected children", async () => {
+    useStore.setState({
+      items: [
+        { id: "folder:/parent", label: "Parent", depth: 0, isZip: false, entry: null, checked: true, excluded: false },
+        { id: "folder:/parent/child", label: "Child", depth: 1, isZip: false, entry: null, checked: false, excluded: false },
+      ],
+      focusIndex: 0,
+    });
+    const frame = await render(<TreeView />, 60, 8);
+    expect(frame).toContain("\u00B7");
+  });
+
+  it("renders skip checkbox for excluded children", async () => {
+    useStore.setState({
+      items: [
+        { id: "folder:/parent", label: "Parent", depth: 0, isZip: false, entry: null, checked: true, excluded: false },
+        { id: "folder:/parent/child", label: "Child", depth: 1, isZip: false, entry: null, checked: false, excluded: true },
+      ],
+      focusIndex: 0,
+    });
+    const frame = await render(<TreeView />, 60, 8);
+    expect(frame).toContain("[-]");
   });
 });
 

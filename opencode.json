@@ -7,5 +7,15 @@
       "enabled": true
     }
   },
+  "lsp": {
+    "typescript": {
+      "initialization": {
+        "preferences": {
+          "importModuleSpecifierPreference": "non-relative"
+        }
+      },
+      "command": []
+    }
+  },
   "plugin": ["opencode-yaml-hooks"]
 }

@@ -153,8 +153,6 @@ Exported from their component files: `ChangeDirPrompt.tsx` → `PromptInner`, `h
 ## Testing
 
 - Runner: `bun:test` (describe, it, expect)
-- 111 tests across 8 files, 201 expect calls, 3 snapshots
-- Coverage: 98.88% Funcs, 98.42% Lines; threshold ≥90% per-file for Funcs + Lines (bunfig.toml)
 - Use `toEqual()` on the **full return value** of functions to detect interface changes — if a field is added/removed/renamed on the return type, the test fails immediately
 - For dynamic fields (error messages, file paths), use matchers like `expect.stringContaining(...)`, `expect.stringMatching(/.../)`, `expect.arrayContaining([...])`, or `expect.any(Type)` inside `toEqual()`
 - For complex nested returns, split into multiple `toEqual()` assertions per sub-object rather than one monolithic call
@@ -176,11 +174,3 @@ Exported from their component files: `ChangeDirPrompt.tsx` → `PromptInner`, `h
 
 - Use `context7` MCP tools for documentation lookups (configured in `opencode.json`)
 - `opencode-yaml-hooks` plugin fires `scripts/session-end.sh` on `session.deleted`:
-
-## Color conventions
-
-All colors defined in `src/utils/colors.ts` with named usage keys:
-- `title`, `path`, `keyHighlight`, `controlsText`, `countHighlight`, `dim`, `inputBg`, `inputText`, `subdirName`, `errorMessage`
-- Status: `statusInfo`, `statusProgress`, `statusError`, `statusDone`
-- Tree items: `treeItemNormal`, `treeItemZip`, `treeItemFocus`
-- Checkbox: `checkboxOn` (`#66ff66`, explicitly checked), `checkboxImplicit` (`#446644`, parent-selected)

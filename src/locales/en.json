@@ -18,6 +18,8 @@
     "noFolders": "No folders found.",
     "checkboxOn": "[x]",
     "checkboxOff": "[ ]",
+    "checkboxImplicit": "[\u00B7]",
+    "checkboxSkip": "[-]",
     "zipPrefix": "\uD83D\uDCE6 "
   },
   "modal": {

@@ -13,7 +13,9 @@ export function getFoldersToProcess(
       const path = id.slice(7);
       const item = items.find((i) => i.id === id);
       if (item?.entry?.metadata.hasImages) {
-        result.push(path);
+        if (!item.excluded) {
+          result.push(path);
+        }
       } else if (item?.entry) {
         const allFolderPaths = items
           .filter((i) => i.id.startsWith("folder:"))
@@ -23,11 +25,26 @@ export function getFoldersToProcess(
           return entry?.entry?.metadata.hasImages;
         });
         const subs = getSubfoldersWithImages(path, imageFolders);
-        result.push(...subs);
+        for (const sub of subs) {
+          const subItem = items.find((i) => i.id === `folder:${sub}`);
+          if (!subItem?.excluded) {
+            result.push(sub);
+          }
+        }
       }
     }
   }
   return [...new Set(result)];
+}
+
+function collectDescendantIds(items: TreeItem[], parentIndex: number): string[] {
+  const parentDepth = items[parentIndex].depth;
+  const ids: string[] = [];
+  for (let i = parentIndex + 1; i < items.length; i++) {
+    if (items[i].depth <= parentDepth) {break;}
+    ids.push(items[i].id);
+  }
+  return ids;
 }
 
 export const createSelectionSlice: StateCreator<
@@ -46,20 +63,60 @@ export const createSelectionSlice: StateCreator<
     const item = items[index];
 
     const newSelected = new Set(selectedIds);
-    if (newSelected.has(item.id)) {
-      newSelected.delete(item.id);
-    } else {
-      newSelected.add(item.id);
-    }
 
-    set({
-      selectedIds: newSelected,
-      items: items.map((it, i) => {
-        if (i === index) {return { ...it, checked: !it.checked };}
-        return it;
-      }),
-      status: { type: "info", message: t("selection.item", { count: newSelected.size }) },
-    });
+    if (item.checked) {
+      newSelected.delete(item.id);
+      const descendantIds = collectDescendantIds(items, index);
+      for (const did of descendantIds) {
+        newSelected.delete(did);
+      }
+      const descendantSet = new Set(descendantIds);
+      set({
+        selectedIds: newSelected,
+        items: items.map((it, i) => {
+          if (i === index) {return { ...it, checked: false, excluded: false };}
+          if (descendantSet.has(it.id)) {return { ...it, excluded: false };}
+          return it;
+        }),
+        status: { type: "info", message: t("selection.item", { count: newSelected.size }) },
+      });
+    } else if (item.excluded) {
+      newSelected.delete(item.id);
+      set({
+        selectedIds: newSelected,
+        items: items.map((it, i) => i === index ? { ...it, excluded: false } : it),
+        status: { type: "info", message: t("selection.item", { count: newSelected.size }) },
+      });
+    } else {
+      let ancestorChecked = false;
+      let ancestorCheckDepth = -1;
+      for (const it of items) {
+        if (it.id === item.id) {break;}
+        if (it.depth <= ancestorCheckDepth) {
+          ancestorChecked = false;
+          ancestorCheckDepth = -1;
+        }
+        if (it.checked) {
+          ancestorChecked = true;
+          ancestorCheckDepth = it.depth;
+        }
+      }
+      if (ancestorChecked) {
+        newSelected.add(item.id);
+        set({
+          selectedIds: newSelected,
+          items: items.map((it, i) => i === index ? { ...it, excluded: true } : it),
+          status: { type: "info", message: t("selection.item", { count: newSelected.size }) },
+        });
+      } else {
+        newSelected.add(item.id);
+        set({
+          selectedIds: newSelected,
+          items: items.map((it, i) => i === index ? { ...it, checked: true } : it),
+          status: { type: "info", message: t("selection.item", { count: newSelected.size }) },
+        });
+      }
+    }
   },
 
   selectAll: () => {
@@ -67,7 +124,7 @@ export const createSelectionSlice: StateCreator<
     const allIds = new Set(items.map((i) => i.id));
     set({
       selectedIds: allIds,
-      items: items.map((it) => ({ ...it, checked: true })),
+      items: items.map((it) => ({ ...it, checked: true, excluded: false })),
       status: { type: "info", message: t("selection.item", { count: allIds.size }) },
     });
   },
@@ -76,7 +133,7 @@ export const createSelectionSlice: StateCreator<
     const { items } = get();
     set({
       selectedIds: new Set(),
-      items: items.map((it) => ({ ...it, checked: false })),
+      items: items.map((it) => ({ ...it, checked: false, excluded: false })),
       status: { type: "info", message: t("selection.item", { count: 0 }) },
     });
   },

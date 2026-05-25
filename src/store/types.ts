@@ -7,6 +7,7 @@ export interface TreeItem {
   isZip: boolean;
   entry: FolderEntry | null;
   checked: boolean;
+  excluded: boolean;
 }
 
 export interface StatusMessage {

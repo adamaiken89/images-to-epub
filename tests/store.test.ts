@@ -49,7 +49,7 @@ describe("store navigation actions", () => {
   });
 
   it("refresh does nothing when baseDir is empty", async () => {
-    useStore.setState({ baseDir: "", items: [{ id: "stale", label: "stale", depth: 0, isZip: false, entry: null, checked: false }] });
+    useStore.setState({ baseDir: "", items: [{ id: "stale", label: "stale", depth: 0, isZip: false, entry: null, checked: false, excluded: false }] });
     await useStore.getState().refresh();
     expect(useStore.getState().items).toHaveLength(1);
   });
@@ -72,7 +72,7 @@ describe("store navigation actions", () => {
   it("openRename does nothing when focused item is a zip", () => {
     useStore.setState({
       items: [{
-        id: "zip:/test/file.zip", label: "file.zip", depth: 0, isZip: true, entry: null, checked: false,
+        id: "zip:/test/file.zip", label: "file.zip", depth: 0, isZip: true, entry: null, checked: false, excluded: false,
       }],
       focusIndex: 0,
     });
@@ -89,6 +89,7 @@ describe("store navigation actions", () => {
         isZip: false,
         entry: { parts: ["manga"], path: "/test/manga", metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
         checked: false,
+        excluded: false,
       }],
       focusIndex: 0,
     });
@@ -113,6 +114,7 @@ describe("store navigation actions", () => {
         isZip: true,
         entry: null,
         checked: false,
+        excluded: false,
       }],
       focusIndex: 0,
     });
@@ -205,6 +207,7 @@ describe("getFoldersToProcess", () => {
         isZip: false,
         entry: { parts: ["parent"], path: "/parent", metadata: { hasImages: false, hasSubfolders: true, hasZips: false } },
         checked: true,
+        excluded: false,
       },
       {
         id: "folder:/parent/child1",
@@ -213,6 +216,7 @@ describe("getFoldersToProcess", () => {
         isZip: false,
         entry: { parts: ["parent", "child1"], path: "/parent/child1", metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
         checked: false,
+        excluded: false,
       },
       {
         id: "folder:/parent/child2",
@@ -221,10 +225,61 @@ describe("getFoldersToProcess", () => {
         isZip: false,
         entry: { parts: ["parent", "child2"], path: "/parent/child2", metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
         checked: false,
+        excluded: false,
       },
     ];
     const result = getFoldersToProcess(new Set(["folder:/parent"]), items);
     expect(result).toEqual(["/parent/child1", "/parent/child2"]);
+  });
+
+  it("respects excluded children", () => {
+    const items: TreeItem[] = [
+      {
+        id: "folder:/parent",
+        label: "parent",
+        depth: 0,
+        isZip: false,
+        entry: { parts: ["parent"], path: "/parent", metadata: { hasImages: false, hasSubfolders: true, hasZips: false } },
+        checked: true,
+        excluded: false,
+      },
+      {
+        id: "folder:/parent/child1",
+        label: "child1",
+        depth: 1,
+        isZip: false,
+        entry: { parts: ["parent", "child1"], path: "/parent/child1", metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
+        checked: false,
+        excluded: true,
+      },
+      {
+        id: "folder:/parent/child2",
+        label: "child2",
+        depth: 1,
+        isZip: false,
+        entry: { parts: ["parent", "child2"], path: "/parent/child2", metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
+        checked: false,
+        excluded: false,
+      },
+    ];
+    const result = getFoldersToProcess(new Set(["folder:/parent"]), items);
+    expect(result).toEqual(["/parent/child2"]);
+  });
+
+  it("respects excluded direct folder", () => {
+    const items: TreeItem[] = [
+      {
+        id: "folder:/test",
+        label: "test",
+        depth: 0,
+        isZip: false,
+        entry: { parts: ["test"], path: "/test", metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
+        checked: true,
+        excluded: true,
+      },
+    ];
+    const result = getFoldersToProcess(new Set(["folder:/test"]), items);
+    expect(result).toEqual([]);
   });
 });
 
@@ -310,6 +365,7 @@ describe("batch slice uncovered branches", () => {
         isZip: false,
         entry: { parts: ["test"], path: "/test", metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
         checked: true,
+        excluded: false,
       }],
       selectedIds: new Set(["folder:/test"]),
     });
@@ -331,6 +387,7 @@ describe("batch slice uncovered branches", () => {
         isZip: false,
         entry: { parts: ["test"], path: "/test", metadata: { hasImages: false, hasSubfolders: false, hasZips: false } },
         checked: true,
+        excluded: false,
       }],
       selectedIds: new Set(["folder:/test"]),
     });
@@ -340,28 +397,15 @@ describe("batch slice uncovered branches", () => {
     expect(state.status.type).toBe("info");
   });
 
-  it("processFolders uses all items when nothing selected", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "batch-all-"));
-    try {
-      writeFileSync(join(dir, "readme.txt"), "");
-      useStore.setState({
-        items: [{
-          id: `folder:${dir}`,
-          label: "test",
-          depth: 0,
-          isZip: false,
-          entry: { parts: ["test"], path: dir, metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
-          checked: false,
-        }],
-        selectedIds: new Set(),
-      });
-      await useStore.getState().processFolders();
-      const state = useStore.getState();
-      expect(state.isProcessing).toBe(false);
-      expect(state.status.type).toBe("done");
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
+  it("does nothing when nothing selected", async () => {
+    useStore.setState({
+      items: [],
+      selectedIds: new Set(),
+    });
+    await useStore.getState().processFolders();
+    const state = useStore.getState();
+    expect(state.isProcessing).toBe(false);
+    expect(state.status.type).toBe("info");
   });
 });
 

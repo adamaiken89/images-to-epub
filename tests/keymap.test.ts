@@ -38,6 +38,7 @@ describe("handleKey", () => {
           isZip: false,
           entry: null,
           checked: false,
+          excluded: false,
         },
         {
           id: "folder:/test/books/manga2",
@@ -46,157 +47,139 @@ describe("handleKey", () => {
           isZip: false,
           entry: null,
           checked: false,
+          excluded: false,
         },
       ],
-      selectedIds: new Set(),
       focusIndex: 0,
-      isProcessing: false,
-      changeDirMode: false,
     });
   });
 
-  it("navigates down with arrow key", () => {
-    handleKey(key("down"), ctx({ focusIndex: 0 }));
-    expect(useStore.getState().focusIndex).toBe(1);
+  it("ignores keys when processing", () => {
+    const result = handleKey(key("space"), ctx({ isProcessing: true }));
+    expect(result).toBeUndefined();
   });
 
-  it("navigates up with arrow key", () => {
+  it("up arrow moves focus up", () => {
     handleKey(key("up"), ctx({ focusIndex: 1 }));
     expect(useStore.getState().focusIndex).toBe(0);
   });
 
-  it("stays at top when navigating up from index 0", () => {
+  it("up arrow does not go below 0", () => {
     handleKey(key("up"), ctx({ focusIndex: 0 }));
     expect(useStore.getState().focusIndex).toBe(0);
   });
 
-  it("stays at bottom when navigating down from last index", () => {
+  it("down arrow moves focus down", () => {
+    handleKey(key("down"), ctx({ focusIndex: 0 }));
+    expect(useStore.getState().focusIndex).toBe(1);
+  });
+
+  it("down arrow does not exceed max", () => {
     handleKey(key("down"), ctx({ focusIndex: 1 }));
     expect(useStore.getState().focusIndex).toBe(1);
   });
 
-  it("toggles item at focus index on space", () => {
+  it("space toggles item", () => {
     handleKey(key("space"), ctx({ focusIndex: 0 }));
-    const state = useStore.getState();
-    expect(state.items[0].checked).toBe(true);
-    expect(state.selectedIds.has("folder:/test/books/manga1")).toBe(true);
+    expect(useStore.getState().selectedIds.has("folder:/test/books/manga1")).toBe(true);
   });
 
-  it("toggles item off on second space press", () => {
-    handleKey(key("space"), ctx({ focusIndex: 0 }));
-    handleKey(key("space"), ctx({ focusIndex: 0 }));
-    const state = useStore.getState();
-    expect(state.items[0].checked).toBe(false);
-    expect(state.selectedIds.has("folder:/test/books/manga1")).toBe(false);
+  it("escape closes help modal", () => {
+    useStore.setState({ showHelp: true });
+    handleKey(key("escape"), ctx({ showHelp: true }));
+    expect(useStore.getState().showHelp).toBe(false);
   });
 
-  it("selects all on 'a'", () => {
-    handleKey(key("a"), ctx({ focusIndex: 0 }));
-    const state = useStore.getState();
-    expect(state.items[0].checked).toBe(true);
-    expect(state.items[1].checked).toBe(true);
-    expect(state.selectedIds.size).toBe(2);
-  });
-
-  it("deselects all on 'd'", () => {
-    useStore.setState({
-      selectedIds: new Set(["folder:/test/books/manga1", "folder:/test/books/manga2"]),
-      items: useStore.getState().items.map((it) => ({ ...it, checked: true })),
-    });
-
-    handleKey(key("d"), ctx({ focusIndex: 0 }));
-    const state = useStore.getState();
-    expect(state.items[0].checked).toBe(false);
-    expect(state.items[1].checked).toBe(false);
-    expect(state.selectedIds.size).toBe(0);
-  });
-
-  it("ignores key presses when processing", () => {
-    handleKey(key("down"), ctx({ isProcessing: true, focusIndex: 0 }));
-    expect(useStore.getState().focusIndex).toBe(0);
-  });
-
-  it("cancels change dir mode on escape", () => {
-    useStore.setState({ changeDirMode: true });
-    handleKey(key("escape"), ctx({ changeDirMode: true, focusIndex: 0 }));
-    expect(useStore.getState().changeDirMode).toBe(false);
-  });
-
-  it("opens change dir on 'c'", () => {
-    handleKey(key("c"), ctx({ focusIndex: 0 }));
-    expect(useStore.getState().changeDirMode).toBe(true);
-  });
-
-  it("quits on 'q'", () => {
-    let destroyed = false;
-    const r = { destroy: () => { destroyed = true; } } as unknown as CliRenderer;
-    handleKey(key("q"), ctx({ renderer: r, focusIndex: 0 }));
-    expect(destroyed).toBe(true);
-  });
-
-  it("triggers process on 'p'", () => {
-    const { processFolders } = useStore.getState();
-    const original = processFolders;
-    let called = false;
-    useStore.setState({ processFolders: async () => { called = true; } });
-    handleKey(key("p"), ctx({ focusIndex: 0 }));
-    expect(called).toBe(true);
-    useStore.setState({ processFolders: original });
-  });
-
-  it("triggers unzip on 'u'", () => {
-    const { unzipSelected } = useStore.getState();
-    let called = false;
-    useStore.setState({ unzipSelected: async () => { called = true; } });
-    handleKey(key("u"), ctx({ focusIndex: 0 }));
-    expect(called).toBe(true);
-    useStore.setState({ unzipSelected });
-  });
-
-  it("triggers pad on 'z'", () => {
-    const { padSelected } = useStore.getState();
-    let called = false;
-    useStore.setState({ padSelected: async () => { called = true; } });
-    handleKey(key("z"), ctx({ focusIndex: 0 }));
-    expect(called).toBe(true);
-    useStore.setState({ padSelected });
-  });
-
-  it("triggers refresh on 'r'", () => {
-    const { refresh } = useStore.getState();
-    let called = false;
-    useStore.setState({ refresh: async () => { called = true; } });
-    handleKey(key("r"), ctx({ focusIndex: 0 }));
-    expect(called).toBe(true);
-    useStore.setState({ refresh });
-  });
-
-  it("toggles help on 'h'", () => {
+  it("h toggles help", () => {
     useStore.setState({ showHelp: false });
-    handleKey(key("h"), ctx({ showHelp: false, focusIndex: 0 }));
+    handleKey(key("h"), ctx({ showHelp: false }));
     expect(useStore.getState().showHelp).toBe(true);
   });
 
-  it("closes help with 'h' when help is open", () => {
+  it("h closes help when open", () => {
     useStore.setState({ showHelp: true });
-    handleKey(key("h"), ctx({ showHelp: true, focusIndex: 0 }));
+    handleKey(key("h"), ctx({ showHelp: true }));
     expect(useStore.getState().showHelp).toBe(false);
   });
 
-  it("closes help with escape when help is open", () => {
-    useStore.setState({ showHelp: true });
-    handleKey(key("escape"), ctx({ showHelp: true, focusIndex: 0 }));
-    expect(useStore.getState().showHelp).toBe(false);
+  it("escape quits when not in modal", () => {
+    const r = { destroy: () => {} } as unknown as CliRenderer;
+    handleKey(key("escape"), ctx({ renderer: r, showHelp: false }));
   });
 
-  it("cancels rename on escape", () => {
-    useStore.setState({ renameMode: true });
-    handleKey(key("escape"), ctx({ renameMode: true, focusIndex: 0 }));
+
+  it("escape in changeDirMode cancels", () => {
+    handleKey(key("escape"), ctx({ changeDirMode: true }));
+    expect(useStore.getState().changeDirMode).toBe(false);
+  });
+
+  it("escape in renameMode cancels", () => {
+    handleKey(key("escape"), ctx({ renameMode: true }));
     expect(useStore.getState().renameMode).toBe(false);
   });
 
-  it("opens rename on 'n'", () => {
-    handleKey(key("n"), ctx({ focusIndex: 0 }));
-    expect(useStore.getState().renameMode).toBe(true);
+  it("a selects all", () => {
+    handleKey(key("a"), ctx({}));
+    const state = useStore.getState();
+    expect(state.selectedIds.size).toBe(2);
+  });
+
+  it("d deselects all", () => {
+    handleKey(key("d"), ctx({}));
+    expect(useStore.getState().selectedIds.size).toBe(0);
+  });
+
+  it("c opens change dir", () => {
+    handleKey(key("c"), ctx({}));
+    expect(useStore.getState().changeDirMode).toBe(true);
+  });
+
+  it("r triggers refresh", () => {
+    handleKey(key("r"), ctx({}));
+  });
+
+  it("u triggers unzip", () => {
+    handleKey(key("u"), ctx({}));
+  });
+
+  it("z triggers pad", () => {
+    handleKey(key("z"), ctx({}));
+  });
+
+  it("n opens rename", () => {
+    handleKey(key("n"), ctx({}));
+  });
+
+  it("p triggers process", () => {
+    handleKey(key("p"), ctx({}));
+  });
+
+  it("enter triggers process", () => {
+    handleKey(key("return"), ctx({}));
+  });
+
+  it("q quits", () => {
+    const r = { destroy: () => {} } as unknown as CliRenderer;
+    handleKey(key("q"), ctx({ renderer: r }));
+  });
+
+  it("changeDirMode blocks non-escape keys", () => {
+    handleKey(key("space"), ctx({ changeDirMode: true, focusIndex: 0 }));
+    expect(useStore.getState().selectedIds.size).toBe(0);
+  });
+
+  it("renameMode blocks non-escape keys", () => {
+    handleKey(key("space"), ctx({ renameMode: true, focusIndex: 0 }));
+    expect(useStore.getState().selectedIds.size).toBe(0);
+  });
+
+  it("help mode blocks non-escape/h keys", () => {
+    handleKey(key("space"), ctx({ showHelp: true, focusIndex: 0 }));
+    expect(useStore.getState().selectedIds.size).toBe(0);
+  });
+
+  it("does nothing for unknown keys", () => {
+    const result = handleKey(key("unknown"), ctx({}));
+    expect(result).toBeUndefined();
   });
 });

@@ -26,5 +26,6 @@ export const colors = {
   subdirName: "#aaaaaa",
 
   checkboxOn: "#66ff66",
-  checkboxImplicit: "#446644",
+  checkboxImplicit: "#55bb55",
+  checkboxSkip: "#777777",
 } as const;
