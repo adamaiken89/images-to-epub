@@ -17,6 +17,8 @@ jobs:
       - run: bun install
       - run: bun run lint
       - run: bun run test:coverage
+      - name: Coverage summary
+        run: bun run scripts/coverage-summary.js >> $GITHUB_STEP_SUMMARY
       - uses: actions/upload-artifact@v6
         if: always()
         with:
