@@ -1,5 +1,7 @@
 # Project Conventions
 
+When you need to search docs, use `context7` MCP tools.
+
 ## Architecture
 
 ```
@@ -109,6 +111,13 @@ Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ t
 - Types: `feat`, `fix`, `refactor`, `chore`, `test`, `docs`, `style`
 - One feature per branch, squash before merge
 - e.g. `feat(i18n): plural forms, zero handling, and interpolation in translations`
+
+## OpenCode configuration
+
+- `opencode.json` at project root configures MCP, plugins, and skill permissions
+- Context7 MCP (`https://mcp.context7.com/mcp/oauth`) for documentation lookups — use with `use context7`
+- `opencode-yaml-hooks` plugin for session lifecycle hooks
+- Global skill `find-docs` installed at `~/.config/opencode/skills/find-docs/`
 
 ## Session-end hook
 
