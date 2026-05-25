@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -u
 
-OUT=$(bun test --coverage 2>&1) || true
+OUT=$(bun test --coverage --coverage-reporter lcov --coverage-reporter text 2>&1) || true
 echo "$OUT"
 
 ALL_LINE=$(echo "$OUT" | awk -F'|' '/^All files/{print $0}')
