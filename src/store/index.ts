@@ -3,7 +3,7 @@ import type { AppState } from "./types";
 import { createScanSlice } from "./slices/scan";
 import { createSelectionSlice } from "./slices/selection";
 import { createBatchSlice } from "./slices/batch";
-import { getSubdirs, renameFolder } from "../utils/fs";
+import { getSubdirs, renameFolder } from "@/utils/fs";
 
 export type { AppState, TreeItem, StatusMessage } from "./types";
 export { getFoldersToProcess } from "./slices/selection";

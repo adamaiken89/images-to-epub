@@ -1,7 +1,7 @@
-import { useStore } from "../store";
+import { useStore } from "@/store";
 import { TreeItemRow } from "./TreeItemRow";
-import { colors } from "../utils/colors";
-import { t } from "../utils/i18n";
+import { colors } from "@/utils/colors";
+import { t } from "@/utils/i18n";
 
 export function TreeView() {
   const items = useStore((s) => s.items);

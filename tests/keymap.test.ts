@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "bun:test";
-import { useStore } from "../src/store";
-import { handleKey } from "../src/store/handlers/keymap";
+import { useStore } from "@/store";
+import { handleKey } from "@/store/handlers/keymap";
 import type { KeyEvent } from "@opentui/core";
 import type { CliRenderer } from "@opentui/core";
 
@@ -130,5 +130,42 @@ describe("handleKey", () => {
     const r = { destroy: () => { destroyed = true; } } as unknown as CliRenderer;
     handleKey(key("q"), ctx({ renderer: r, focusIndex: 0 }));
     expect(destroyed).toBe(true);
+  });
+
+  it("triggers process on 'p'", () => {
+    const { processFolders } = useStore.getState();
+    const original = processFolders;
+    let called = false;
+    useStore.setState({ processFolders: async () => { called = true; } });
+    handleKey(key("p"), ctx({ focusIndex: 0 }));
+    expect(called).toBe(true);
+    useStore.setState({ processFolders: original });
+  });
+
+  it("triggers unzip on 'u'", () => {
+    const { unzipSelected } = useStore.getState();
+    let called = false;
+    useStore.setState({ unzipSelected: async () => { called = true; } });
+    handleKey(key("u"), ctx({ focusIndex: 0 }));
+    expect(called).toBe(true);
+    useStore.setState({ unzipSelected });
+  });
+
+  it("triggers pad on 'z'", () => {
+    const { padSelected } = useStore.getState();
+    let called = false;
+    useStore.setState({ padSelected: async () => { called = true; } });
+    handleKey(key("z"), ctx({ focusIndex: 0 }));
+    expect(called).toBe(true);
+    useStore.setState({ padSelected });
+  });
+
+  it("triggers refresh on 'r'", () => {
+    const { refresh } = useStore.getState();
+    let called = false;
+    useStore.setState({ refresh: async () => { called = true; } });
+    handleKey(key("r"), ctx({ focusIndex: 0 }));
+    expect(called).toBe(true);
+    useStore.setState({ refresh });
   });
 });

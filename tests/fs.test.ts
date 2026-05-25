@@ -8,7 +8,7 @@ import {
   findZipFiles,
   getSubfoldersWithImages,
   findDefaultBaseDir,
-} from "../src/utils/fs";
+} from "@/utils/fs";
 
 function createTestDir(structure: Record<string, string | null>): string {
   const base = mkdtempSync(join(tmpdir(), "epub-test-"));

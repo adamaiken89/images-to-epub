@@ -1,6 +1,6 @@
-import { useStore } from "../store";
-import { colors } from "../utils/colors";
-import { t } from "../utils/i18n";
+import { useStore } from "@/store";
+import { colors } from "@/utils/colors";
+import { t } from "@/utils/i18n";
 
 export function InfoMessage() {
   const folderCount = useStore((s) => s.folderCount);

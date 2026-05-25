@@ -1,11 +1,11 @@
 import { basename } from "path";
 import type { StateCreator } from "zustand";
-import { createEpubFromFolder } from "../../utils/epub";
-import { padImageFilenames } from "../../utils/pad";
-import { unzipFile } from "../../utils/zip";
-import type { AppState } from "../types";
+import { createEpubFromFolder } from "@/utils/epub";
+import { padImageFilenames } from "@/utils/pad";
+import { unzipFile } from "@/utils/zip";
+import type { AppState } from "@/store/types";
 import { getFoldersToProcess } from "./selection";
-import { t } from "../../utils/i18n";
+import { t } from "@/utils/i18n";
 
 function getEffectiveSelection(selectedIds: Set<string>, items: AppState["items"]): Set<string> {
   if (selectedIds.size > 0) {return selectedIds;}
