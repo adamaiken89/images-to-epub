@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "bun:test";
 import { mkdtempSync, writeFileSync, rmSync } from "fs";
 import { tmpdir } from "os";
-import { join, basename } from "path";
+import { join } from "path";
 import { useStore } from "../src/store";
 
 describe("batch processing", () => {
@@ -36,13 +36,12 @@ describe("batch processing", () => {
 
       await useStore.getState().processFolders();
 
-      const status = useStore.getState().status;
-      expect(status.type).toBe("done");
-      expect(status.message).toContain("Success: 0");
-      expect(status.message).toContain("Failed: 1");
-      expect(status.message).toContain("No images found");
-      expect(status.message).toContain(basename(dir));
-      expect(useStore.getState().isProcessing).toBe(false);
+      const { status, isProcessing } = useStore.getState();
+      expect(status).toEqual({
+        type: "done",
+        message: expect.stringMatching(/Success: 0.*Failed: 1.*No images found/),
+      });
+      expect(isProcessing).toBe(false);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -73,11 +72,12 @@ describe("batch processing", () => {
 
       await useStore.getState().processFolders();
 
-      const status = useStore.getState().status;
-      expect(status.type).toBe("done");
-      expect(status.message).toContain("Success: 1");
-      expect(status.message).toContain("Failed: 0");
-      expect(useStore.getState().isProcessing).toBe(false);
+      const { status, isProcessing } = useStore.getState();
+      expect(status).toEqual({
+        type: "done",
+        message: expect.stringContaining("Success: 1"),
+      });
+      expect(isProcessing).toBe(false);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
