@@ -38,12 +38,12 @@ export async function createEpubFromFolder(
   const cleanName = delimIndex >= 0 ? folderName.slice(0, delimIndex).trim() : folderName;
   const outputEpub = join(outputDir, `${cleanName}.epub`);
 
-  // Get sorted image files
+  // Get sorted image files (natural numeric order: 0,1,2,...10,11 rather than 0,1,10,11,2)
   let imgFiles: string[];
   try {
     imgFiles = (await readdir(imgDir))
       .filter((f) => VALID_IMAGE_EXTS.has(extname(f).toLowerCase()))
-      .sort();
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
   } catch (err) {
     const msg = (err as Error).message;
     if (msg.includes("permission")) {

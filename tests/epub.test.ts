@@ -96,6 +96,34 @@ describe("createEpubFromFolder", () => {
     expect(existsSync(epubPath)).toBe(true);
   });
 
+  it("sorts 0-indexed files in numeric order", async () => {
+    base = mkdtempSync(join(tmpdir(), "epub-test-"));
+    outputDir = mkdtempSync(join(tmpdir(), "epub-out-"));
+
+    await createTestImage(join(base, "0.jpg"), "red");
+    await createTestImage(join(base, "1.jpg"), "green");
+    await createTestImage(join(base, "10.jpg"), "blue");
+    await createTestImage(join(base, "2.jpg"), "red");
+
+    const result = await createEpubFromFolder(base, outputDir);
+    expect(result).toEqual({ success: true, message: expect.any(String) });
+
+    const epubPath = join(outputDir, `${basename(base)}.epub`);
+    const epubBuffer = readFileSync(epubPath);
+    const zip = await JSZip.loadAsync(epubBuffer);
+
+    // Check page files appear in numeric order (page_1, page_2, page_3, page_4)
+    const pages = Object.keys(zip.files)
+      .filter((k) => k.startsWith("OEBPS/page_"))
+      .sort();
+    expect(pages).toEqual([
+      "OEBPS/page_1.xhtml",
+      "OEBPS/page_2.xhtml",
+      "OEBPS/page_3.xhtml",
+      "OEBPS/page_4.xhtml",
+    ]);
+  });
+
   it("includes a cover image inside the EPUB", async () => {
     base = mkdtempSync(join(tmpdir(), "epub-test-"));
     outputDir = mkdtempSync(join(tmpdir(), "epub-out-"));
