@@ -1,0 +1,4 @@
+hooks:
+  - event: session.deleted
+    actions:
+      - bash: scripts/session-end.sh
