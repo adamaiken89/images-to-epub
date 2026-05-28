@@ -39,11 +39,12 @@
     "closeHelp": "Close help"
   },
   "prompt": {
-    "title": "Change Directory:",
-    "placeholder": "Enter directory path...",
-    "subdirs": "Subdirs:",
-    "more": "...(+{{count}})",
-    "escCancel": "ESC to cancel"
+    "title": "Change Directory",
+    "selectHere": "[ Select this directory ]",
+    "empty": "(no subfolders)",
+    "hasContent": "[!]",
+    "noContent": "[ ]",
+    "navHint": "\u2191\u2193 navigate  Enter select  Backspace up  ESC cancel"
   },
   "rename": {
     "title": "Rename Folder:",

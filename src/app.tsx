@@ -16,6 +16,7 @@ export default function App() {
   const renderer = useRenderer();
   const init = useStore((s) => s.init);
   const showHelp = useStore((s) => s.showHelp);
+  const changeDirMode = useStore((s) => s.changeDirMode);
 
   useEffect(() => {
     init();
@@ -35,8 +36,8 @@ export default function App() {
         <ChangeDirPrompt />
         <RenamePrompt />
         <AuthorPrompt />
-        {showHelp ? <HelpModal /> : <TreeView />}
-        <box flexShrink={0}><InfoMessage /></box>
+        {changeDirMode ? null : showHelp ? <HelpModal /> : <TreeView />}
+        <box flexShrink={0}>{changeDirMode ? null : <InfoMessage />}</box>
         <box flexShrink={0}><StatusBar /></box>
       </ErrorBoundary>
     </box>

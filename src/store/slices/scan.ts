@@ -24,44 +24,44 @@ export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "bas
     const hierarchy = organizeFoldersByHierarchy(allFolders, dir);
     const zips = await findZipFiles(dir);
 
-    const newItems: TreeItem[] = [];
+    const withKeys: Array<{ item: TreeItem; sortKey: string }> = [];
 
-    const sortedEntries = Array.from(hierarchy.entries()).sort((a, b) =>
-      a[1].parts.join("/").localeCompare(b[1].parts.join("/"))
-    );
-
-    for (const [, entry] of sortedEntries) {
-      newItems.push({
-        id: `folder:${entry.path}`,
-        label: entry.parts[entry.parts.length - 1],
-        depth: Math.max(0, entry.parts.length - 1),
-        isZip: false,
-        entry,
-        checked: false,
-        excluded: false,
+    for (const [, entry] of hierarchy) {
+      withKeys.push({
+        item: {
+          id: `folder:${entry.path}`,
+          label: entry.parts[entry.parts.length - 1],
+          depth: Math.max(0, entry.parts.length - 1),
+          isZip: false,
+          entry,
+          checked: false,
+          excluded: false,
+        },
+        sortKey: entry.parts.join("/"),
       });
     }
 
     for (const zipPath of zips) {
       const rel = zipPath.slice(dir.length + 1);
       const parts = rel.split(/[/\\]/);
-      newItems.push({
-        id: `zip:${zipPath}`,
-        label: t("tree.zipPrefix") + parts[parts.length - 1],
-        depth: Math.max(0, parts.length - 1),
-        isZip: true,
-        entry: null,
-        checked: false,
-        excluded: false,
+      withKeys.push({
+        item: {
+          id: `zip:${zipPath}`,
+          label: t("tree.zipPrefix") + parts[parts.length - 1],
+          depth: Math.max(0, parts.length - 1),
+          isZip: true,
+          entry: null,
+          checked: false,
+          excluded: false,
+        },
+        sortKey: rel,
       });
     }
 
-    newItems.sort((a, b) => {
-      if (a.depth !== b.depth) {return a.depth - b.depth;}
-      return a.label.localeCompare(b.label);
-    });
+    withKeys.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+    const newItems = withKeys.map((w) => w.item);
 
-    const folderCount = sortedEntries.length;
+    const folderCount = hierarchy.size;
     const zipCount = zips.length;
 
     set({

@@ -5,7 +5,7 @@ import { InfoMessage } from "@components/InfoMessage";
 import { HelpModal } from "@components/HelpModal";
 import { StatusBar } from "@components/StatusBar";
 import { ErrorBoundary } from "@components/ErrorBoundary";
-import { ChangeDirPrompt, PromptInner, handleChangeDirSubmit, makeChangeDirOnSubmit } from "@components/ChangeDirPrompt";
+import { ChangeDirPrompt } from "@components/ChangeDirPrompt";
 import { RenamePrompt } from "@components/RenamePrompt";
 import { TreeView } from "@components/TreeView";
 import { useStore } from "@store";
@@ -182,47 +182,29 @@ describe("ChangeDirPrompt", () => {
     expect(frame.trim()).toBe("");
   });
 
-  it("shows prompt and current directory", async () => {
-    useStore.setState({ changeDirMode: true, baseDir: "/test" });
+  it("shows prompt, current directory, select option, and nav hint", async () => {
+    useStore.setState({ changeDirMode: true, browseDir: "/test", browseCursor: 0, browseItems: [] });
     const frame = await render(<ChangeDirPrompt />, 60, 10);
-    expect(frame).toContain("Change Directory");
     expect(frame).toContain("/test");
-    expect(frame).toContain("ESC to cancel");
-  });
-});
-
-describe("handleChangeDirSubmit", () => {
-  it("calls changeDir with trimmed value", () => {
-    let submitted = "";
-    handleChangeDirSubmit("  /new/path  ", (v) => { submitted = v; }, () => {});
-    expect(submitted).toBe("/new/path");
+    expect(frame).toContain("Select this directory");
+    expect(frame).toContain("\u2191\u2193");
   });
 
-  it("calls cancelChangeDir when value is empty after trim", () => {
-    let cancelled = false;
-    handleChangeDirSubmit("  ", () => {}, () => { cancelled = true; });
-    expect(cancelled).toBe(true);
-  });
-});
-
-describe("makeChangeDirOnSubmit", () => {
-  it("returns a function that delegates to handleChangeDirSubmit", () => {
-    let submitted = "";
-    const fn = makeChangeDirOnSubmit((v) => { submitted = v; }, () => {});
-    fn("test-path");
-    expect(submitted).toBe("test-path");
-  });
-});
-
-describe("PromptInner with subdirs", () => {
-  it("renders subdirectory hints", async () => {
-    const frame = await render(
-      <PromptInner baseDir="/test" subdirs={["manga1", "manga2"]} changeDir={() => {}} cancelChangeDir={() => {}} />,
-      60, 8
-    );
-    expect(frame).toContain("Subdirs");
+  it("shows subdirectory items with content indicators", async () => {
+    useStore.setState({
+      changeDirMode: true,
+      browseDir: "/test",
+      browseCursor: 1,
+      browseItems: [
+        { name: "manga1", hasContent: true },
+        { name: "empty-dir", hasContent: false },
+      ],
+    });
+    const frame = await render(<ChangeDirPrompt />, 60, 10);
     expect(frame).toContain("manga1");
-    expect(frame).toContain("manga2");
+    expect(frame).toContain("empty-dir");
+    expect(frame).toContain("[!]");
+    expect(frame).toContain("[ ]");
   });
 });
 

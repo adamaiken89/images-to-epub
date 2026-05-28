@@ -1,3 +1,4 @@
+import { join, dirname } from "path";
 import type { KeyEvent } from "@opentui/core";
 import type { CliRenderer } from "@opentui/core";
 import type { AppState } from "@store/types";
@@ -16,6 +17,21 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
 
   if (store.changeDirMode) {
     if (key.name === "escape") {store.cancelChangeDir();}
+    else if (key.name === "up") {
+      setState({ browseCursor: Math.max(0, store.browseCursor - 1) });
+    } else if (key.name === "down") {
+      setState({ browseCursor: Math.min(store.browseItems.length, store.browseCursor + 1) });
+    } else if (key.name === "return") {
+      if (store.browseCursor === 0) {
+        store.browseConfirm();
+      } else {
+        const item = store.browseItems[store.browseCursor - 1];
+        if (item) {store.browseSetDir(join(store.browseDir, item.name));}
+      }
+    } else if (key.name === "backspace") {
+      const parent = dirname(store.browseDir);
+      if (parent !== store.browseDir) {store.browseSetDir(parent);}
+    }
     return;
   }
 

@@ -34,10 +34,14 @@ describe("store navigation actions", () => {
     expect(state.changeDirMode).toBe(true);
   });
 
-  it("cancelChangeDir resets mode", () => {
-    useStore.setState({ changeDirMode: true });
+  it("cancelChangeDir resets mode and browse state", () => {
+    useStore.setState({ changeDirMode: true, browseDir: "/test", browseCursor: 2, browseItems: [{ name: "a", hasContent: true }] });
     useStore.getState().cancelChangeDir();
-    expect(useStore.getState().changeDirMode).toBe(false);
+    const state = useStore.getState();
+    expect(state.changeDirMode).toBe(false);
+    expect(state.browseDir).toBe("");
+    expect(state.browseCursor).toBe(0);
+    expect(state.browseItems).toEqual([]);
   });
 
   it("changeDir with empty path just cancels", () => {
@@ -290,6 +294,22 @@ describe("scan loadFolders", () => {
     if (dir) {rmSync(dir, { recursive: true, force: true });}
   });
 
+  it("produces items with expected TreeItem fields", async () => {
+    dir = mkdtempSync(join(tmpdir(), "scan-shape-"));
+    mkdirSync(join(dir, "a"), { recursive: true });
+    writeFileSync(join(dir, "a", "pic.webp"), "");
+    writeFileSync(join(dir, "z.zip"), "");
+    await useStore.getState().loadFolders(dir);
+
+    const [folder, zip] = useStore.getState().items;
+    expect(Object.keys(folder).sort()).toEqual(["checked", "depth", "entry", "excluded", "id", "isZip", "label"]);
+    expect(Object.keys(zip).sort()).toEqual(["checked", "depth", "entry", "excluded", "id", "isZip", "label"]);
+    expect(folder.checked).toBe(false);
+    expect(folder.excluded).toBe(false);
+    expect(zip.checked).toBe(false);
+    expect(zip.excluded).toBe(false);
+  });
+
   it("loads folders and zips", async () => {
     dir = mkdtempSync(join(tmpdir(), "scan-test-"));
     mkdirSync(join(dir, "manga1"), { recursive: true });
@@ -308,6 +328,70 @@ describe("scan loadFolders", () => {
     const zips = state.items.filter((i) => i.isZip);
     expect(folders).toHaveLength(2);
     expect(zips).toHaveLength(1);
+  });
+
+  function orderingDir(): string {
+    const d = mkdtempSync(join(tmpdir(), "scan-order-"));
+    mkdirSync(join(d, "parent 1", "children file"), { recursive: true });
+    writeFileSync(join(d, "parent 1", "children file", "pic.webp"), "");
+    mkdirSync(join(d, "parent 2"), { recursive: true });
+    writeFileSync(join(d, "parent 2", "pic.webp"), "");
+    mkdirSync(join(d, "parent 3"), { recursive: true });
+    writeFileSync(join(d, "parent 3", "pic.webp"), "");
+    mkdirSync(join(d, "zeta"), { recursive: true });
+    writeFileSync(join(d, "zeta", "pic.webp"), "");
+    mkdirSync(join(d, "alpha"), { recursive: true });
+    writeFileSync(join(d, "alpha", "pic.webp"), "");
+    mkdirSync(join(d, "beta"), { recursive: true });
+    writeFileSync(join(d, "beta", "pic.webp"), "");
+    writeFileSync(join(d, "m.zip"), "");
+    writeFileSync(join(d, "n.zip"), "");
+    return d;
+  }
+
+  it("orders items by relative path interleaving folders and zips", async () => {
+    dir = orderingDir();
+    await useStore.getState().loadFolders(dir);
+
+    expect(useStore.getState().items.map(i => ({ label: i.label, depth: i.depth }))).toEqual([
+      { label: "alpha", depth: 0 },
+      { label: "beta", depth: 0 },
+      { label: "\uD83D\uDCE6 m.zip", depth: 0 },
+      { label: "\uD83D\uDCE6 n.zip", depth: 0 },
+      { label: "parent 1", depth: 0 },
+      { label: "children file", depth: 1 },
+      { label: "parent 2", depth: 0 },
+      { label: "parent 3", depth: 0 },
+      { label: "zeta", depth: 0 },
+    ]);
+  });
+
+  it("orders siblings alphabetically interleaving zips and folders", async () => {
+    dir = orderingDir();
+    await useStore.getState().loadFolders(dir);
+
+    expect(useStore.getState().items.map(i => i.label)).toEqual([
+      "alpha", "beta",
+      "\uD83D\uDCE6 m.zip", "\uD83D\uDCE6 n.zip",
+      "parent 1", "children file", "parent 2", "parent 3", "zeta",
+    ]);
+  });
+
+  it("zips appear at correct sort position among siblings", async () => {
+    dir = orderingDir();
+    await useStore.getState().loadFolders(dir);
+
+    expect(useStore.getState().items.map(i => ({ label: i.label, isZip: i.isZip }))).toEqual([
+      { label: "alpha", isZip: false },
+      { label: "beta", isZip: false },
+      { label: "\uD83D\uDCE6 m.zip", isZip: true },
+      { label: "\uD83D\uDCE6 n.zip", isZip: true },
+      { label: "parent 1", isZip: false },
+      { label: "children file", isZip: false },
+      { label: "parent 2", isZip: false },
+      { label: "parent 3", isZip: false },
+      { label: "zeta", isZip: false },
+    ]);
   });
 
   it("shows noResults status when nothing found", async () => {
@@ -406,6 +490,96 @@ describe("batch slice uncovered branches", () => {
     const state = useStore.getState();
     expect(state.isProcessing).toBe(false);
     expect(state.status.type).toBe("info");
+  });
+});
+
+describe("browse actions", () => {
+  let dir: string;
+
+  afterEach(() => {
+    if (dir) {rmSync(dir, { recursive: true, force: true });}
+  });
+
+  it("openChangeDir sets browseDir and loads browseItems", async () => {
+    dir = mkdtempSync(join(tmpdir(), "browse-open-"));
+    mkdirSync(join(dir, "sub1"), { recursive: true });
+    writeFileSync(join(dir, "sub1", "pic.webp"), "");
+    mkdirSync(join(dir, "sub2"), { recursive: true });
+
+    useStore.setState({ baseDir: dir, changeDirMode: false });
+    useStore.getState().openChangeDir();
+    await Bun.sleep(10);
+
+    const state = useStore.getState();
+    expect(state.changeDirMode).toBe(true);
+    expect(state.browseDir).toBe(dir);
+    expect(state.browseCursor).toBe(0);
+    expect(state.browseItems).toEqual([
+      { name: "sub1", hasContent: true },
+      { name: "sub2", hasContent: false },
+    ]);
+  });
+
+  it("browseSetDir updates browseDir and loads items", async () => {
+    dir = mkdtempSync(join(tmpdir(), "browse-set-"));
+    mkdirSync(join(dir, "sub1"), { recursive: true });
+    writeFileSync(join(dir, "sub1", "img.jpg"), "");
+    mkdirSync(join(dir, "sub2"), { recursive: true });
+
+    useStore.setState({ browseDir: "", browseCursor: 99, browseItems: [] });
+    await useStore.getState().browseSetDir(dir);
+    await Bun.sleep(10);
+
+    const state = useStore.getState();
+    expect(state.browseDir).toBe(dir);
+    expect(state.browseCursor).toBe(0);
+    expect(state.browseItems).toEqual([
+      { name: "sub1", hasContent: true },
+      { name: "sub2", hasContent: false },
+    ]);
+  });
+
+  it("browseSetDir handles nonexistent path gracefully", async () => {
+    useStore.setState({ browseDir: "", browseCursor: 99, browseItems: [] });
+    await useStore.getState().browseSetDir("/nonexistent/path");
+    await Bun.sleep(10);
+
+    const state = useStore.getState();
+    expect(state.browseDir).toBe("/nonexistent/path");
+    expect(state.browseCursor).toBe(0);
+    expect(state.browseItems).toEqual([]);
+  });
+
+  it("browseConfirm selects directory and loads folders", async () => {
+    dir = mkdtempSync(join(tmpdir(), "browse-confirm-"));
+    mkdirSync(join(dir, "manga"), { recursive: true });
+    writeFileSync(join(dir, "manga", "page.webp"), "");
+
+    useStore.setState({
+      baseDir: "",
+      changeDirMode: true,
+      browseDir: dir,
+      browseCursor: 1,
+      browseItems: [{ name: "manga", hasContent: true }],
+    });
+    await useStore.getState().browseConfirm();
+
+    const state = useStore.getState();
+    expect(state.changeDirMode).toBe(false);
+    expect(state.browseDir).toBe("");
+    expect(state.browseCursor).toBe(0);
+    expect(state.browseItems).toEqual([]);
+    expect(state.baseDir).toBe(dir);
+    expect(state.folderCount).toBe(1);
+  });
+
+  it("browseConfirm with empty browseDir does nothing", async () => {
+    useStore.setState({ baseDir: "/old", changeDirMode: true, browseDir: "", browseCursor: 0, browseItems: [] });
+    await useStore.getState().browseConfirm();
+
+    const state = useStore.getState();
+    expect(state.baseDir).toBe("/old");
+    expect(state.changeDirMode).toBe(true);
   });
 });
 

@@ -4,7 +4,7 @@ import type { AppState } from "./types";
 import { createScanSlice } from "./slices/scan";
 import { createSelectionSlice } from "./slices/selection";
 import { createBatchSlice } from "./slices/batch";
-import { renameFolder, batchSetAuthor } from "@utils/fs";
+import { renameFolder, batchSetAuthor, getSubdirsWithMetadata } from "@utils/fs";
 import { getFoldersToProcess } from "./slices/selection";
 
 export type { AppState, TreeItem, StatusMessage } from "./types";
@@ -18,6 +18,10 @@ export const useStore = create<AppState>()((set, get, api) => ({
   changeDirMode: false,
   showHelp: false,
 
+  browseDir: "",
+  browseCursor: 0,
+  browseItems: [],
+
   renameMode: false,
   renameTarget: null,
 
@@ -28,7 +32,10 @@ export const useStore = create<AppState>()((set, get, api) => ({
   },
 
   openChangeDir: () => {
-    set({ changeDirMode: true });
+    const { baseDir } = get();
+    const dir = baseDir || "";
+    set({ changeDirMode: true, browseDir: dir, browseCursor: 0 });
+    get().browseSetDir(dir);
   },
 
   changeDir: async (path: string) => {
@@ -46,7 +53,29 @@ export const useStore = create<AppState>()((set, get, api) => ({
   },
 
   cancelChangeDir: () => {
-    set({ changeDirMode: false });
+    set({ changeDirMode: false, browseDir: "", browseCursor: 0, browseItems: [] });
+  },
+
+  browseSetDir: async (dir: string) => {
+    set({ browseDir: dir, browseCursor: 0 });
+    try {
+      const items = await getSubdirsWithMetadata(dir);
+      set({ browseItems: items });
+    } catch {
+      set({ browseItems: [] });
+    }
+  },
+
+  browseConfirm: async () => {
+    const { browseDir } = get();
+    if (!browseDir) {return;}
+    set({ changeDirMode: false, browseDir: "", browseCursor: 0, browseItems: [] });
+    set({ baseDir: browseDir });
+    try {
+      await get().loadFolders(browseDir);
+    } catch {
+      set({ status: { type: "error", message: "Failed to load folders" } });
+    }
   },
 
   refresh: async () => {

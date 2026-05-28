@@ -1,4 +1,4 @@
-import type { FolderEntry } from "@utils/fs";
+import type { FolderEntry, SubdirInfo } from "@utils/fs";
 
 export interface TreeItem {
   id: string;
@@ -45,6 +45,13 @@ export interface AppState {
   changeDir: (path: string) => Promise<void>;
   cancelChangeDir: () => void;
   refresh: () => Promise<void>;
+
+  // Directory browser
+  browseDir: string;
+  browseCursor: number;
+  browseItems: SubdirInfo[];
+  browseSetDir: (dir: string) => Promise<void>;
+  browseConfirm: () => Promise<void>;
 
   // Rename
   renameMode: boolean;

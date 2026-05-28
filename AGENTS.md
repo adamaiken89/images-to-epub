@@ -18,7 +18,7 @@ src/
   components/
     Header.tsx              — title + baseDir display
     HelpModal.tsx           — keyboard shortcuts reference (replaces tree view when toggled)
-    ChangeDirPrompt.tsx     — directory input with subdir hints (exports PromptInner, handleChangeDirSubmit, makeChangeDirOnSubmit)
+    ChangeDirPrompt.tsx     — directory browser with subdir list and content indicators
     TreeView.tsx            — subscribes to focusIndex, passes isFocused as prop per row
     TreeItemRow.tsx         — memo'd, receives isFocused as prop (no store subscription)
     InfoMessage.tsx         — static folder/zip counts + navigation hints (returns null when no results)
@@ -122,7 +122,6 @@ export function makeXxxOnSubmit(action: (v: string) => void, fallback: () => voi
 }
 ```
 
-Exported from their component files: `ChangeDirPrompt.tsx` → `PromptInner`, `handleChangeDirSubmit`, `makeChangeDirOnSubmit`.
 `RenamePrompt.tsx` → `handleRenameSubmit`, `makeOnSubmit`.
 
 ## i18n

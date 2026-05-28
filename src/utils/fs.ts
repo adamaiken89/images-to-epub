@@ -166,6 +166,42 @@ export async function getSubdirs(dir: string): Promise<string[]> {
   }
 }
 
+export interface SubdirInfo {
+  name: string;
+  hasContent: boolean;
+}
+
+async function dirHasContent(dir: string, maxDepth: number): Promise<boolean> {
+  try {
+    const entries = await readdir(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const name = entry.name.toLowerCase();
+      if (entry.isFile()) {
+        const ext = name.slice(name.lastIndexOf("."));
+        if (VALID_IMAGE_EXTS.has(ext) || name.endsWith(".zip")) {return true;}
+      } else if (maxDepth > 1 && entry.isDirectory() && !name.startsWith(".")) {
+        if (await dirHasContent(join(dir, entry.name), maxDepth - 1)) {return true;}
+      }
+    }
+  } catch {}
+  return false;
+}
+
+export async function getSubdirsWithMetadata(dir: string): Promise<SubdirInfo[]> {
+  try {
+    const entries = await readdir(dir, { withFileTypes: true });
+    const results: SubdirInfo[] = [];
+    for (const entry of entries) {
+      if (!entry.isDirectory() || entry.name.startsWith(".")) {continue;}
+      const hasContent = await dirHasContent(join(dir, entry.name), 3);
+      results.push({ name: entry.name, hasContent });
+    }
+    return results.sort((a, b) => a.name.localeCompare(b.name));
+  } catch {
+    return [];
+  }
+}
+
 export async function findDefaultBaseDir(): Promise<string> {
   return join(homedir(), "Downloads");
 }

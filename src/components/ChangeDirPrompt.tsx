@@ -1,79 +1,54 @@
-import { useEffect, useState } from "react";
 import { createTextAttributes } from "@opentui/core";
 import { useStore } from "@store";
 import { colors } from "@utils/colors";
 import { t } from "@utils/i18n";
-import { getSubdirs } from "@utils/fs";
 
 const BOLD = createTextAttributes({ bold: true });
 
-export function handleChangeDirSubmit(value: string, changeDir: (path: string) => void, cancelChangeDir: () => void): void {
-  const val = value.trim();
-  if (val) {changeDir(val);}
-  else {cancelChangeDir();}
-}
-
-export function makeChangeDirOnSubmit(changeDir: (path: string) => void, cancelChangeDir: () => void): ((event: object) => void) & ((value: string) => void) {
-  return ((value: string) => {
-    handleChangeDirSubmit(value, changeDir, cancelChangeDir);
-  }) as unknown as ((event: object) => void) & ((value: string) => void);
-}
-
 export function ChangeDirPrompt() {
   const changeDirMode = useStore((s) => s.changeDirMode);
-  const baseDir = useStore((s) => s.baseDir);
-  const changeDir = useStore((s) => s.changeDir);
-  const cancelChangeDir = useStore((s) => s.cancelChangeDir);
-  const [subdirs, setSubdirs] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (changeDirMode && baseDir) {
-      getSubdirs(baseDir).then(setSubdirs);
-    }
-  }, [changeDirMode, baseDir]);
+  const browseDir = useStore((s) => s.browseDir);
+  const browseItems = useStore((s) => s.browseItems);
+  const browseCursor = useStore((s) => s.browseCursor);
 
   if (!changeDirMode) {return null;}
 
-  return <PromptInner baseDir={baseDir} subdirs={subdirs} changeDir={changeDir} cancelChangeDir={cancelChangeDir} />;
-}
-
-export function PromptInner({
-  baseDir,
-  subdirs,
-  changeDir,
-  cancelChangeDir,
-}: {
-  baseDir: string;
-  subdirs: string[];
-  changeDir: (path: string) => void;
-  cancelChangeDir: () => void;
-}) {
   return (
     <box border borderColor={colors.keyHighlight} padding={1} marginBottom={1} flexDirection="column">
-      <text fg={colors.keyHighlight} attributes={BOLD}>
-        {t("prompt.title")}
+      <text fg={colors.path}>
+        {t("prompt.title")} {browseDir}
       </text>
-      <input
-        value={baseDir}
-        placeholder={t("prompt.placeholder")}
-        focused={true}
-        backgroundColor={colors.inputBg}
-        textColor={colors.inputText}
-        onSubmit={makeChangeDirOnSubmit(changeDir, cancelChangeDir)}
-      />
-      {subdirs.length > 0 && (
-        <text marginTop={1} fg={colors.dim}>
-          {t("prompt.subdirs")}{" "}
-          {subdirs.slice(0, 15).map((d) => (
-            <span fg={colors.subdirName} key={d}>
-              {d}{" "}
-            </span>
-          ))}
-          {subdirs.length > 15 ? t("prompt.more", { count: subdirs.length - 15 }) : ""}
+      <box flexDirection="column" marginTop={1}>
+        <text
+          fg={browseCursor === 0 ? colors.focusFg : colors.dim}
+          bg={browseCursor === 0 ? colors.focusBg : "transparent"}
+          attributes={browseCursor === 0 ? BOLD : undefined}
+        >
+          {"  "}{browseCursor === 0 ? "\u25B6" : " "} {t("prompt.selectHere")}
         </text>
-      )}
+        {browseItems.length === 0 ? (
+          <text fg={colors.dim} marginTop={1}>
+            {t("prompt.empty")}
+          </text>
+        ) : (
+          browseItems.map((item, idx) => {
+            const cursorIdx = idx + 1;
+            const isFocused = browseCursor === cursorIdx;
+            return (
+              <text
+                key={item.name}
+                fg={isFocused ? colors.focusFg : colors.treeItem}
+                bg={isFocused ? colors.focusBg : "transparent"}
+                attributes={isFocused ? BOLD : undefined}
+              >
+                {"  "}{isFocused ? "\u25B6" : " "} {item.hasContent ? t("prompt.hasContent") : t("prompt.noContent")} {item.name}
+              </text>
+            );
+          })
+        )}
+      </box>
       <text marginTop={1} fg={colors.dim}>
-        {t("prompt.escCancel")}
+        {t("prompt.navHint")}
       </text>
     </box>
   );
