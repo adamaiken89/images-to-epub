@@ -79,10 +79,10 @@ Current state allocation:
 | `bun test` | Run all tests |
 | `bun test <path>` | Single test file |
 | `bun test --coverage` | Coverage report |
-| `bun test:coverage` | Coverage report + 90% threshold check |
+| `bun test:coverage` | Coverage report + 95% threshold check |
 | `bun run lint` | Typecheck (`tsc --noEmit`) |
 
-Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ tests/`). Coverage threshold: per-file ≥90% Funcs + Lines (configured in `bunfig.toml`).
+Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ tests/`). Coverage threshold: per-file ≥95% Funcs + Lines (configured in `bunfig.toml`).
 
 ## Zustand patterns
 
@@ -123,6 +123,10 @@ export function makeXxxOnSubmit(action: (v: string) => void, fallback: () => voi
 ```
 
 `RenamePrompt.tsx` → `handleRenameSubmit`, `makeOnSubmit`.
+
+## Unicode gotchas
+
+- **Never use `\u00B7` (middle dot `·`)** for bullet points or emoji — it renders as a tiny or invisible dot in many terminals. Use `\u2022` (bullet `•`) instead. Tests must assert the correct character.
 
 ## i18n
 

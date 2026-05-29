@@ -53,7 +53,7 @@ The app opens a terminal interface showing the folder tree. Press `Space` to tog
 ```sh
 bun run dev      # Watch mode
 bun test         # Run tests
-bun test:coverage # Coverage report + 90% threshold check
+bun test:coverage # Coverage report + 95% threshold check
 bun test --coverage  # Run tests with coverage report
 ```
 

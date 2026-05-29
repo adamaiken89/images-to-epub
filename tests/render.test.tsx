@@ -304,7 +304,7 @@ describe("TreeView", () => {
       focusIndex: 0,
     });
     const frame = await render(<TreeView />, 60, 8);
-    expect(frame).toContain("\u00B7");
+    expect(frame).toContain("\u2022");
   });
 
   it("renders skip checkbox for excluded children", async () => {

@@ -17,8 +17,8 @@ exports[`snapshots Header with directory 1`] = `
 exports[`snapshots InfoMessage with counts 1`] = `
 "                                                            
 Found 3 folder(s), 1 zip(s)                                 
-↑↓ to navigate, [Space] to toggle, [Enter] to process. [n]  
-to rename, [f] format, [C] config [h] help                  
+↑↓ to navigate, [Space] to toggle, [Enter] to process. [f]  
+format, [h] help                                            
                                                             
                                                             
                                                             
@@ -43,7 +43,7 @@ exports[`snapshots HelpModal 1`] = `
 │ [n]Rename folder                                         │
 │ [m]Set author                                            │
 │ [f]Toggle output format                                  │
-│ [C]Config overview                                       │
+│ [\`]Config overview                                       │
 │                                                          │
 │ [q]Quit                                                  │
 │ [Esc] or [h]Close help                                   │

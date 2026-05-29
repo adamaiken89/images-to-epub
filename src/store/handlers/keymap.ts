@@ -21,7 +21,7 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
   }
 
   if (store.showConfig) {
-    if (key.name === "escape" || key.name === "C") {store.toggleConfig();}
+    if (key.name === "escape" || key.name === "`") {store.toggleConfig();}
     return;
   }
 
@@ -100,7 +100,7 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
     case "n":
       store.openRename();
       break;
-    case "C":
+    case "`":
       store.toggleConfig();
       break;
     case "f": {

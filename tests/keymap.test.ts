@@ -280,6 +280,18 @@ describe("handleKey", () => {
     expect(useStore.getState().selectedIds.size).toBe(0);
   });
 
+  it("` toggles config", () => {
+    useStore.setState({ showConfig: false });
+    handleKey(key("`"), ctx());
+    expect(useStore.getState().showConfig).toBe(true);
+  });
+
+  it("` closes config when open", () => {
+    useStore.setState({ showConfig: true });
+    handleKey(key("`"), ctx());
+    expect(useStore.getState().showConfig).toBe(false);
+  });
+
   it("does nothing for unknown keys", () => {
     const result = handleKey(key("unknown"), ctx());
     expect(result).toBeUndefined();

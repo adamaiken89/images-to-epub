@@ -10,17 +10,15 @@
     "toNavigate": "to navigate,",
     "toToggle": "to toggle,",
     "toProcess": "to process.",
-    "toRename": "to rename,",
     "format": "format,",
     "hide": "hide",
-    "help": "help",
-    "config": "config"
+    "help": "help"
   },
   "tree": {
     "noFolders": "No folders found.",
     "checkboxOn": "[x]",
     "checkboxOff": "[ ]",
-    "checkboxImplicit": "[\u00B7]",
+    "checkboxImplicit": "[\u2022]",
     "checkboxSkip": "[-]",
     "zipPrefix": "\uD83D\uDCE6 ",
     "empty": "(empty)"
@@ -86,7 +84,7 @@
   },
   "progress": {
     "title": "Processing {{count}} folders (mode: {{mode}})",
-    "overall": "Overall: {{pages}} pages \u00B7 {{elapsed}}s elapsed"
+    "overall": "Overall: {{pages}} pages \u2022 {{elapsed}}s elapsed"
   },
   "summary": {
     "title": "Batch Complete",
@@ -95,6 +93,6 @@
   },
   "config": {
     "title": "Config Overview",
-    "dismiss": "[ESC] or [C] to close"
+    "dismiss": "[ESC] or [`] to close"
   }
 }
