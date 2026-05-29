@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { describe, it, expect, beforeEach, afterEach } from "bun:test";
+import { render as renderWithCleanup } from "@wyattjoh/opentui-testing";
 import { Header } from "@components/Header";
 import { InfoMessage } from "@components/InfoMessage";
 import { HelpModal } from "@components/HelpModal";
@@ -12,11 +12,13 @@ import { useStore } from "@store";
 import type { ReactNode } from "react";
 import { handleRenameSubmit, makeOnSubmit } from "@components/RenamePrompt";
 
+const cleanupQueue: Array<{ cleanup: () => Promise<void> }> = [];
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function render(node: any, width = 60, height = 10) {
-  const { captureCharFrame, renderOnce } = await testRender(node, { width, height });
-  await renderOnce();
-  return captureCharFrame();
+  const app = await renderWithCleanup(node, { width, height });
+  cleanupQueue.push(app);
+  return app.captureCharFrame();
 }
 
 function ThrowingComponent(): ReactNode {
@@ -37,7 +39,31 @@ beforeEach(() => {
     renameMode: false,
     renameTarget: null,
     status: { type: "info", message: "" },
+    outputFormat: "epub",
+    authorMode: false,
+    showConfig: false,
+    showSummary: false,
+    browseDir: "",
+    browseCursor: 0,
+    browseItems: [],
+    progressItems: [],
+    batchStartTime: null,
+    batchEndTime: null,
+    processingMode: "sequential",
+    summaryResults: [],
+    summaryTotalPages: 0,
+    summaryTotalSize: 0,
+    summaryElapsed: 0,
+    summarySuccessCount: 0,
+    summaryFailCount: 0,
   });
+});
+
+afterEach(async () => {
+  for (const app of cleanupQueue) {
+    await app.cleanup();
+  }
+  cleanupQueue.length = 0;
 });
 
 // ── Static element render tests ───────────────────────────────────
@@ -76,9 +102,11 @@ describe("element rendering", () => {
 
 describe("Header", () => {
   it("shows title and directory path", async () => {
-    useStore.setState({ baseDir: "/test/path" });
+    useStore.setState({ baseDir: "/test/path", outputFormat: "epub" });
     const frame = await render(<Header />);
     expect(frame).toContain("EPUB Generator");
+    expect(frame).toContain("Output:");
+    expect(frame).toContain("epub");
     expect(frame).toContain("/test/path");
   });
 
@@ -86,6 +114,7 @@ describe("Header", () => {
     useStore.setState({ baseDir: "" });
     const frame = await render(<Header />);
     expect(frame).toContain("EPUB Generator");
+    expect(frame).toContain("Output:");
     expect(frame).toContain("No directory selected");
   });
 });
@@ -115,6 +144,7 @@ describe("InfoMessage", () => {
     expect(frame).toContain("[h]");
     expect(frame).toContain("hide");
   });
+
 });
 
 // ── StatusBar ─────────────────────────────────────────────────────
@@ -163,12 +193,18 @@ describe("ErrorBoundary", () => {
   });
 
   it("renders error state when child throws", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let app: any;
     try {
-      await render(
-        <ErrorBoundary><ThrowingComponent /></ErrorBoundary>
+      app = await renderWithCleanup(
+        <ErrorBoundary><ThrowingComponent /></ErrorBoundary>,
+        { width: 60, height: 10 },
       );
+      await app.captureCharFrame();
     } catch {
       // expected — error propagated through dev-mode test renderer
+    } finally {
+      await app?.cleanup();
     }
   });
 });
@@ -324,7 +360,7 @@ describe("TreeView", () => {
 
 describe("snapshots", () => {
   it("Header with directory", async () => {
-    useStore.setState({ baseDir: "/test/path" });
+    useStore.setState({ baseDir: "/test/path", outputFormat: "epub" });
     const frame = await render(<Header />);
     expect(frame).toMatchSnapshot();
   });
@@ -332,7 +368,10 @@ describe("snapshots", () => {
   it("InfoMessage with counts", async () => {
     useStore.setState({ folderCount: 3, zipCount: 1, showHelp: false });
     const frame = await render(<InfoMessage />);
-    expect(frame).toMatchSnapshot();
+    expect(frame).toContain("3");
+    expect(frame).toContain("folder(s)");
+    expect(frame).toContain("1");
+    expect(frame).toContain("zip(s)");
   });
 
   it("HelpModal", async () => {

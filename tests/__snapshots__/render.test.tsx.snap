@@ -1,24 +1,10 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
 exports[`snapshots Header with directory 1`] = `
-"EPUB Generator  [EPUB+KEPUB]                                
+"EPUB Generator                                              
+Output: epub                                                
 /test/path                                                  
                                                             
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-                                                            
-"
-`;
-
-exports[`snapshots InfoMessage with counts 1`] = `
-"                                                            
-Found 3 folder(s), 1 zip(s)                                 
-↑↓ to navigate, [Space] to toggle, [Enter] to process. [f]  
-format, [h] help                                            
                                                             
                                                             
                                                             

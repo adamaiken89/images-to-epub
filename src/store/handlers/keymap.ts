@@ -104,9 +104,8 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
       store.toggleConfig();
       break;
     case "f": {
-      const cycle: Array<"epub" | "kepub" | "both"> = ["epub", "kepub", "both"];
-      const idx = cycle.indexOf(store.outputFormat);
-      store.setOutputFormat(cycle[(idx + 1) % cycle.length]);
+      const cycle: Record<string, "epub" | "kepub" | "both"> = { epub: "both", both: "kepub", kepub: "epub" };
+      store.setOutputFormat(cycle[store.outputFormat]);
       break;
     }
     case "m":

@@ -29,6 +29,7 @@
     "@types/react": "^19.0.0",
     "@types/uuid": "^10.0.0",
     "@types/yauzl": "^2.10.0",
+    "@wyattjoh/opentui-testing": "^1.0.1",
     "eslint": "^10.4.0",
     "typescript": "^5.8.0",
     "typescript-eslint": "^8.59.4"

@@ -1,7 +1,8 @@
 {
   "header": {
     "title": "EPUB Generator",
-    "noDir": "No directory selected"
+    "noDir": "No directory selected",
+    "output": "Output:"
   },
   "info": {
     "found": "Found",
@@ -24,9 +25,9 @@
     "empty": "(empty)"
   },
   "format": {
-    "epub": "EPUB",
-    "kepub": "KEPUB",
-    "both": "EPUB+KEPUB"
+    "epub": "epub",
+    "kepub": "kepub",
+    "both": "epub + kepub"
   },
   "modal": {
     "title": "Keyboard Shortcuts",

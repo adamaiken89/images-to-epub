@@ -13,7 +13,9 @@ export function Header() {
     <box flexDirection="column" marginBottom={1}>
       <text fg={colors.title} attributes={BOLD}>
         {t("header.title")}
-        <span fg={colors.dim}>  [</span><span fg={colors.accent}>{t(`format.${outputFormat}`)}</span><span fg={colors.dim}>]</span>
+      </text>
+      <text fg={colors.dim}>
+        {t("header.output")} <span fg={colors.accent}>{t(`format.${outputFormat}`)}</span>
       </text>
       <text fg={colors.path}>
         <u>{baseDir || t("header.noDir")}</u>

@@ -145,8 +145,9 @@ export function makeXxxOnSubmit(action: (v: string) => void, fallback: () => voi
 - For dynamic fields (error messages, file paths), use matchers like `expect.stringContaining(...)`, `expect.stringMatching(/.../)`, `expect.arrayContaining([...])`, or `expect.any(Type)` inside `toEqual()`
 - For complex nested returns, split into multiple `toEqual()` assertions per sub-object rather than one monolithic call
 - Keymap tests use `useStore.getState()`/`setState()` directly — no React rendering
-- Render tests use OpenTUI's `testRender` + `captureCharFrame` from `@opentui/react/test-utils`
+- Render tests use `render` from `@wyattjoh/opentui-testing` (handles React `act()` wrapping, frame quiescence, and automatic cleanup via `afterEach`)
 - Render tests focus on state→UI mapping (set store state, render, assert frame) — keyboard→state integration is tested in keymap tests
+- Render tests push each `RenderResult` into a `cleanupQueue` array and call `app.cleanup()` in `afterEach` to destroy the renderer inside `act()`; the queue is cleared after each test
 - Handler tests (handleRenameSubmit, handleChangeDirSubmit, makeOnSubmit) test exported pure functions directly
 - Store actions tested via `useStore.getState().action()` — no React rendering
 - Zip tests create real zip files via JSZip + write to temp dirs

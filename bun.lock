@@ -19,6 +19,7 @@
         "@types/react": "^19.0.0",
         "@types/uuid": "^10.0.0",
         "@types/yauzl": "^2.10.0",
+        "@wyattjoh/opentui-testing": "^1.0.1",
         "eslint": "^10.4.0",
         "typescript": "^5.8.0",
         "typescript-eslint": "^8.59.4",
@@ -156,6 +157,8 @@
     "@typescript-eslint/utils": ["@typescript-eslint/utils@8.59.4", "", { "dependencies": { "@eslint-community/eslint-utils": "^4.9.1", "@typescript-eslint/scope-manager": "8.59.4", "@typescript-eslint/types": "8.59.4", "@typescript-eslint/typescript-estree": "8.59.4" }, "peerDependencies": { "eslint": "^8.57.0 || ^9.0.0 || ^10.0.0", "typescript": ">=4.8.4 <6.1.0" } }, "sha512-cYXeNAUsG4lJo5dbc1FcKm+JwIWrj1/UpTORsC6tGMjEZ81DYcvIr9/ueikhMa/Y/gDQYGp+YX9/xQrXje5BJw=="],
 
     "@typescript-eslint/visitor-keys": ["@typescript-eslint/visitor-keys@8.59.4", "", { "dependencies": { "@typescript-eslint/types": "8.59.4", "eslint-visitor-keys": "^5.0.0" } }, "sha512-U3gxVaDVnuZKhSspW/MzMxE1kq7zOdc072FcSNoqA1I9p8HyKbBFfEHoWckBAMgNMph4MamwS5iTVzFmrnt8TQ=="],
+
+    "@wyattjoh/opentui-testing": ["@wyattjoh/opentui-testing@1.0.1", "", { "peerDependencies": { "@opentui/core": "^0.2.9", "@opentui/react": "^0.2.9", "react": "^19.0.0" } }, "sha512-mwxo7maYl7Uh00ZFrz3YiYqni2ODrAz3vlaNK6IwfZAbN+pg40asSw/qdvTvchv7Z6STLmqh5z3ItRTxMiC+hg=="],
 
     "acorn": ["acorn@8.16.0", "", { "bin": { "acorn": "bin/acorn" } }, "sha512-UVJyE9MttOsBQIDKw1skb9nAwQuR5wuGD3+82K6JgJlm/Y+KI92oNsMNGZCYdDsVtRHSak0pcV5Dno5+4jh9sw=="],
 

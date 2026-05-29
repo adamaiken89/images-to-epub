@@ -21,7 +21,7 @@ export function ConfigModal() {
         Base Dir: <span fg={colors.path}>{baseDir}</span>
       </text>
       <text fg={colors.controlsText}>
-        Output Format: <span fg={colors.accent}>{outputFormat}</span>
+        Output Format: <span fg={colors.accent}>{t(`format.${outputFormat}`)}</span>
       </text>
       <text fg={colors.dim} marginTop={1}>
         {t("config.dismiss")}

@@ -17,17 +17,6 @@ jobs:
       - run: bun install
       - run: bun run lint
       - run: bun test --coverage --coverage-reporter=lcov --reporter=junit --reporter-outfile=./test-results/junit.xml
-        continue-on-error: true
       - name: Coverage summary
         if: always()
         run: bun run scripts/coverage-summary.js >> $GITHUB_STEP_SUMMARY
-      - uses: actions/upload-artifact@v6
-        if: always()
-        with:
-          name: test-results
-          path: test-results/
-      - uses: actions/upload-artifact@v6
-        if: always()
-        with:
-          name: coverage-report
-          path: coverage/
