@@ -217,6 +217,31 @@ export async function renameFolder(oldPath: string, newName: string): Promise<{ 
   }
 }
 
+export interface AuthorBatchResult {
+  successCount: number;
+  failCount: number;
+  failures: string[];
+}
+
+export async function batchSetAuthorWithProgress(
+  folders: string[],
+  authorName: string,
+  onProgress: (current: number, total: number, name: string) => void,
+): Promise<AuthorBatchResult> {
+  const results: Array<{ path: string; success: boolean; message: string }> = [];
+  for (let i = 0; i < folders.length; i++) {
+    onProgress(i + 1, folders.length, basename(folders[i]));
+    const result = await batchSetAuthor([folders[i]], authorName);
+    results.push(result[0]);
+  }
+  const successCount = results.filter((r) => r.success).length;
+  const failCount = results.filter((r) => !r.success).length;
+  const failures = results
+    .filter((r) => !r.success)
+    .map((r) => `${r.path.split("/").pop()}: ${r.message}`);
+  return { successCount, failCount, failures };
+}
+
 export async function batchSetAuthor(
   folderPaths: string[],
   authorName: string,

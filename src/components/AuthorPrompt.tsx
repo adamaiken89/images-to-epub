@@ -12,6 +12,16 @@ export function AuthorPrompt() {
 
   if (!authorMode) {return null;}
 
+  return <PromptInner submitAuthorName={submitAuthorName} cancelAuthorMode={cancelAuthorMode} />;
+}
+
+function PromptInner({
+  submitAuthorName,
+  cancelAuthorMode,
+}: {
+  submitAuthorName: (name: string) => void;
+  cancelAuthorMode: () => void;
+}) {
   return (
     <box border borderColor={colors.keyHighlight} padding={1} marginBottom={1} flexDirection="column">
       <text fg={colors.keyHighlight} attributes={BOLD}>

@@ -4,7 +4,6 @@ import { homedir } from "os";
 import sharp from "sharp";
 import JSZip from "jszip";
 import { v4 as uuidv4 } from "uuid";
-
 const VALID_IMAGE_EXTS = new Set([".webp", ".jpg", ".jpeg", ".png"]);
 
 export interface EpubResult {
@@ -27,7 +26,8 @@ async function convertToJpeg(imagePath: string): Promise<Buffer> {
 
 export async function createEpubFromFolder(
   imgDir: string,
-  outputDir?: string
+  outputDir?: string,
+  format: "epub" | "kepub" | "both" = "epub"
 ): Promise<EpubResult> {
   if (!outputDir) {
     outputDir = join(homedir(), "Downloads");
@@ -36,7 +36,8 @@ export async function createEpubFromFolder(
   const folderName = basename(imgDir);
   const delimIndex = folderName.indexOf("###");
   const cleanName = delimIndex >= 0 ? folderName.slice(0, delimIndex).trim() : folderName;
-  const outputEpub = join(outputDir, `${cleanName}.epub`);
+  const ext = format === "kepub" ? ".kepub.epub" : ".epub";
+  const outputEpub = join(outputDir, `${cleanName}${ext}`);
 
   // Get sorted image files (natural numeric order: 0,1,2,...10,11 rather than 0,1,10,11,2)
   let imgFiles: string[];
@@ -210,6 +211,8 @@ export async function createEpubFromFolder(
     );
 
     // content.opf
+    const includeKobo = format === "kepub" || format === "both";
+    const koboMeta = includeKobo ? `    <meta name="kobo" content="kobonick"/>\n` : "";
     zip.file(
       "OEBPS/content.opf",
       `<?xml version="1.0" encoding="UTF-8"?>
@@ -221,7 +224,7 @@ export async function createEpubFromFolder(
     ${author ? `<dc:creator>${escapeXml(author)}</dc:creator>` : ""}
     <meta property="dcterms:modified">${new Date().toISOString().replace(/\.\d{3}Z$/, "Z")}</meta>
     <meta name="cover" content="cover-image"/>
-  </metadata>
+    ${koboMeta}  </metadata>
   <manifest>
     ${manifestItems.join("\n    ")}
   </manifest>
@@ -234,9 +237,18 @@ export async function createEpubFromFolder(
     // Generate zip buffer and write to file
     const buffer = await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" });
     await mkdir(outputDir, { recursive: true });
-    await writeFile(outputEpub, buffer);
 
-    return { success: true, message: `EPUB created: ${outputEpub}` };
+    if (format === "both") {
+      const epubPath = join(outputDir, `${cleanName}.epub`);
+      const kepubPath = join(outputDir, `${cleanName}.kepub.epub`);
+      await writeFile(epubPath, buffer);
+      await writeFile(kepubPath, buffer);
+      return { success: true, message: `EPUB + KEPUB created: ${cleanName}` };
+    }
+
+    await writeFile(outputEpub, buffer);
+    const label = format === "kepub" ? "KEPUB" : "EPUB";
+    return { success: true, message: `${label} created: ${outputEpub}` };
   } catch (err) {
     return { success: false, message: `Error creating EPUB: ${(err as Error).message}` };
   }

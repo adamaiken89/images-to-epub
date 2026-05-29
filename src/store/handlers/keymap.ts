@@ -84,6 +84,12 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
     case "n":
       store.openRename();
       break;
+    case "f": {
+      const cycle: Array<"epub" | "kepub" | "both"> = ["epub", "kepub", "both"];
+      const idx = cycle.indexOf(store.outputFormat);
+      store.setOutputFormat(cycle[(idx + 1) % cycle.length]);
+      break;
+    }
     case "m":
       store.openAuthorMode();
       break;

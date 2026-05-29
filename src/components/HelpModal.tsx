@@ -35,6 +35,12 @@ export function HelpModal() {
         <span fg={colors.keyHighlight}>[n]</span>{t("modal.rename")}
       </text>
       <text fg={colors.controlsText}>
+        <span fg={colors.keyHighlight}>[m]</span>{t("modal.setAuthor")}
+      </text>
+      <text fg={colors.controlsText}>
+        <span fg={colors.keyHighlight}>[f]</span>{t("modal.format")}
+      </text>
+      <text fg={colors.controlsText}>
 
       </text>
       <text fg={colors.controlsText}>

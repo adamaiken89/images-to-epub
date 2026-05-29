@@ -164,6 +164,16 @@ describe("handleKey", () => {
     handleKey(key("n"), ctx());
   });
 
+  it("f cycles epub -> kepub -> both -> epub", () => {
+    useStore.setState({ outputFormat: "epub" });
+    handleKey(key("f"), ctx());
+    expect(useStore.getState().outputFormat).toBe("kepub");
+    handleKey(key("f"), ctx());
+    expect(useStore.getState().outputFormat).toBe("both");
+    handleKey(key("f"), ctx());
+    expect(useStore.getState().outputFormat).toBe("epub");
+  });
+
   it("m opens author mode", () => {
     handleKey(key("m"), ctx());
     expect(useStore.getState().authorMode).toBe(true);

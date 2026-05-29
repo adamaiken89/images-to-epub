@@ -60,6 +60,10 @@ export interface AppState {
   renameSubmit: (newName: string) => Promise<void>;
   cancelRename: () => void;
 
+  // Output format
+  outputFormat: "epub" | "kepub" | "both";
+  setOutputFormat: (fmt: "epub" | "kepub" | "both") => void;
+
   // Batch author
   authorMode: boolean;
   openAuthorMode: () => void;

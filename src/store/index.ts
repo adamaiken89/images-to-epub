@@ -1,10 +1,9 @@
-import { basename } from "path";
 import { create } from "zustand";
 import type { AppState } from "./types";
 import { createScanSlice } from "./slices/scan";
 import { createSelectionSlice } from "./slices/selection";
 import { createBatchSlice } from "./slices/batch";
-import { renameFolder, batchSetAuthor, getSubdirsWithMetadata } from "@utils/fs";
+import { renameFolder, batchSetAuthorWithProgress, getSubdirsWithMetadata } from "@utils/fs";
 import { getFoldersToProcess } from "./slices/selection";
 
 export type { AppState, TreeItem, StatusMessage } from "./types";
@@ -24,6 +23,12 @@ export const useStore = create<AppState>()((set, get, api) => ({
 
   renameMode: false,
   renameTarget: null,
+
+  outputFormat: "epub",
+
+  setOutputFormat: (fmt: "epub" | "kepub" | "both") => {
+    set({ outputFormat: fmt });
+  },
 
   authorMode: false,
 
@@ -144,18 +149,14 @@ export const useStore = create<AppState>()((set, get, api) => ({
     }
 
     set({ authorMode: false, isProcessing: true });
-    const results: Array<{ path: string; success: boolean; message: string }> = [];
-    for (let i = 0; i < folders.length; i++) {
-      set({ status: { type: "progress", message: `${i + 1}/${folders.length}: ${basename(folders[i])}...` } });
-      const result = await batchSetAuthor([folders[i]], trimmed);
-      results.push(result[0]);
-    }
-    const successCount = results.filter((r) => r.success).length;
-    const failCount = results.filter((r) => !r.success).length;
-    const failed = results
-      .filter((r) => !r.success)
-      .map((r) => `${r.path.split("/").pop()}: ${r.message}`);
-    const suffix = failed.length > 0 ? " | " + failed.join("; ") : "";
+    const { successCount, failCount, failures } = await batchSetAuthorWithProgress(
+      folders,
+      trimmed,
+      (current, total, name) => {
+        set({ status: { type: "progress", message: `${current}/${total}: ${name}...` } });
+      },
+    );
+    const suffix = failures.length > 0 ? " | " + failures.join("; ") : "";
     set({
       status: {
         type: "done",

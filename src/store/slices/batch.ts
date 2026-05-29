@@ -78,14 +78,15 @@ export const createBatchSlice: StateCreator<
   isProcessing: false,
 
   processFolders: async () => {
-    const { selectedIds, items } = get();
+    const { selectedIds, items, outputFormat } = get();
     set({ isProcessing: true });
     const folders = getFoldersToProcess(selectedIds, items);
     if (folders.length === 0) {
       set({ isProcessing: false });
       return;
     }
-    await batchProcess(set, get, folders, createEpubFromFolder, true);
+    const processor = (target: string) => createEpubFromFolder(target, undefined, outputFormat);
+    await batchProcess(set, get, folders, processor, true);
   },
 
   unzipSelected: async () => {
