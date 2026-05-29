@@ -1,9 +1,9 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
 exports[`snapshots Header with directory 1`] = `
-"EPUB Generator                                              
-Output: epub                                                
-/test/path                                                  
+"EPUB Generator  [epub]  │  /test/path                       
+                                                            
+                                                            
                                                             
                                                             
                                                             
@@ -19,20 +19,20 @@ exports[`snapshots HelpModal 1`] = `
 │                                                          │
 │ Keyboard Shortcuts                                       │
 │                                                          │
-│ [Space]Toggle selection                                  │
-│ [a]Select All (toggle)                                   │
-│ [Enter]Process EPUB                                      │
-│ [p]Pad filenames                                         │
-│ [u]Unzip                                                 │
-│ [c]Change dir                                            │
-│ [r]Refresh                                               │
-│ [n]Rename folder                                         │
-│ [m]Set author                                            │
-│ [f]Toggle output format                                  │
-│ [\`]Config overview                                       │
+│ [Space] Toggle selection                                 │
+│ [a] Select All (toggle)                                  │
+│ [Enter] Process EPUB                                     │
+│ [p] Pad filenames                                        │
+│ [u] Unzip                                                │
+│ [c] Change dir                                           │
+│ [r] Refresh                                              │
+│ [n] Rename folder                                        │
+│ [m] Set author                                           │
+│ [f] Toggle output format                                 │
+│ [\`] Config overview                                      │
+│ [q] Quit                                                 │
 │                                                          │
-│ [q]Quit                                                  │
-│ [Esc] or [h]Close help                                   │
+│ [Esc] or [h] Close help                                  │
 │                                                          │
 └──────────────────────────────────────────────────────────┘
 "

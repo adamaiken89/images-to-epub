@@ -28,10 +28,16 @@ describe("store navigation actions", () => {
     expect(useStore.getState().showHelp).toBe(false);
   });
 
-  it("openChangeDir sets changeDirMode", () => {
-    useStore.getState().openChangeDir();
+  it("toggleChangeDir sets changeDirMode", () => {
+    useStore.getState().toggleChangeDir();
     const state = useStore.getState();
     expect(state.changeDirMode).toBe(true);
+  });
+
+  it("toggleChangeDir off clears changeDirMode", () => {
+    useStore.setState({ changeDirMode: true });
+    useStore.getState().toggleChangeDir();
+    expect(useStore.getState().changeDirMode).toBe(false);
   });
 
   it("cancelChangeDir resets mode and browse state", () => {
@@ -66,25 +72,25 @@ describe("store navigation actions", () => {
     expect(state.renameTarget).toBeNull();
   });
 
-  it("openRename does nothing when no item at focusIndex", () => {
+  it("toggleRename does nothing when no item at focusIndex", () => {
     useStore.setState({ items: [], focusIndex: 0 });
-    useStore.getState().openRename();
+    useStore.getState().toggleRename();
     const state = useStore.getState();
     expect(state.renameMode).toBe(false);
   });
 
-  it("openRename does nothing when focused item is a zip", () => {
+  it("toggleRename does nothing when focused item is a zip", () => {
     useStore.setState({
       items: [{
         id: "zip:/test/file.zip", label: "file.zip", depth: 0, isZip: true, entry: null, checked: false, excluded: false,
       }],
       focusIndex: 0,
     });
-    useStore.getState().openRename();
+    useStore.getState().toggleRename();
     expect(useStore.getState().renameMode).toBe(false);
   });
 
-  it("openRename sets rename mode for a folder item", () => {
+  it("toggleRename sets rename mode for a folder item", () => {
     useStore.setState({
       items: [{
         id: "folder:/test/manga",
@@ -97,15 +103,21 @@ describe("store navigation actions", () => {
       }],
       focusIndex: 0,
     });
-    useStore.getState().openRename();
+    useStore.getState().toggleRename();
     const state = useStore.getState();
     expect(state.renameMode).toBe(true);
     expect(state.renameTarget).toBe("/test/manga");
   });
 
-  it("openRename does nothing when focused item is missing", () => {
+  it("toggleRename toggles rename off", () => {
+    useStore.setState({ renameMode: true, renameTarget: "/test" });
+    useStore.getState().toggleRename();
+    expect(useStore.getState().renameMode).toBe(false);
+  });
+
+  it("toggleRename does nothing when focused item is missing", () => {
     useStore.setState({ items: [], focusIndex: 0 });
-    useStore.getState().openRename();
+    useStore.getState().toggleRename();
     expect(useStore.getState().renameMode).toBe(false);
   });
 
@@ -122,7 +134,7 @@ describe("store navigation actions", () => {
       }],
       focusIndex: 0,
     });
-    useStore.getState().openRename();
+    useStore.getState().toggleRename();
     expect(useStore.getState().renameMode).toBe(false);
   });
 
@@ -500,14 +512,14 @@ describe("browse actions", () => {
     if (dir) {rmSync(dir, { recursive: true, force: true });}
   });
 
-  it("openChangeDir sets browseDir and loads browseItems", async () => {
+  it("toggleChangeDir sets browseDir and loads browseItems", async () => {
     dir = mkdtempSync(join(tmpdir(), "browse-open-"));
     mkdirSync(join(dir, "sub1"), { recursive: true });
     writeFileSync(join(dir, "sub1", "pic.webp"), "");
     mkdirSync(join(dir, "sub2"), { recursive: true });
 
     useStore.setState({ baseDir: dir, changeDirMode: false });
-    useStore.getState().openChangeDir();
+    useStore.getState().toggleChangeDir();
     await Bun.sleep(10);
 
     const state = useStore.getState();
@@ -632,9 +644,15 @@ describe("author mode actions", () => {
     });
   });
 
-  it("openAuthorMode sets authorMode", () => {
-    useStore.getState().openAuthorMode();
+  it("toggleAuthorMode sets authorMode", () => {
+    useStore.getState().toggleAuthorMode();
     expect(useStore.getState().authorMode).toBe(true);
+  });
+
+  it("toggleAuthorMode toggles off", () => {
+    useStore.setState({ authorMode: true });
+    useStore.getState().toggleAuthorMode();
+    expect(useStore.getState().authorMode).toBe(false);
   });
 
   it("cancelAuthorMode resets authorMode", () => {

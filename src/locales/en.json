@@ -1,19 +1,17 @@
 {
   "header": {
     "title": "EPUB Generator",
-    "noDir": "No directory selected",
-    "output": "Output:"
+    "noDir": "No directory selected"
   },
   "info": {
-    "found": "Found",
-    "foldersLabel": "folder(s),",
-    "zipsLabel": "zip(s)",
-    "toNavigate": "to navigate,",
-    "toToggle": "to toggle,",
-    "toProcess": "to process.",
-    "format": "format,",
+    "foldersLabel": "folders",
+    "zipsLabel": "zips",
     "hide": "hide",
-    "help": "help"
+    "help": "help",
+    "nav": "nav",
+    "toggle": "toggle",
+    "go": "go",
+    "format": "format"
   },
   "tree": {
     "noFolders": "No folders found.",
@@ -53,7 +51,7 @@
     "empty": "(no subfolders)",
     "hasContent": "[!]",
     "noContent": "[ ]",
-    "navHint": "\u2191\u2193 navigate  Enter select  Backspace up  ESC cancel"
+    "navHint": "\u2191\u2193 navigate  Enter select  Backspace up  c to close"
   },
   "rename": {
     "title": "Rename Folder:",
@@ -94,6 +92,6 @@
   },
   "config": {
     "title": "Config Overview",
-    "dismiss": "[ESC] or [`] to close"
+    "dismiss": "[`] to toggle"
   }
 }

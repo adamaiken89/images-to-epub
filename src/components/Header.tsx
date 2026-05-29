@@ -11,14 +11,12 @@ export function Header() {
 
   return (
     <box flexDirection="column" marginBottom={1}>
-      <text fg={colors.title} attributes={BOLD}>
-        {t("header.title")}
-      </text>
-      <text fg={colors.dim}>
-        {t("header.output")} <span fg={colors.accent}>{t(`format.${outputFormat}`)}</span>
-      </text>
-      <text fg={colors.path}>
-        <u>{baseDir || t("header.noDir")}</u>
+      <text>
+        <span fg={colors.title} attributes={BOLD}>{t("header.title")}</span>
+        {"  "}
+        <span fg={colors.keyHighlight}>[{t(`format.${outputFormat}`)}]</span>
+        <span fg={colors.separator}>{"  \u2502  "}</span>
+        <span fg={colors.path}>{baseDir || t("header.noDir")}</span>
       </text>
     </box>
   );

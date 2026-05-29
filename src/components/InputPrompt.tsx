@@ -23,7 +23,7 @@ export function InputPrompt({
 }: InputPromptProps) {
   return (
     <box border borderColor={colors.keyHighlight} padding={1} marginBottom={1} flexDirection="column">
-      <text fg={colors.keyHighlight} attributes={BOLD}>
+      <text fg={colors.title} attributes={BOLD} marginBottom={1}>
         {title}
       </text>
       <input
@@ -35,10 +35,7 @@ export function InputPrompt({
         onSubmit={onSubmit as unknown as ((event: object) => void) & ((value: string) => void)}
       />
       <text marginTop={1} fg={colors.dim}>
-        {hint}
-      </text>
-      <text marginTop={1} fg={colors.dim}>
-        {escLabel}
+        {hint} {'\u2022'} {escLabel}
       </text>
     </box>
   );

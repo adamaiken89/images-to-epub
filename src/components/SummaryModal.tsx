@@ -5,7 +5,7 @@ import { t } from "@utils/i18n";
 
 const BOLD = createTextAttributes({ bold: true });
 
-export function SummaryOverlay() {
+export function SummaryModal() {
   const showSummary = useStore((s) => s.showSummary);
   const summaryResults = useStore((s) => s.summaryResults);
   const summaryTotalPages = useStore((s) => s.summaryTotalPages);
@@ -35,7 +35,7 @@ export function SummaryOverlay() {
   return (
     <box
       border
-      borderColor={colors.summaryBorder}
+      borderColor={colors.statusDone}
       padding={1}
       flexGrow={1}
       flexDirection="column"

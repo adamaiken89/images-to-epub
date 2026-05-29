@@ -1,9 +1,8 @@
 export const colors = {
-  title: "#66ccff",
+  title: "#cc88ff",
   path: "#aaaaaa",
   controlsText: "#88ff88",
   keyHighlight: "#ffcc00",
-  accent: "#ffcc00",
   countHighlight: "#66ccff",
 
   statusInfo: "#66ccff",
@@ -13,8 +12,9 @@ export const colors = {
 
   errorMessage: "#ff8888",
 
-  inputBg: "#1a1a1a",
+  inputBg: "#2a2a2a",
   inputText: "#ffffff",
+  inputBorder: "#ffcc00",
 
   focusBg: "#3366cc",
   focusFg: "#ffffff",
@@ -23,13 +23,14 @@ export const colors = {
   treeItemZip: "#888888",
 
   dim: "#888888",
-  subdirName: "#aaaaaa",
 
   checkboxOn: "#66ff66",
   checkboxImplicit: "#55bb55",
   checkboxSkip: "#777777",
 
   progressBorder: "#88ff88",
-  summaryBorder: "#ffcc00",
-  summaryBg: "#000000",
+  summaryBg: "#1a1a2e",
+
+  dynamicValue: "#3399ff",
+  separator: "#555555",
 } as const;

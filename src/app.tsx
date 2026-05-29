@@ -10,9 +10,8 @@ import { RenamePrompt } from "./components/RenamePrompt";
 import { AuthorPrompt } from "./components/AuthorPrompt";
 import { TreeView } from "./components/TreeView";
 import { InfoMessage } from "./components/InfoMessage";
-import { StatusBar } from "./components/StatusBar";
 import { ProgressDashboard } from "./components/ProgressDashboard";
-import { SummaryOverlay } from "./components/SummaryOverlay";
+import { SummaryModal } from "./components/SummaryModal";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
 export default function App() {
@@ -42,8 +41,7 @@ export default function App() {
         <ChangeDirPrompt />
         <RenamePrompt />
         <AuthorPrompt />
-        {showSummary ? <SummaryOverlay />
-          : changeDirMode ? null
+        {showSummary ? <SummaryModal />
           : showConfig ? <ConfigModal />
           : showHelp ? <HelpModal />
           : (
@@ -53,7 +51,6 @@ export default function App() {
             </>
           )}
         <box flexShrink={0}>{changeDirMode ? null : showSummary || showConfig || showHelp ? null : <InfoMessage />}</box>
-        <box flexShrink={0}><StatusBar /></box>
       </ErrorBoundary>
     </box>
   );

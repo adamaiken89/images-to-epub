@@ -3,7 +3,6 @@ import { render as renderWithCleanup } from "@wyattjoh/opentui-testing";
 import { Header } from "@components/Header";
 import { InfoMessage } from "@components/InfoMessage";
 import { HelpModal } from "@components/HelpModal";
-import { StatusBar } from "@components/StatusBar";
 import { ErrorBoundary } from "@components/ErrorBoundary";
 import { ChangeDirPrompt } from "@components/ChangeDirPrompt";
 import { RenamePrompt } from "@components/RenamePrompt";
@@ -105,8 +104,7 @@ describe("Header", () => {
     useStore.setState({ baseDir: "/test/path", outputFormat: "epub" });
     const frame = await render(<Header />);
     expect(frame).toContain("EPUB Generator");
-    expect(frame).toContain("Output:");
-    expect(frame).toContain("epub");
+    expect(frame).toContain("[epub]");
     expect(frame).toContain("/test/path");
   });
 
@@ -114,7 +112,7 @@ describe("Header", () => {
     useStore.setState({ baseDir: "" });
     const frame = await render(<Header />);
     expect(frame).toContain("EPUB Generator");
-    expect(frame).toContain("Output:");
+    expect(frame).toContain("[epub]");
     expect(frame).toContain("No directory selected");
   });
 });
@@ -126,9 +124,9 @@ describe("InfoMessage", () => {
     useStore.setState({ folderCount: 5, zipCount: 2, showHelp: false });
     const frame = await render(<InfoMessage />);
     expect(frame).toContain("5");
-    expect(frame).toContain("folder(s)");
+    expect(frame).toContain("folders");
     expect(frame).toContain("2");
-    expect(frame).toContain("zip(s)");
+    expect(frame).toContain("zips");
   });
 
   it("shows help toggle hint", async () => {
@@ -145,28 +143,6 @@ describe("InfoMessage", () => {
     expect(frame).toContain("hide");
   });
 
-});
-
-// ── StatusBar ─────────────────────────────────────────────────────
-
-describe("StatusBar", () => {
-  it("shows info message", async () => {
-    useStore.setState({ status: { type: "info", message: "0 item(s) selected" } });
-    const frame = await render(<StatusBar />);
-    expect(frame).toContain("0 item(s) selected");
-  });
-
-  it("shows error message", async () => {
-    useStore.setState({ status: { type: "error", message: "Permission denied" } });
-    const frame = await render(<StatusBar />);
-    expect(frame).toContain("Permission denied");
-  });
-
-  it("returns null when message is empty", async () => {
-    useStore.setState({ status: { type: "info", message: "" } });
-    const frame = await render(<StatusBar />);
-    expect(frame.trim()).toBe("");
-  });
 });
 
 // ── HelpModal ─────────────────────────────────────────────────────
@@ -220,7 +196,7 @@ describe("ChangeDirPrompt", () => {
 
   it("shows prompt, current directory, select option, and nav hint", async () => {
     useStore.setState({ changeDirMode: true, browseDir: "/test", browseCursor: 0, browseItems: [] });
-    const frame = await render(<ChangeDirPrompt />, 60, 10);
+    const frame = await render(<ChangeDirPrompt />, 60, 14);
     expect(frame).toContain("/test");
     expect(frame).toContain("Select this directory");
     expect(frame).toContain("\u2191\u2193");
@@ -236,7 +212,7 @@ describe("ChangeDirPrompt", () => {
         { name: "empty-dir", hasContent: false },
       ],
     });
-    const frame = await render(<ChangeDirPrompt />, 60, 10);
+    const frame = await render(<ChangeDirPrompt />, 60, 14);
     expect(frame).toContain("manga1");
     expect(frame).toContain("empty-dir");
     expect(frame).toContain("[!]");
@@ -261,7 +237,8 @@ describe("RenamePrompt", () => {
     const frame = await render(<RenamePrompt />, 60, 20);
     expect(frame).toContain("manga-vol1");
     expect(frame).toContain("### Author");
-    expect(frame).toContain("ESC to cancel");
+    expect(frame).toContain("\u2022 ESC to");
+    expect(frame).toContain("cancel");
   });
 });
 
@@ -369,9 +346,9 @@ describe("snapshots", () => {
     useStore.setState({ folderCount: 3, zipCount: 1, showHelp: false });
     const frame = await render(<InfoMessage />);
     expect(frame).toContain("3");
-    expect(frame).toContain("folder(s)");
+    expect(frame).toContain("folders");
     expect(frame).toContain("1");
-    expect(frame).toContain("zip(s)");
+    expect(frame).toContain("zips");
   });
 
   it("HelpModal", async () => {

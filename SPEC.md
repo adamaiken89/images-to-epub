@@ -1,6 +1,6 @@
 # Product Spec: Making img2epub Lovable
 
-> **Status**: Draft v1  
+> **Status**: Implemented (v2.0.0+)  
 > **Target release**: 3.0.0  
 > **Persona**: Manga/comic archivist, scanner enthusiast, Calibre power user
 
@@ -309,26 +309,26 @@ interface AppState {
 
 ## Implementation Phasing
 
-### Phase 1 (3.0.0-alpha) — Config + CLI flags
-- `~/.img2epubrc` write/read
-- `--output-dir`, `--format`, `--parallel`, `--skip-existing` flags
-- Format toggle persists to config
-- `--init-config` flag
+### Phase 1 (3.0.0-alpha) — Config + CLI flags ✅
+- `~/.img2epubrc` write/read — implemented in `src/utils/config.ts`
+- `--output-dir`, `--format`, `--parallel`, `--skip-existing` flags — implemented
+- Format toggle persists to config — implemented via `setOutputFormat`
+- `--init-config` flag — implemented
 
-### Phase 2 (3.0.0-beta) — Graceful errors + Progress dashboard
-- Per-image try/catch in `createEpubFromFolder`
-- `ProgressItem` store type + reducer
-- `ProgressDashboard` component (multi-row progress bars)
-- Summary overlay component
-- Large folder progressive scanning
-- Skip/overwrite/rename pre-flight check
+### Phase 2 (3.0.0-beta) — Graceful errors + Progress dashboard ✅
+- Per-image try/catch in `createEpubFromFolder` — implemented per-image
+- `ProgressItem` store type + reducer — implemented in `batch.ts`
+- `ProgressDashboard` component (multi-row progress bars) — implemented
+- Summary overlay component — implemented as `SummaryOverlay`
+- Large folder progressive scanning ❌ not yet implemented
+- Skip/overwrite/rename pre-flight check ❌ `skipExisting` config exists but not wired into processing flow
 
-### Phase 3 (3.0.0) — Parallel processing
-- Worker pool implementation
-- `processingMode: "parallel" | "sequential"` state
-- Integration: dashboard + workers
-- Resource management (sharp concurrency, CPU detection)
-- `shift+Enter` sequential override
+### Phase 3 (3.0.0) — Parallel processing ✅
+- Worker pool implementation — implemented in `batchProcessParallel`
+- `processingMode: "parallel" | "sequential"` state — implemented
+- Integration: dashboard + workers — implemented
+- Resource management (sharp concurrency, CPU detection) — `clampParallelism` implemented
+- `shift+Enter` sequential override — implemented in `keymap.ts`
 
 ---
 

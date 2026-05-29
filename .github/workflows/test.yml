@@ -16,7 +16,7 @@ jobs:
           bun-version: latest
       - run: bun install
       - run: bun run lint
-      - run: bun test --coverage --coverage-reporter=lcov --reporter=junit --reporter-outfile=./test-results/junit.xml
+      - run: bun test --coverage --coverage-reporter=lcov
       - name: Coverage summary
         if: always()
         run: bun run scripts/coverage-summary.js >> $GITHUB_STEP_SUMMARY

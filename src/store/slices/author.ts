@@ -7,12 +7,12 @@ export const createAuthorSlice: StateCreator<
   AppState,
   [],
   [],
-  Pick<AppState, "authorMode" | "openAuthorMode" | "submitAuthorName" | "cancelAuthorMode">
+  Pick<AppState, "authorMode" | "toggleAuthorMode" | "submitAuthorName" | "cancelAuthorMode">
 > = (set, get, _store) => ({
   authorMode: false,
 
-  openAuthorMode: () => {
-    set({ authorMode: true });
+  toggleAuthorMode: () => {
+    set({ authorMode: !get().authorMode });
   },
 
   submitAuthorName: async (name: string) => {

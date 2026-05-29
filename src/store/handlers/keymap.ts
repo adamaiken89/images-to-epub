@@ -21,13 +21,14 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
   }
 
   if (store.showConfig) {
-    if (key.name === "escape" || key.name === "`") {store.toggleConfig();}
+    if (key.name === "`") {store.toggleConfig();}
     return;
   }
 
   if (store.changeDirMode) {
-    if (key.name === "escape") {store.cancelChangeDir();}
-    else if (key.name === "up") {
+    if (key.name === "c") {
+      store.toggleChangeDir();
+    } else if (key.name === "up") {
       setState({ browseCursor: Math.max(0, store.browseCursor - 1) });
     } else if (key.name === "down") {
       setState({ browseCursor: Math.min(store.browseItems.length, store.browseCursor + 1) });
@@ -46,17 +47,19 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
   }
 
   if (store.renameMode) {
-    if (key.name === "escape") {store.cancelRename();}
+    if (key.name === "n") {store.toggleRename();}
+    else if (key.name === "escape") {store.cancelRename();}
     return;
   }
 
   if (store.authorMode) {
-    if (key.name === "escape") {store.cancelAuthorMode();}
+    if (key.name === "m") {store.toggleAuthorMode();}
+    else if (key.name === "escape") {store.cancelAuthorMode();}
     return;
   }
 
   if (store.showHelp) {
-    if (key.name === "escape" || key.name === "h") {store.toggleHelp();}
+    if (key.name === "h") {store.toggleHelp();}
     return;
   }
 
@@ -89,7 +92,7 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
       store.unzipSelected();
       break;
     case "c":
-      store.openChangeDir();
+      store.toggleChangeDir();
       break;
     case "h":
       store.toggleHelp();
@@ -98,7 +101,7 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
       store.refresh();
       break;
     case "n":
-      store.openRename();
+      store.toggleRename();
       break;
     case "`":
       store.toggleConfig();
@@ -109,7 +112,7 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
       break;
     }
     case "m":
-      store.openAuthorMode();
+      store.toggleAuthorMode();
       break;
     case "q":
     case "escape":

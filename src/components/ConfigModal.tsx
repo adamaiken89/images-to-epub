@@ -14,14 +14,14 @@ export function ConfigModal() {
 
   return (
     <box border borderColor={colors.keyHighlight} padding={1} flexGrow={1} flexDirection="column">
-      <text fg={colors.keyHighlight} attributes={BOLD} marginBottom={1}>
+      <text fg={colors.title} attributes={BOLD} marginBottom={1}>
         {t("config.title")}
       </text>
       <text fg={colors.controlsText}>
-        Base Dir: <span fg={colors.path}>{baseDir}</span>
+        Base Dir: <span fg={colors.dynamicValue}>{baseDir}</span>
       </text>
       <text fg={colors.controlsText}>
-        Output Format: <span fg={colors.accent}>{t(`format.${outputFormat}`)}</span>
+        Output Format: <span fg={colors.dynamicValue}>{t(`format.${outputFormat}`)}</span>
       </text>
       <text fg={colors.dim} marginTop={1}>
         {t("config.dismiss")}

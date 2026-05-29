@@ -16,7 +16,7 @@ export const createNavigationSlice: StateCreator<
     | "browseItems"
     | "toggleHelp"
     | "toggleConfig"
-    | "openChangeDir"
+    | "toggleChangeDir"
     | "changeDir"
     | "cancelChangeDir"
     | "browseSetDir"
@@ -40,11 +40,16 @@ export const createNavigationSlice: StateCreator<
     set({ showConfig: !get().showConfig });
   },
 
-  openChangeDir: () => {
-    const { baseDir } = get();
-    const dir = baseDir || "";
-    set({ changeDirMode: true, browseDir: dir, browseCursor: 0 });
-    get().browseSetDir(dir);
+  toggleChangeDir: () => {
+    const { changeDirMode } = get();
+    if (changeDirMode) {
+      set({ changeDirMode: false, browseDir: "", browseCursor: 0, browseItems: [] });
+    } else {
+      const { baseDir } = get();
+      const dir = baseDir || "";
+      set({ changeDirMode: true, browseDir: dir, browseCursor: 0 });
+      get().browseSetDir(dir);
+    }
   },
 
   changeDir: async (path: string) => {

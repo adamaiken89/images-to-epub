@@ -90,10 +90,10 @@ describe("handleKey", () => {
     expect(useStore.getState().selectedIds.has("folder:/test/books/manga1")).toBe(true);
   });
 
-  it("escape closes help modal", () => {
+  it("escape does not close help modal", () => {
     useStore.setState({ showHelp: true });
     handleKey(key("escape"), ctx());
-    expect(useStore.getState().showHelp).toBe(false);
+    expect(useStore.getState().showHelp).toBe(true);
   });
 
   it("h toggles help", () => {
@@ -113,19 +113,19 @@ describe("handleKey", () => {
     handleKey(key("escape"), ctx({ renderer: r }));
   });
 
-  it("escape in changeDirMode cancels", () => {
+  it("escape in changeDirMode does nothing", () => {
     useStore.setState({ changeDirMode: true });
     handleKey(key("escape"), ctx());
-    expect(useStore.getState().changeDirMode).toBe(false);
+    expect(useStore.getState().changeDirMode).toBe(true);
   });
 
-  it("escape in renameMode cancels", () => {
+  it("escape cancels rename mode", () => {
     useStore.setState({ renameMode: true });
     handleKey(key("escape"), ctx());
     expect(useStore.getState().renameMode).toBe(false);
   });
 
-  it("escape in authorMode cancels", () => {
+  it("escape cancels author mode", () => {
     useStore.setState({ authorMode: true });
     handleKey(key("escape"), ctx());
     expect(useStore.getState().authorMode).toBe(false);
@@ -143,9 +143,15 @@ describe("handleKey", () => {
     expect(useStore.getState().selectedIds.size).toBe(0);
   });
 
-  it("c opens change dir", () => {
+  it("c toggles change dir on", () => {
     handleKey(key("c"), ctx());
     expect(useStore.getState().changeDirMode).toBe(true);
+  });
+
+  it("c toggles change dir off", () => {
+    useStore.setState({ changeDirMode: true });
+    handleKey(key("c"), ctx());
+    expect(useStore.getState().changeDirMode).toBe(false);
   });
 
   it("r triggers refresh", () => {
@@ -160,8 +166,15 @@ describe("handleKey", () => {
     handleKey(key("p"), ctx());
   });
 
-  it("n opens rename", () => {
+  it("n toggles rename on", () => {
     handleKey(key("n"), ctx());
+    expect(useStore.getState().renameMode).toBe(true);
+  });
+
+  it("n toggles rename off", () => {
+    useStore.setState({ renameMode: true });
+    handleKey(key("n"), ctx());
+    expect(useStore.getState().renameMode).toBe(false);
   });
 
   it("f cycles epub -> both -> kepub -> epub", () => {
@@ -272,13 +285,13 @@ describe("handleKey", () => {
     state.browseSetDir = orig;
   });
 
-  it("renameMode blocks non-escape keys", () => {
+  it("renameMode blocks non-n keys", () => {
     useStore.setState({ renameMode: true, focusIndex: 0 });
     handleKey(key("space"), ctx());
     expect(useStore.getState().selectedIds.size).toBe(0);
   });
 
-  it("authorMode blocks non-escape keys", () => {
+  it("authorMode blocks non-m keys", () => {
     useStore.setState({ authorMode: true, focusIndex: 0 });
     handleKey(key("space"), ctx());
     expect(useStore.getState().selectedIds.size).toBe(0);

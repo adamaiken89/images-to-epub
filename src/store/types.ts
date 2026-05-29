@@ -56,7 +56,7 @@ export interface AppState {
   changeDirMode: boolean;
   showHelp: boolean;
   toggleHelp: () => void;
-  openChangeDir: () => void;
+  toggleChangeDir: () => void;
   changeDir: (path: string) => Promise<void>;
   cancelChangeDir: () => void;
   refresh: () => Promise<void>;
@@ -71,7 +71,7 @@ export interface AppState {
   // Rename
   renameMode: boolean;
   renameTarget: string | null;
-  openRename: () => void;
+  toggleRename: () => void;
   renameSubmit: (newName: string) => Promise<void>;
   cancelRename: () => void;
 
@@ -81,7 +81,7 @@ export interface AppState {
 
   // Batch author
   authorMode: boolean;
-  openAuthorMode: () => void;
+  toggleAuthorMode: () => void;
   submitAuthorName: (name: string) => Promise<void>;
   cancelAuthorMode: () => void;
 

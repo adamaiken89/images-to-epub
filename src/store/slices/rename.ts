@@ -6,16 +6,21 @@ export const createRenameSlice: StateCreator<
   AppState,
   [],
   [],
-  Pick<AppState, "renameMode" | "renameTarget" | "openRename" | "renameSubmit" | "cancelRename">
+  Pick<AppState, "renameMode" | "renameTarget" | "toggleRename" | "renameSubmit" | "cancelRename">
 > = (set, get, _store) => ({
   renameMode: false,
   renameTarget: null,
 
-  openRename: () => {
-    const { items, focusIndex } = get();
-    const item = items[focusIndex];
-    if (!item || item.isZip) {return;}
-    set({ renameMode: true, renameTarget: item.entry?.path || null });
+  toggleRename: () => {
+    const { renameMode } = get();
+    if (renameMode) {
+      set({ renameMode: false, renameTarget: null });
+    } else {
+      const { items, focusIndex } = get();
+      const item = items[focusIndex];
+      if (!item || item.isZip) {return;}
+      set({ renameMode: true, renameTarget: item.entry?.path || null });
+    }
   },
 
   renameSubmit: async (newName: string) => {

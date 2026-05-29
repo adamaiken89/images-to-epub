@@ -5,39 +5,49 @@
 ```
 src/
   store/
-    types.ts                — AppState, TreeItem, StatusMessage interfaces
+    types.ts                — AppState, TreeItem, StatusMessage, ProgressItem interfaces
+    constants.ts            — ID_PREFIXES for folder/zip IDs
     slices/
       scan.ts               — folder scanning, loadFolders, init
       selection.ts          — toggle/selectAll/deselectAll, exports getFoldersToProcess
       batch.ts              — processFolders/unzipSelected/padSelected, batchProcess helper
+      navigation.ts         — change dir, directory browser, help/config toggles, refresh
+      rename.ts             — rename folder on disk
+      author.ts             — batch-set author on folders via `###` delimiter
+      summary.ts            — post-batch summary modal state
     handlers/
       keymap.ts             — handleKey(key, ctx) pure function, no React
-    index.ts                — compose slices + navigation/rename actions
+    index.ts                — compose all slices + setOutputFormat
   components/
-    Header.tsx              — title + baseDir display
+    Header.tsx              — title + output + path display
     HelpModal.tsx           — keyboard shortcuts reference (replaces tree view when toggled)
+    ConfigModal.tsx         — config overview modal
     ChangeDirPrompt.tsx     — directory browser with subdir list and content indicators
+    InputPrompt.tsx         — reusable input prompt (used by RenamePrompt + AuthorPrompt)
+    RenamePrompt.tsx        — rename input prompt (exports handleRenameSubmit, makeOnSubmit)
+    AuthorPrompt.tsx        — batch author input prompt (exports handleAuthorSubmit, makeAuthorOnSubmit)
     TreeView.tsx            — subscribes to focusIndex, passes isFocused as prop per row
     TreeItemRow.tsx         — memo'd, receives isFocused as prop (no store subscription)
     InfoMessage.tsx         — static folder/zip counts + navigation hints (returns null when no results)
-    StatusBar.tsx           — colored status messages by type (returns null when empty)
+    ProgressDashboard.tsx   — multi-row live progress bars during batch processing
+    SummaryModal.tsx      — post-batch summary modal (backdrop over tree)
     ErrorBoundary.tsx       — class component, catches React errors
-    RenamePrompt.tsx        — rename input modal (exports handleRenameSubmit, makeOnSubmit)
   utils/
     colors.ts               — centralized color constants by usage key
     i18n.ts                 — i18next init + t() export
+    config.ts               — config file (~/.img2epubrc) read/write, CLI arg parsing
     epub.ts, fs.ts, pad.ts, zip.ts  — pure functions, no store imports
   locales/
     en.json                 — all UI strings (add locale files for translation)
-  app.tsx                   — ~43 lines: mount + keyboard bridge
-  index.tsx                 — entry point (render(<App/>))
+  app.tsx                   — ~58 lines: mount + keyboard bridge + modal routing
+  index.tsx                 — entry point: parse CLI args, init config, create renderer
 ```
 
 ## Dependency direction
 
 `utils/` → nothing (pure functions)
-`store/slices/` → `utils/`, `store/types.ts`
-`store/index.ts` → `store/slices/*`, `utils/fs.ts`
+`store/slices/` → `utils/`, `store/types.ts`, `store/constants.ts`
+`store/index.ts` → `store/slices/*`, `utils/config.ts`
 `components/` → `store/index.ts`, `utils/`
 `store/handlers/` → nothing (pure functions, no store import)
 `app.tsx` → everything
@@ -53,25 +63,27 @@ Current state allocation:
 | State group | Home | Why store |
 |---|---|---|
 | `baseDir`, `items`, `selectedIds`, `focusIndex` | Store | Business domain, multi-consumer |
-| `isProcessing`, `status`, `progressItems` | Store | Async flow, written by non-React code |
-| `changeDirMode`, `showHelp`, `renameMode`, `authorMode`, `showSummary`, `showConfig` | Store | UI toggles written by `keymap.ts` handlers |
+| `isProcessing`, `status`, `progressItems`, `batchStartTime`, `batchEndTime`, `processingMode` | Store | Async flow, written by non-React code |
+| `changeDirMode`, `showHelp`, `showConfig`, `renameMode`, `renameTarget`, `authorMode`, `showSummary` | Store | UI toggles written by `keymap.ts` handlers. Prompts use `*Mode` (inline inputs), modals use `show*` (full-height overlays). |
 | `browseDir`, `browseCursor`, `browseItems` | Store | Single-consumer but written by key handlers |
 | `outputFormat` | Store | Persisted to config, read by batch process |
-| `summaryResults` + friends | Store | Produced by async flow, consumed by overlay |
+| `summaryResults`, `summaryTotalPages`, `summaryTotalSize`, `summaryElapsed`, `summarySuccessCount`, `summaryFailCount` | Store | Produced by async flow, consumed by overlay |
 
 ## Key commands
 
 | Command | What |
 |---------|------|
 | `bun start [dir]` | Run app |
+| `bun start --format kepub ./scans` | With CLI flags |
 | `bun run dev` | Watch mode |
 | `bun test` | Run all tests |
 | `bun test <path>` | Single test file |
 | `bun test --coverage` | Coverage report |
-| `bun test:coverage` | Coverage report + 95% threshold check |
-| `bun run lint` | Typecheck (`tsc --noEmit`) |
+| `bun test:coverage` | Coverage report (lcov) |
+| `bun run lint` | Typecheck + ESLint |
+| `bun run lint:eslint` | ESLint only |
 
-Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ tests/`). Coverage threshold: per-file ≥95% Funcs + Lines (configured in `bunfig.toml`).
+Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ tests/`). Coverage threshold: project-wide ≥90% (configured in `bunfig.toml`).
 
 ## Zustand patterns
 
@@ -79,38 +91,14 @@ Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ t
 - Components use `useStore(selector)` for field-level subscription
 - `useStore.getState()` / `useStore.setState()` for synchronous access outside React (keymap, tests)
 - Async actions use `set()` before/after await; no `useEffect` for side effects in store
-- Navigation and rename actions live in `store/index.ts` compose function, not in slices
+- Navigation, rename, and author actions live in their own slices, not in `store/index.ts` compose function
 
 ## Component patterns
 
 - Presentational only — no business logic in JSX
-- `flexShrink={0}` on Header/InfoMessage/StatusBar to prevent compression in small terminals
+- `flexShrink={0}` on Header/InfoMessage to prevent compression in small terminals
 - `memo` on list items with `isFocused` passed as prop (never subscribe to `focusIndex` per row)
-- InfoMessage and StatusBar return `null` when they have nothing to display
-
-## Component-boundary handler extraction
-
-Extract business logic from component event handlers into exported pure functions + adapter factories.
-This makes the logic testable without rendering.
-
-Pattern:
-```typescript
-// Pure logic — tested directly
-export function handleXxxSubmit(value: string, action: (v: string) => void, fallback: () => void): void {
-  const val = value.trim();
-  if (val) {action(val);}
-  else {fallback();}
-}
-
-// Adapter — matches OpenTUI's intersection type, testable by calling its return value
-export function makeXxxOnSubmit(action: (v: string) => void, fallback: () => void): ((event: object) => void) & ((value: string) => void) {
-  return ((value: string) => {
-    handleXxxSubmit(value, action, fallback);
-  }) as unknown as ((event: object) => void) & ((value: string) => void);
-}
-```
-
-`RenamePrompt.tsx` → `handleRenameSubmit`, `makeOnSubmit`.
+- InfoMessage returns `null` when they have nothing to display
 
 ## Unicode gotchas
 
@@ -124,11 +112,38 @@ export function makeXxxOnSubmit(action: (v: string) => void, fallback: () => voi
 - Interpolation: `t("batch.progress", { current, total, name })`
 - Add a locale: create `fr.json`, add to `i18n.ts` resources
 
+## Modal design guide
+
+There are two categories of modal surfaces:
+
+### Category A — Full-height overlay (replaces TreeView)
+- **Components:** HelpModal, ConfigModal, SummaryModal
+- **Outer box:** `border borderColor={colors.keyHighlight} padding={1} flexGrow={1} flexDirection="column"`
+- **Title:** `<text fg={colors.title} attributes={BOLD} marginBottom={1}>`
+- **Content lines:** stacked `<text>` elements, no extra margins between lines
+- **Dismiss hint:** single `<text fg={colors.dim} marginTop={1}>` at the bottom
+
+### Category B — Inline compact (sits between Header and TreeView)
+- **Components:** InputPrompt (used by RenamePrompt, AuthorPrompt), ChangeDirPrompt
+- **Outer box:** `border borderColor={colors.keyHighlight} padding={1} marginBottom={1} flexDirection="column"` (no `flexGrow`)
+- **Title:** `<text fg={colors.title} attributes={BOLD} marginBottom={1}>`
+- **Dismiss / nav hint:** single `<text marginTop={1} fg={colors.dim}>` at the bottom
+
+### Shared rules (both categories)
+1. All titles use `colors.title` (#cc88ff purple) with `BOLD` attributes and `marginBottom={1}`
+2. All outer boxes use `border borderColor={colors.keyHighlight} padding={1} ... flexDirection="column"`
+3. All dismiss/nav hints are a single `<text>` line with `fg={colors.dim} marginTop={1}`
+4. InputPrompt must merge `{hint}` and `{escLabel}` into one line with a `{'\u2022'}` separator — never two separate `<text>` elements with `marginTop`
+5. No `marginTop` on inner container boxes — use `marginBottom` on the preceding title element instead to avoid double gaps
+
 ## Keyboard handling
 
 - `store/handlers/keymap.ts` exports `handleKey(key, ctx)` — pure function
-- Context includes `{ renderer, isProcessing, changeDirMode, renameMode, showHelp, itemsLength, focusIndex, getState, setState }`
-- Escape closes change-dir prompt or help modal; Escape outside those modes quits
+- Context is `{ renderer, getState, setState }` — all other values read from `getState()`
+- Every modal/panel uses its own key as a toggle: `c` for change-dir, `h` for help, `` ` `` for config, `n` for rename, `m` for author
+- Prompts (`*Mode` state keys — rename, author) can be cancelled with `escape`; this triggers the store's `cancel*` method on their InputPrompt
+- Modals (`show*` state keys — help, config) are dismissed by pressing their toggle key again. `escape` only quits the app
+- Summary (`showSummary`) is dismissed on any key press
 
 ## TypeScript and toolchain
 
@@ -148,7 +163,7 @@ export function makeXxxOnSubmit(action: (v: string) => void, fallback: () => voi
 - Render tests use `render` from `@wyattjoh/opentui-testing` (handles React `act()` wrapping, frame quiescence, and automatic cleanup via `afterEach`)
 - Render tests focus on state→UI mapping (set store state, render, assert frame) — keyboard→state integration is tested in keymap tests
 - Render tests push each `RenderResult` into a `cleanupQueue` array and call `app.cleanup()` in `afterEach` to destroy the renderer inside `act()`; the queue is cleared after each test
-- Handler tests (handleRenameSubmit, handleChangeDirSubmit, makeOnSubmit) test exported pure functions directly
+- Handler tests (handleRenameSubmit, handleChangeDirSubmit, makeOnSubmit, handleAuthorSubmit, makeAuthorOnSubmit) test exported pure functions directly
 - Store actions tested via `useStore.getState().action()` — no React rendering
 - Zip tests create real zip files via JSZip + write to temp dirs
 
