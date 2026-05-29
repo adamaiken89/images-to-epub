@@ -41,13 +41,14 @@ describe("store navigation actions", () => {
   });
 
   it("cancelChangeDir resets mode and browse state", () => {
-    useStore.setState({ changeDirMode: true, browseDir: "/test", browseCursor: 2, browseItems: [{ name: "a", hasContent: true }] });
+    const b = useStore.getState().browser;
+    useStore.setState({ changeDirMode: true, browser: { ...b, dir: "/test", cursor: 2, items: [{ name: "a", hasContent: true }] } });
     useStore.getState().cancelChangeDir();
     const state = useStore.getState();
     expect(state.changeDirMode).toBe(false);
-    expect(state.browseDir).toBe("");
-    expect(state.browseCursor).toBe(0);
-    expect(state.browseItems).toEqual([]);
+    expect(state.browser.dir).toBe("");
+    expect(state.browser.cursor).toBe(0);
+    expect(state.browser.items).toEqual([]);
   });
 
   it("changeDir with empty path just cancels", () => {
@@ -524,9 +525,9 @@ describe("browse actions", () => {
 
     const state = useStore.getState();
     expect(state.changeDirMode).toBe(true);
-    expect(state.browseDir).toBe(dir);
-    expect(state.browseCursor).toBe(0);
-    expect(state.browseItems).toEqual([
+    expect(state.browser.dir).toBe(dir);
+    expect(state.browser.cursor).toBe(0);
+    expect(state.browser.items).toEqual([
       { name: "sub1", hasContent: true },
       { name: "sub2", hasContent: false },
     ]);
@@ -538,28 +539,30 @@ describe("browse actions", () => {
     writeFileSync(join(dir, "sub1", "img.jpg"), "");
     mkdirSync(join(dir, "sub2"), { recursive: true });
 
-    useStore.setState({ browseDir: "", browseCursor: 99, browseItems: [] });
-    await useStore.getState().browseSetDir(dir);
+    const b1 = useStore.getState().browser;
+    useStore.setState({ browser: { ...b1, dir: "", cursor: 99, items: [] } });
+    await useStore.getState().browser.setDir(dir);
     await Bun.sleep(10);
 
     const state = useStore.getState();
-    expect(state.browseDir).toBe(dir);
-    expect(state.browseCursor).toBe(0);
-    expect(state.browseItems).toEqual([
+    expect(state.browser.dir).toBe(dir);
+    expect(state.browser.cursor).toBe(0);
+    expect(state.browser.items).toEqual([
       { name: "sub1", hasContent: true },
       { name: "sub2", hasContent: false },
     ]);
   });
 
   it("browseSetDir handles nonexistent path gracefully", async () => {
-    useStore.setState({ browseDir: "", browseCursor: 99, browseItems: [] });
-    await useStore.getState().browseSetDir("/nonexistent/path");
+    const b2 = useStore.getState().browser;
+    useStore.setState({ browser: { ...b2, dir: "", cursor: 99, items: [] } });
+    await useStore.getState().browser.setDir("/nonexistent/path");
     await Bun.sleep(10);
 
     const state = useStore.getState();
-    expect(state.browseDir).toBe("/nonexistent/path");
-    expect(state.browseCursor).toBe(0);
-    expect(state.browseItems).toEqual([]);
+    expect(state.browser.dir).toBe("/nonexistent/path");
+    expect(state.browser.cursor).toBe(0);
+    expect(state.browser.items).toEqual([]);
   });
 
   it("browseConfirm selects directory and loads folders", async () => {
@@ -567,27 +570,31 @@ describe("browse actions", () => {
     mkdirSync(join(dir, "manga"), { recursive: true });
     writeFileSync(join(dir, "manga", "page.webp"), "");
 
+    const b3 = useStore.getState().browser;
     useStore.setState({
       baseDir: "",
       changeDirMode: true,
-      browseDir: dir,
-      browseCursor: 1,
-      browseItems: [{ name: "manga", hasContent: true }],
+      browser: { ...b3, dir, cursor: 1, items: [{ name: "manga", hasContent: true }] },
     });
-    await useStore.getState().browseConfirm();
+    await useStore.getState().browser.confirm();
 
     const state = useStore.getState();
     expect(state.changeDirMode).toBe(false);
-    expect(state.browseDir).toBe("");
-    expect(state.browseCursor).toBe(0);
-    expect(state.browseItems).toEqual([]);
+    expect(state.browser.dir).toBe("");
+    expect(state.browser.cursor).toBe(0);
+    expect(state.browser.items).toEqual([]);
     expect(state.baseDir).toBe(dir);
     expect(state.folderCount).toBe(1);
   });
 
   it("browseConfirm with empty browseDir does nothing", async () => {
-    useStore.setState({ baseDir: "/old", changeDirMode: true, browseDir: "", browseCursor: 0, browseItems: [] });
-    await useStore.getState().browseConfirm();
+    const b4 = useStore.getState().browser;
+    useStore.setState({
+      baseDir: "/old",
+      changeDirMode: true,
+      browser: { ...b4, dir: "", cursor: 0, items: [] },
+    });
+    await useStore.getState().browser.confirm();
 
     const state = useStore.getState();
     expect(state.baseDir).toBe("/old");

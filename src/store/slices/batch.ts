@@ -6,11 +6,12 @@ import { t } from "@utils/i18n";
 import { padImageFilenames } from "@utils/pad";
 import { unzipFile } from "@utils/zip";
 import { clampParallelism, loadConfig } from "@utils/config";
+import { runWorkerPool, type WorkerPoolResult } from "@utils/worker-pool";
 
 import { getFoldersToProcess } from "./selection";
 
 import type { StateCreator } from "zustand";
-import type { AppState, ProcessingMode, ProgressItem } from "@store/types";
+import type { AppState, ProgressItem } from "@store/types";
 import { ID_PREFIXES } from "@store/constants";
 
 function createProgressItems(targets: string[]): ProgressItem[] {
@@ -52,11 +53,7 @@ function markError(items: ProgressItem[], idx: number, message: string): Progres
 function computeSummary(
   startTime: number,
   endTime: number,
-  successCount: number,
-  failCount: number,
-  summaryResults: string[],
-  summaryTotalPages: number,
-  summaryTotalSize: number,
+  poolResult: WorkerPoolResult,
 ) {
   const elapsed = ((endTime - startTime) / 1000).toFixed(1);
   return {
@@ -64,83 +61,19 @@ function computeSummary(
     batchEndTime: endTime,
     status: {
       type: "done" as const,
-      message: t("batch.done", { success: successCount, failed: failCount }) + ` (${elapsed}s)`,
+      message: t("batch.done", { success: poolResult.successCount, failed: poolResult.failCount }) + ` (${elapsed}s)`,
     },
     showSummary: true,
-    summaryResults,
-    summaryTotalPages,
-    summaryTotalSize,
-    summaryElapsed: parseFloat(elapsed),
-    summarySuccessCount: successCount,
-    summaryFailCount: failCount,
+    summary: {
+      show: true,
+      results: poolResult.results,
+      totalPages: poolResult.totalPages,
+      totalSize: poolResult.totalSize,
+      elapsed: parseFloat(elapsed),
+      successCount: poolResult.successCount,
+      failCount: poolResult.failCount,
+    },
   };
-}
-
-async function batchProcessParallel(
-  set: (partial: Partial<AppState> | ((state: AppState) => Partial<AppState>)) => void,
-  get: () => AppState,
-  targets: string[],
-  processor: (target: string, onPage?: (completed: number, total: number) => void) => Promise<EpubResult>,
-  mode?: ProcessingMode,
-): Promise<void> {
-  if (targets.length === 0) {return;}
-
-  const pConfig = await loadConfig();
-  const baseParallelism = clampParallelism(pConfig.parallelism);
-  const parallelism = mode === "sequential" ? 1 : baseParallelism;
-  const queue = [...targets];
-  const summaryResults: string[] = [];
-  let summaryTotalPages = 0;
-  let summaryTotalSize = 0;
-  let successCount = 0;
-  let failCount = 0;
-
-  const progressItems = createProgressItems(targets);
-  const startTime = Date.now();
-
-  set({ progressItems, batchStartTime: startTime, batchEndTime: null, isProcessing: true });
-
-  async function worker() {
-    while (queue.length > 0) {
-      const folder = queue.shift()!;
-      const idx = targets.indexOf(folder);
-      const folderName = basename(folder);
-
-      set((state) => ({ progressItems: markProcessing(state.progressItems, idx) }));
-
-      try {
-        const result = await processor(folder, (done: number, totalP: number) => {
-          set((state) => ({ progressItems: markProgress(state.progressItems, idx, done, totalP) }));
-        });
-
-        if (result.success) {
-          successCount++;
-          summaryTotalPages += result.pagesCompleted || 0;
-          summaryTotalSize += result.outputSize || 0;
-          set((state) => ({
-            progressItems: markDone(state.progressItems, idx, result.pagesCompleted || 0, result.pagesTotal || 0, result.message),
-          }));
-          summaryResults.push(`${folderName}: ${result.pagesCompleted || 0} pages`);
-        } else {
-          failCount++;
-          set((state) => ({ progressItems: markError(state.progressItems, idx, result.message) }));
-          summaryResults.push(`${folderName}: error: ${result.message}`);
-        }
-      } catch (err) {
-        failCount++;
-        set((state) => ({ progressItems: markError(state.progressItems, idx, (err as Error).message) }));
-        summaryResults.push(`${folderName}: error: ${(err as Error).message}`);
-      }
-    }
-  }
-
-  const workerCount = parallelism > 1 ? parallelism : 1;
-  const workers = Array.from({ length: workerCount }, () => worker());
-  await Promise.all(workers);
-
-  const endTime = Date.now();
-
-  set(computeSummary(startTime, endTime, successCount, failCount, summaryResults, summaryTotalPages, summaryTotalSize));
 }
 
 export const createBatchSlice: StateCreator<
@@ -174,10 +107,32 @@ export const createBatchSlice: StateCreator<
       set({ isProcessing: false });
       return;
     }
-    const epubProcessor = async (target: string, onPage?: (done: number, total: number) => void) => {
-      return createEpubFromFolder(target, undefined, get().outputFormat, onPage);
+
+    const progressItems = createProgressItems(folders);
+    const startTime = Date.now();
+    set({ progressItems, batchStartTime: startTime, isProcessing: true });
+
+    const pConfig = await loadConfig();
+    const parallelism = processingMode === "sequential" ? 1 : clampParallelism(pConfig.parallelism);
+
+    const wrappedProcessor = async (folder: string, _folderName: string) => {
+      const idx = folders.indexOf(folder);
+      set((state) => ({ progressItems: markProcessing(state.progressItems, idx) }));
+      const result = await createEpubFromFolder(folder, undefined, get().outputFormat, (done, total) => {
+        set((state) => ({ progressItems: markProgress(state.progressItems, idx, done, total) }));
+      });
+      if (result.success) {
+        set((state) => ({
+          progressItems: markDone(state.progressItems, idx, result.pagesCompleted || 0, result.pagesTotal || 0, result.message),
+        }));
+      } else {
+        set((state) => ({ progressItems: markError(state.progressItems, idx, result.message) }));
+      }
+      return result;
     };
-    await batchProcessParallel(set, get, folders, epubProcessor, processingMode);
+
+    const poolResult = await runWorkerPool(folders, wrappedProcessor, parallelism);
+    set(computeSummary(startTime, Date.now(), poolResult));
   },
 
   unzipSelected: async () => {
@@ -186,9 +141,28 @@ export const createBatchSlice: StateCreator<
       .filter((id) => id.startsWith(ID_PREFIXES.zip))
       .map((id) => id.slice(ID_PREFIXES.zip.length));
     if (zips.length === 0) {return;}
-    set({ isProcessing: true });
-    const unzipProcessor = (target: string) => unzipFile(target) as Promise<EpubResult>;
-    await batchProcessParallel(set, get, zips, unzipProcessor);
+
+    const progressItems = createProgressItems(zips);
+    const startTime = Date.now();
+    set({ progressItems, batchStartTime: startTime, isProcessing: true });
+
+    const pConfig = await loadConfig();
+    const parallelism = clampParallelism(pConfig.parallelism);
+
+    const wrappedProcessor = async (target: string, _folderName: string) => {
+      const idx = zips.indexOf(target);
+      set((state) => ({ progressItems: markProcessing(state.progressItems, idx) }));
+      const result = await unzipFile(target) as EpubResult;
+      if (result.success) {
+        set((state) => ({ progressItems: markDone(state.progressItems, idx, 0, 0, result.message) }));
+      } else {
+        set((state) => ({ progressItems: markError(state.progressItems, idx, result.message) }));
+      }
+      return { ...result, pagesTotal: 0, pagesCompleted: 0 };
+    };
+
+    const poolResult = await runWorkerPool(zips, wrappedProcessor, parallelism);
+    set(computeSummary(startTime, Date.now(), poolResult));
     if (baseDir) {
       await get().loadFolders(baseDir);
     }
@@ -198,11 +172,27 @@ export const createBatchSlice: StateCreator<
     const { selectedIds, items } = get();
     const folders = getFoldersToProcess(selectedIds, items);
     if (folders.length === 0) {return;}
-    set({ isProcessing: true });
-    const padProcessor = async (target: string): Promise<EpubResult> => {
+
+    const progressItems = createProgressItems(folders);
+    const startTime = Date.now();
+    set({ progressItems, batchStartTime: startTime, isProcessing: true });
+
+    const pConfig = await loadConfig();
+    const parallelism = clampParallelism(pConfig.parallelism);
+
+    const wrappedProcessor = async (target: string, _folderName: string) => {
+      const idx = folders.indexOf(target);
+      set((state) => ({ progressItems: markProcessing(state.progressItems, idx) }));
       const result = await padImageFilenames(target);
+      if (result.success) {
+        set((state) => ({ progressItems: markDone(state.progressItems, idx, 0, 0, result.message) }));
+      } else {
+        set((state) => ({ progressItems: markError(state.progressItems, idx, result.message) }));
+      }
       return { ...result, pagesTotal: 0, pagesCompleted: 0 };
     };
-    await batchProcessParallel(set, get, folders, padProcessor);
+
+    const poolResult = await runWorkerPool(folders, wrappedProcessor, parallelism);
+    set(computeSummary(startTime, Date.now(), poolResult));
   },
 });

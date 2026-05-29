@@ -42,19 +42,23 @@ beforeEach(() => {
     authorMode: false,
     showConfig: false,
     showSummary: false,
-    browseDir: "",
-    browseCursor: 0,
-    browseItems: [],
+    browser: (() => {
+      const { browser } = useStore.getState();
+      return { ...browser, dir: "", cursor: 0, items: [] };
+    })(),
     progressItems: [],
     batchStartTime: null,
     batchEndTime: null,
     processingMode: "sequential",
-    summaryResults: [],
-    summaryTotalPages: 0,
-    summaryTotalSize: 0,
-    summaryElapsed: 0,
-    summarySuccessCount: 0,
-    summaryFailCount: 0,
+    summary: {
+      show: false,
+      results: [],
+      totalPages: 0,
+      totalSize: 0,
+      elapsed: 0,
+      successCount: 0,
+      failCount: 0,
+    },
   });
 });
 
@@ -196,7 +200,7 @@ describe("ChangeDirPrompt", () => {
   });
 
   it("shows prompt, current directory, select option, and nav hint", async () => {
-    useStore.setState({ changeDirMode: true, browseDir: "/test", browseCursor: 0, browseItems: [] });
+    useStore.setState({ changeDirMode: true, browser: { dir: "/test", cursor: 0, items: [], setDir: async () => {}, confirm: async () => {} } });
     const frame = await render(<ChangeDirPrompt />, 60, 14);
     expect(frame).toContain("/test");
     expect(frame).toContain("Select this directory");
@@ -206,12 +210,16 @@ describe("ChangeDirPrompt", () => {
   it("shows subdirectory items with content indicators", async () => {
     useStore.setState({
       changeDirMode: true,
-      browseDir: "/test",
-      browseCursor: 1,
-      browseItems: [
-        { name: "manga1", hasContent: true },
-        { name: "empty-dir", hasContent: false },
-      ],
+      browser: {
+        dir: "/test",
+        cursor: 1,
+        items: [
+          { name: "manga1", hasContent: true },
+          { name: "empty-dir", hasContent: false },
+        ],
+        setDir: async () => {},
+        confirm: async () => {},
+      },
     });
     const frame = await render(<ChangeDirPrompt />, 60, 14);
     expect(frame).toContain("manga1");

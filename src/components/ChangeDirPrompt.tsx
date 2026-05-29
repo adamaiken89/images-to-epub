@@ -7,18 +7,16 @@ const BOLD = createTextAttributes({ bold: true });
 
 export function ChangeDirPrompt() {
   const changeDirMode = useStore((s) => s.changeDirMode);
-  const browseDir = useStore((s) => s.browseDir);
-  const browseItems = useStore((s) => s.browseItems);
-  const browseCursor = useStore((s) => s.browseCursor);
+  const browser = useStore((s) => s.browser);
 
   if (!changeDirMode) {return null;}
 
-  const items = browseItems.length === 0 ? (
+  const items = browser.items.length === 0 ? (
     <text fg={colors.dim}>{t("prompt.empty")}</text>
   ) : (
-    browseItems.map((item, idx) => {
+    browser.items.map((item, idx) => {
       const cursorIdx = idx + 1;
-      const isFocused = browseCursor === cursorIdx;
+      const isFocused = browser.cursor === cursorIdx;
       return (
         <text
           key={item.name}
@@ -38,15 +36,15 @@ export function ChangeDirPrompt() {
         {t("prompt.title")}
       </text>
       <text fg={colors.dynamicValue} wrapMode="word">
-        {browseDir}
+        {browser.dir}
       </text>
       <scrollbox flexGrow={1}>
         <text
-          fg={browseCursor === 0 ? colors.focusFg : colors.dim}
-          bg={browseCursor === 0 ? colors.focusBg : "transparent"}
-          attributes={browseCursor === 0 ? BOLD : undefined}
+          fg={browser.cursor === 0 ? colors.focusFg : colors.dim}
+          bg={browser.cursor === 0 ? colors.focusBg : "transparent"}
+          attributes={browser.cursor === 0 ? BOLD : undefined}
         >
-          {"  "}{browseCursor === 0 ? `\u25B6` : " "} {t("prompt.selectHere")}
+          {"  "}{browser.cursor === 0 ? `\u25B6` : " "} {t("prompt.selectHere")}
         </text>
         {items}
       </scrollbox>

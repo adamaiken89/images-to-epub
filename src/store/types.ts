@@ -26,6 +26,24 @@ export interface ProgressItem {
 
 export type ProcessingMode = "sequential" | "parallel";
 
+export interface BrowserState {
+  dir: string;
+  cursor: number;
+  items: SubdirInfo[];
+  setDir: (dir: string) => Promise<void>;
+  confirm: () => Promise<void>;
+}
+
+export interface SummaryData {
+  show: boolean;
+  results: string[];
+  totalPages: number;
+  totalSize: number;
+  elapsed: number;
+  successCount: number;
+  failCount: number;
+}
+
 export interface AppState {
   // Scan
   baseDir: string;
@@ -62,11 +80,7 @@ export interface AppState {
   refresh: () => Promise<void>;
 
   // Directory browser
-  browseDir: string;
-  browseCursor: number;
-  browseItems: SubdirInfo[];
-  browseSetDir: (dir: string) => Promise<void>;
-  browseConfirm: () => Promise<void>;
+  browser: BrowserState;
 
   // Rename
   renameMode: boolean;
@@ -91,11 +105,6 @@ export interface AppState {
 
   // Summary
   showSummary: boolean;
-  summaryResults: string[];
-  summaryTotalPages: number;
-  summaryTotalSize: number;
-  summaryElapsed: number;
-  summarySuccessCount: number;
-  summaryFailCount: number;
+  summary: SummaryData;
   dismissSummary: () => void;
 }

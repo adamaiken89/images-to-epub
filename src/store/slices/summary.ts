@@ -5,25 +5,18 @@ export const createSummarySlice: StateCreator<
   AppState,
   [],
   [],
-  Pick<
-    AppState,
-    | "showSummary"
-    | "summaryResults"
-    | "summaryTotalPages"
-    | "summaryTotalSize"
-    | "summaryElapsed"
-    | "summarySuccessCount"
-    | "summaryFailCount"
-    | "dismissSummary"
-  >
+  Pick<AppState, "showSummary" | "summary" | "dismissSummary">
 > = (set, _get, _store) => ({
   showSummary: false,
-  summaryResults: [],
-  summaryTotalPages: 0,
-  summaryTotalSize: 0,
-  summaryElapsed: 0,
-  summarySuccessCount: 0,
-  summaryFailCount: 0,
+  summary: {
+    show: false,
+    results: [],
+    totalPages: 0,
+    totalSize: 0,
+    elapsed: 0,
+    successCount: 0,
+    failCount: 0,
+  },
 
   dismissSummary: () => {
     set({ showSummary: false });

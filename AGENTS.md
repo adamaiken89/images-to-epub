@@ -10,7 +10,7 @@ src/
     slices/
       scan.ts               — folder scanning, loadFolders, init
       selection.ts          — toggle/selectAll/deselectAll, exports getFoldersToProcess
-      batch.ts              — processFolders/unzipSelected/padSelected, batchProcess helper
+      batch.ts              — processFolders/unzipSelected/padSelected, delegates execution to runWorkerPool
       navigation.ts         — change dir, directory browser, help/config toggles, refresh
       rename.ts             — rename folder on disk
       author.ts             — batch-set author on folders via `###` delimiter
@@ -32,11 +32,11 @@ src/
     ProgressDashboard.tsx   — multi-row live progress bars during batch processing
     SummaryModal.tsx      — post-batch summary modal (backdrop over tree)
     ErrorBoundary.tsx       — class component, catches React errors
-  utils/
-    colors.ts               — centralized color constants by usage key
-    i18n.ts                 — i18next init + t() export
-    config.ts               — config file (~/.img2epubrc) read/write, CLI arg parsing
-    epub.ts, fs.ts, pad.ts, zip.ts  — pure functions, no store imports
+    utils/
+      colors.ts               — centralized color constants by usage key
+      i18n.ts                 — i18next init + t() export
+      config.ts               — config file (~/.img2epubrc) read/write, CLI arg parsing
+      epub.ts, fs.ts, pad.ts, zip.ts, worker-pool.ts  — pure functions, no store imports
   locales/
     en.json                 — all UI strings (add locale files for translation)
   app.tsx                   — ~58 lines: mount + keyboard bridge + modal routing
@@ -65,9 +65,9 @@ Current state allocation:
 | `baseDir`, `items`, `selectedIds`, `focusIndex` | Store | Business domain, multi-consumer |
 | `isProcessing`, `status`, `progressItems`, `batchStartTime`, `batchEndTime`, `processingMode` | Store | Async flow, written by non-React code |
 | `changeDirMode`, `showHelp`, `showConfig`, `renameMode`, `renameTarget`, `authorMode`, `showSummary` | Store | UI toggles written by `keymap.ts` handlers. Prompts use `*Mode` (inline inputs), modals use `show*` (full-height overlays). |
-| `browseDir`, `browseCursor`, `browseItems` | Store | Single-consumer but written by key handlers |
+| `browser` (`dir`, `cursor`, `items`, `setDir`, `confirm`) | Store | Single-consumer but written by key handlers; grouped as sub-object |
 | `outputFormat` | Store | Persisted to config, read by batch process |
-| `summaryResults`, `summaryTotalPages`, `summaryTotalSize`, `summaryElapsed`, `summarySuccessCount`, `summaryFailCount` | Store | Produced by async flow, consumed by overlay |
+| `summary` (`results`, `totalPages`, `totalSize`, `elapsed`, `successCount`, `failCount`) | Store | Produced by async flow, consumed by overlay; grouped as sub-object |
 
 ## Key commands
 

@@ -29,19 +29,19 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
     if (key.name === "c") {
       store.toggleChangeDir();
     } else if (key.name === "up") {
-      setState({ browseCursor: Math.max(0, store.browseCursor - 1) });
+      setState({ browser: { ...store.browser, cursor: Math.max(0, store.browser.cursor - 1) } });
     } else if (key.name === "down") {
-      setState({ browseCursor: Math.min(store.browseItems.length, store.browseCursor + 1) });
+      setState({ browser: { ...store.browser, cursor: Math.min(store.browser.items.length, store.browser.cursor + 1) } });
     } else if (key.name === "return") {
-      if (store.browseCursor === 0) {
-        store.browseConfirm();
+      if (store.browser.cursor === 0) {
+        store.browser.confirm();
       } else {
-        const item = store.browseItems[store.browseCursor - 1];
-        if (item) {store.browseSetDir(join(store.browseDir, item.name));}
+        const item = store.browser.items[store.browser.cursor - 1];
+        if (item) {store.browser.setDir(join(store.browser.dir, item.name));}
       }
     } else if (key.name === "backspace") {
-      const parent = dirname(store.browseDir);
-      if (parent !== store.browseDir) {store.browseSetDir(parent);}
+      const parent = dirname(store.browser.dir);
+      if (parent !== store.browser.dir) {store.browser.setDir(parent);}
     }
     return;
   }

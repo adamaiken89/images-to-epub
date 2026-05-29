@@ -11,16 +11,12 @@ export const createNavigationSlice: StateCreator<
     | "changeDirMode"
     | "showHelp"
     | "showConfig"
-    | "browseDir"
-    | "browseCursor"
-    | "browseItems"
+    | "browser"
     | "toggleHelp"
     | "toggleConfig"
     | "toggleChangeDir"
     | "changeDir"
     | "cancelChangeDir"
-    | "browseSetDir"
-    | "browseConfirm"
     | "refresh"
   >
 > = (set, get, _store) => ({
@@ -28,9 +24,33 @@ export const createNavigationSlice: StateCreator<
   showHelp: false,
   showConfig: false,
 
-  browseDir: "",
-  browseCursor: 0,
-  browseItems: [],
+  browser: {
+    dir: "",
+    cursor: 0,
+    items: [],
+
+    setDir: async (dir: string) => {
+      set((state) => ({ browser: { ...state.browser, dir, cursor: 0 } }));
+      try {
+        const items = await getSubdirsWithMetadata(dir);
+        set((state) => ({ browser: { ...state.browser, items } }));
+      } catch {
+        set((state) => ({ browser: { ...state.browser, items: [] } }));
+      }
+    },
+
+    confirm: async () => {
+      const { browser } = get();
+      if (!browser.dir) {return;}
+      set({ changeDirMode: false, browser: { dir: "", cursor: 0, items: [], setDir: browser.setDir, confirm: browser.confirm } });
+      set({ baseDir: browser.dir });
+      try {
+        await get().loadFolders(browser.dir);
+      } catch {
+        set({ status: { type: "error", message: "Failed to load folders" } });
+      }
+    },
+  },
 
   toggleHelp: () => {
     set({ showHelp: !get().showHelp });
@@ -43,12 +63,13 @@ export const createNavigationSlice: StateCreator<
   toggleChangeDir: () => {
     const { changeDirMode } = get();
     if (changeDirMode) {
-      set({ changeDirMode: false, browseDir: "", browseCursor: 0, browseItems: [] });
+      const { browser } = get();
+      set({ changeDirMode: false, browser: { ...browser, dir: "", cursor: 0, items: [] } });
     } else {
       const { baseDir } = get();
       const dir = baseDir || "";
-      set({ changeDirMode: true, browseDir: dir, browseCursor: 0 });
-      get().browseSetDir(dir);
+      set({ changeDirMode: true, browser: { ...get().browser, dir, cursor: 0 } });
+      get().browser.setDir(dir);
     }
   },
 
@@ -67,29 +88,8 @@ export const createNavigationSlice: StateCreator<
   },
 
   cancelChangeDir: () => {
-    set({ changeDirMode: false, browseDir: "", browseCursor: 0, browseItems: [] });
-  },
-
-  browseSetDir: async (dir: string) => {
-    set({ browseDir: dir, browseCursor: 0 });
-    try {
-      const items = await getSubdirsWithMetadata(dir);
-      set({ browseItems: items });
-    } catch {
-      set({ browseItems: [] });
-    }
-  },
-
-  browseConfirm: async () => {
-    const { browseDir } = get();
-    if (!browseDir) {return;}
-    set({ changeDirMode: false, browseDir: "", browseCursor: 0, browseItems: [] });
-    set({ baseDir: browseDir });
-    try {
-      await get().loadFolders(browseDir);
-    } catch {
-      set({ status: { type: "error", message: "Failed to load folders" } });
-    }
+    const { browser } = get();
+    set({ changeDirMode: false, browser: { ...browser, dir: "", cursor: 0, items: [] } });
   },
 
   refresh: async () => {
