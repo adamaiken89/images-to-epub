@@ -40,9 +40,8 @@
     "rename": "Rename folder",
     "format": "Toggle output format",
     "quit": "Quit",
-    "or": "or",
     "setAuthor": "Set author",
-    "closeHelp": "Close help",
+    "closeHelp": "close",
     "toggleConfig": "Config overview"
   },
   "prompt": {
@@ -51,19 +50,19 @@
     "empty": "(no subfolders)",
     "hasContent": "[!]",
     "noContent": "[ ]",
-    "navHint": "\u2191\u2193 navigate  Enter select  Backspace up  c to close"
+    "navHint": "\u2191\u2193 nav \u00B7 Enter select \u00B7 Bksp up \u00B7 c close"
   },
   "rename": {
     "title": "Rename Folder:",
     "placeholder": "Enter new folder name...",
-    "hint": "Add ### Author to set EPUB author metadata",
-    "escCancel": "ESC to cancel"
+    "hint": "###Author sets EPUB metadata",
+    "escCancel": "Esc cancel"
   },
   "author": {
     "title": "Set author for selected folders:",
     "placeholder": "Enter author name...",
-    "hint": "Appends '### Author' to each folder name",
-    "escCancel": "ESC to cancel"
+    "hint": "###Author appended to name",
+    "escCancel": "Esc cancel"
   },
   "error": {
     "unexpected": "Unexpected Error"
@@ -92,6 +91,6 @@
   },
   "config": {
     "title": "Config Overview",
-    "dismiss": "[`] to toggle"
+    "dismiss": "[`] toggle"
   }
 }

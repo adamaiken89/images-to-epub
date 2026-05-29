@@ -1,5 +1,6 @@
 export const colors = {
   title: "#cc88ff",
+  modalHeader: "#ff88cc",
   path: "#aaaaaa",
   controlsText: "#88ff88",
   keyHighlight: "#ffcc00",

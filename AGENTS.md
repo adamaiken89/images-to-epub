@@ -102,7 +102,7 @@ Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ t
 
 ## Unicode gotchas
 
-- **Never use `\u00B7` (middle dot `·`)** as raw JSX text — it renders as the literal characters `\u00B7` because JSX text nodes don't process Unicode escape sequences. Use `\u2022` (bullet `•`) instead, or `{'\u00B7'}` / `{'\u2022'}` when the escape sequence must be evaluated as a JavaScript string expression rather than raw text. Tests must assert the correct character.
+- **Never use `\u00B7` (middle dot `·`)** as raw JSX text — it renders as the literal characters `\u00B7` because JSX text nodes don't process Unicode escape sequences. Use `{'\u00B7'}` when the escape sequence must be evaluated as a JavaScript string expression. Tests must assert the correct character.
 
 ## i18n
 
@@ -119,7 +119,7 @@ All modals/prompts are inline panels that sit between Header and TreeView (never
 - **Outer box:** `border borderColor={colors.keyHighlight} padding={1} marginBottom={1} flexDirection="column"` (no `flexGrow`)
 - **Title:** `<text fg={colors.title} attributes={BOLD} marginBottom={1}>`
 - **Dismiss / nav hint:** single `<text marginTop={1} fg={colors.dim}>` at the bottom
-- **Input prompt (InputPrompt):** must merge `{hint}` and `{escLabel}` into one line with a `{'\u2022'}` separator
+- **Input prompt (InputPrompt):** must merge `{hint}` and `{escLabel}` into one line with a `{'\u00B7'}` separator
 - No `marginTop` on inner container boxes — use `marginBottom` on the preceding title element instead
 
 ## Keyboard handling

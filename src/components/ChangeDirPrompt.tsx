@@ -34,7 +34,7 @@ export function ChangeDirPrompt() {
 
   return (
     <box border borderColor={colors.keyHighlight} padding={1} marginBottom={1} flexDirection="column">
-      <text fg={colors.title} attributes={BOLD} marginBottom={1}>
+      <text fg={colors.modalHeader} attributes={BOLD} marginBottom={1}>
         {t("prompt.title")}
       </text>
       <text fg={colors.dynamicValue} wrapMode="word">

@@ -34,7 +34,7 @@ export function ProgressDashboard() {
 
   return (
     <box border borderColor={colors.progressBorder} padding={1} marginBottom={1} flexDirection="column">
-      <text fg={colors.title} attributes={BOLD}>
+      <text fg={colors.modalHeader} attributes={BOLD}>
         {t("progress.title", { count: progressItems.length, mode: processingMode })}
       </text>
       <text fg={colors.dim}>{"\u2500".repeat(40)}</text>

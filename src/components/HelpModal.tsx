@@ -25,7 +25,7 @@ export function HelpModal() {
   if (!showHelp) {return null;}
   return (
     <box border borderColor={colors.keyHighlight} padding={1} marginBottom={1} flexDirection="column">
-      <text fg={colors.title} attributes={BOLD} marginBottom={1}>
+      <text fg={colors.modalHeader} attributes={BOLD} marginBottom={1}>
         {t("modal.title")}
       </text>
       <scrollbox flexGrow={1}>
@@ -38,7 +38,7 @@ export function HelpModal() {
         </box>
       </scrollbox>
       <text fg={colors.dim} marginTop={1}>
-        <span fg={colors.keyHighlight}>[Esc]</span> {t("modal.or")} <span fg={colors.keyHighlight}>[h]</span> {t("modal.closeHelp")}
+        <span fg={colors.keyHighlight}>[Esc]</span> {'\u00B7'} <span fg={colors.keyHighlight}>[h]</span> {t("modal.closeHelp")}
       </text>
     </box>
   );

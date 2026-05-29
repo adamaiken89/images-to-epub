@@ -40,7 +40,7 @@ export function SummaryModal() {
       marginBottom={1}
       flexDirection="column"
     >
-      <text fg={colors.title} attributes={BOLD} marginBottom={1}>
+      <text fg={colors.modalHeader} attributes={BOLD} marginBottom={1}>
         {t("summary.title")}
       </text>
       {resultLines}

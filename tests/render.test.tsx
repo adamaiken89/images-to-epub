@@ -237,8 +237,8 @@ describe("RenamePrompt", () => {
     });
     const frame = await render(<RenamePrompt />, 60, 20);
     expect(frame).toContain("manga-vol1");
-    expect(frame).toContain("### Author");
-    expect(frame).toContain("\u2022 ESC to");
+    expect(frame).toContain("EPUB metadata");
+    expect(frame).toContain("\u00B7 Esc cancel");
     expect(frame).toContain("cancel");
   });
 });
@@ -375,7 +375,7 @@ describe("AuthorPrompt", () => {
     const frame = await render(<AuthorPrompt />, 60, 10);
     expect(frame).toContain("Enter author name...");
     expect(frame).toContain("Author");
-    expect(frame).toContain("ESC to cancel");
+    expect(frame).toContain("Esc cancel");
   });
 });
 
