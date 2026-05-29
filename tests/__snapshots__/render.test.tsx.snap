@@ -1,7 +1,7 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
 exports[`snapshots Header with directory 1`] = `
-"EPUB Generator  [EPUB]                                      
+"EPUB Generator  [EPUB+KEPUB]                                
 /test/path                                                  
                                                             
                                                             

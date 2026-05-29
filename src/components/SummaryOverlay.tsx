@@ -49,7 +49,7 @@ export function SummaryOverlay() {
         {"\u2500".repeat(40)}
       </text>
       <text fg={colors.statusInfo}>
-        {successRate} \u00B7 {summaryTotalPages} pages \u00B7 {sizeStr}
+        {successRate} {'\u00B7'} {summaryTotalPages} pages {'\u00B7'} {sizeStr}
       </text>
       <text fg={colors.statusInfo}>
         {t("summary.elapsed", { seconds: summaryElapsed.toFixed(1) })}

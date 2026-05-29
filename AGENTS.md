@@ -1,7 +1,5 @@
 # Project Conventions
 
-When you need to search docs, use `context7` MCP tools.
-
 ## Architecture
 
 ```
@@ -46,29 +44,20 @@ src/
 
 ## State boundary: Zustand store vs React hooks
 
-Define whether state belongs in the Zustand store or in React hooks (useState/useEffect):
+**Zustand store** — all state in this project lives in the store. Even single-consumer UI state (modals, browse-prompt directory listing) is stored here because it must be read/written by keyboard handlers (`keymap.ts`) which use `useStore.getState()` / `useStore.setState()` synchronously.
 
-**Zustand store** — when ANY of:
-1. **Multi-consumer**: read/written by ≥2 independent parts (components, key handlers, store slices)
-2. **Non-React writes**: modified by keyboard handlers (`handleKey`) or async flows outside React's lifecycle
-3. **Persistence needed**: must survive component unmount/remount
-4. **Business domain data**: folders, selections, processing status
-
-**React hooks** — when ALL of:
-1. **Single consumer**: used by exactly one component subtree
-2. **Ephemeral**: resets naturally on unmount
-3. **UI mechanics only**: remount keys, local data fetching, no business logic
-4. **No handler dependency**: not written by keyboard handlers or other non-React code
+**React hooks** — only `ErrorBoundary` class `this.state` (inherent to the error boundary pattern — class components can't use stores). No `useState` or `useRef` elsewhere.
 
 Current state allocation:
 
-| State | Home | Reason |
+| State group | Home | Why store |
 |---|---|---|
-| `baseDir`, `items`, `selectedIds`, `focusIndex` | Store | Multi-consumer, business data |
-| `isProcessing`, `status` | Store | Multi-consumer, async flows |
-| `changeDirMode`, `showHelp`, `renameMode`, `renameTarget` | Store | Written by key handlers, read by app.tsx + other components |
-| `subdirs` | `useState` in ChangeDirPrompt | Single consumer, fetched on mount via `useEffect` |
-| `promptKey`, `renameKey` | Removed | Were UI mechanics (remount counters), unnecessary since store refs are stable |
+| `baseDir`, `items`, `selectedIds`, `focusIndex` | Store | Business domain, multi-consumer |
+| `isProcessing`, `status`, `progressItems` | Store | Async flow, written by non-React code |
+| `changeDirMode`, `showHelp`, `renameMode`, `authorMode`, `showSummary`, `showConfig` | Store | UI toggles written by `keymap.ts` handlers |
+| `browseDir`, `browseCursor`, `browseItems` | Store | Single-consumer but written by key handlers |
+| `outputFormat` | Store | Persisted to config, read by batch process |
+| `summaryResults` + friends | Store | Produced by async flow, consumed by overlay |
 
 ## Key commands
 
@@ -98,7 +87,6 @@ Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ t
 - `flexShrink={0}` on Header/InfoMessage/StatusBar to prevent compression in small terminals
 - `memo` on list items with `isFocused` passed as prop (never subscribe to `focusIndex` per row)
 - InfoMessage and StatusBar return `null` when they have nothing to display
-- Component-scoped `useEffect` for local data fetching (e.g., ChangeDirPrompt fetches subdirs)
 
 ## Component-boundary handler extraction
 
@@ -126,7 +114,7 @@ export function makeXxxOnSubmit(action: (v: string) => void, fallback: () => voi
 
 ## Unicode gotchas
 
-- **Never use `\u00B7` (middle dot `·`)** for bullet points or emoji — it renders as a tiny or invisible dot in many terminals. Use `\u2022` (bullet `•`) instead. Tests must assert the correct character.
+- **Never use `\u00B7` (middle dot `·`)** as raw JSX text — it renders as the literal characters `\u00B7` because JSX text nodes don't process Unicode escape sequences. Use `\u2022` (bullet `•`) instead, or `{'\u00B7'}` / `{'\u2022'}` when the escape sequence must be evaluated as a JavaScript string expression rather than raw text. Tests must assert the correct character.
 
 ## i18n
 
@@ -146,10 +134,7 @@ export function makeXxxOnSubmit(action: (v: string) => void, fallback: () => voi
 
 - `target: ES2024`, `jsxImportSource: "@opentui/react"` (not standard React)
 - `useUnknownInCatchVariables: true`
-- No `any` in meaningful code
 - `import type` for type-only imports
-- OpenTUI elements: `text`, `box`, `scrollbox`, `input`, `span`, `u`, `br`
-- `resolveJsonModule: true` — JSON imports work without `assert`
 - Path aliases: `@/*` → `src/*`, `@components/*` → `src/components/*`, `@utils/*` → `src/utils/*`, `@store` → `src/store/index.ts`, `@store/*` → `src/store/*`, `@tests/*` → `tests/*`
 - ESLint: `no-restricted-imports` bans parent-relative (`../**`, `../../**`)
 
