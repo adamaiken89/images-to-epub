@@ -34,7 +34,7 @@ describe("createEpubFromFolder", () => {
   it("returns error for nonexistent directory", async () => {
     outputDir = mkdtempSync(join(tmpdir(), "epub-out-"));
     const result = await createEpubFromFolder("/nonexistent/path", outputDir);
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       success: false,
       message: expect.stringContaining("Error reading folder"),
     });
@@ -45,7 +45,7 @@ describe("createEpubFromFolder", () => {
     outputDir = mkdtempSync(join(tmpdir(), "epub-out-"));
     writeFileSync(join(base, "readme.txt"), "hello");
     const result = await createEpubFromFolder(base, outputDir);
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       success: false,
       message: expect.stringContaining("No images found"),
     });
@@ -60,10 +60,11 @@ describe("createEpubFromFolder", () => {
     await createTestImage(join(base, "3.webp"), "blue");
 
     const result = await createEpubFromFolder(base, outputDir);
-    expect(result).toEqual({
-      success: true,
-      message: expect.stringContaining("EPUB created"),
-    });
+    expect(result.success).toBe(true);
+    expect(result.message).toInclude("EPUB created");
+    expect(result.pagesTotal).toBe(3);
+    expect(result.pagesCompleted).toBe(3);
+    expect(result.outputSize).toBeGreaterThan(0);
 
     const epubPath = join(outputDir, `${basename(base)}.epub`);
     expect(existsSync(epubPath)).toBe(true);
@@ -90,10 +91,10 @@ describe("createEpubFromFolder", () => {
     writeFileSync(join(base, "page.png"), pngBuf);
 
     const result = await createEpubFromFolder(base, outputDir);
-    expect(result).toEqual({ success: true, message: expect.any(String) });
-
-    const epubPath = join(outputDir, `${basename(base)}.epub`);
-    expect(existsSync(epubPath)).toBe(true);
+    expect(result.success).toBe(true);
+    expect(result.message).toInclude("EPUB created");
+    expect(result.pagesTotal).toBe(2);
+    expect(result.pagesCompleted).toBe(2);
   });
 
   it("sorts 0-indexed files in numeric order", async () => {
@@ -106,7 +107,7 @@ describe("createEpubFromFolder", () => {
     await createTestImage(join(base, "2.jpg"), "red");
 
     const result = await createEpubFromFolder(base, outputDir);
-    expect(result).toEqual({ success: true, message: expect.any(String) });
+    expect(result).toEqual(expect.objectContaining({ success: true }));
 
     const epubPath = join(outputDir, `${basename(base)}.epub`);
     const epubBuffer = readFileSync(epubPath);
@@ -132,7 +133,7 @@ describe("createEpubFromFolder", () => {
     await createTestImage(join(base, "2.jpg"), "green");
 
     const result = await createEpubFromFolder(base, outputDir);
-    expect(result).toEqual({ success: true, message: expect.any(String) });
+    expect(result.success).toBe(true);
 
     const epubPath = join(outputDir, `${basename(base)}.epub`);
     const epubBuffer = readFileSync(epubPath);

@@ -11,9 +11,20 @@ export interface TreeItem {
 }
 
 export interface StatusMessage {
-  type: "" | "info" | "progress" | "error" | "done";
+  type: "info" | "progress" | "error" | "done" | null;
   message: string;
 }
+
+export interface ProgressItem {
+  folderName: string;
+  folderPath: string;
+  status: "queued" | "processing" | "done" | "error";
+  pagesCompleted: number;
+  pagesTotal: number;
+  message?: string;
+}
+
+export type ProcessingMode = "sequential" | "parallel";
 
 export interface AppState {
   // Scan
@@ -33,6 +44,10 @@ export interface AppState {
   // Batch
   status: StatusMessage;
   isProcessing: boolean;
+  progressItems: ProgressItem[];
+  batchStartTime: number | null;
+  batchEndTime: number | null;
+  processingMode: ProcessingMode;
   processFolders: () => Promise<void>;
   unzipSelected: () => Promise<void>;
   padSelected: () => Promise<void>;
@@ -69,4 +84,18 @@ export interface AppState {
   openAuthorMode: () => void;
   submitAuthorName: (name: string) => Promise<void>;
   cancelAuthorMode: () => void;
+
+  // Config modal
+  showConfig: boolean;
+  toggleConfig: () => void;
+
+  // Summary
+  showSummary: boolean;
+  summaryResults: string[];
+  summaryTotalPages: number;
+  summaryTotalSize: number;
+  summaryElapsed: number;
+  summarySuccessCount: number;
+  summaryFailCount: number;
+  dismissSummary: () => void;
 }

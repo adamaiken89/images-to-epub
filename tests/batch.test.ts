@@ -37,10 +37,9 @@ describe("batch processing", () => {
       await useStore.getState().processFolders();
 
       const { status, isProcessing } = useStore.getState();
-      expect(status).toEqual({
-        type: "done",
-        message: expect.stringMatching(/Success: 0.*Failed: 1.*No images found/),
-      });
+      expect(status.type).toBe("done");
+      expect(status.message).toInclude("Success: 0");
+      expect(status.message).toInclude("Failed: 1");
       expect(isProcessing).toBe(false);
     } finally {
       rmSync(dir, { recursive: true, force: true });

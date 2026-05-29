@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useStore } from "@store";
 import { TreeItemRow } from "./TreeItemRow";
 import { colors } from "@utils/colors";
@@ -7,20 +8,23 @@ export function TreeView() {
   const items = useStore((s) => s.items);
   const focusIndex = useStore((s) => s.focusIndex);
 
-  const parentSelectedMap: Record<string, boolean> = {};
-  let ancestorChecked = false;
-  let ancestorCheckDepth = -1;
-  for (const item of items) {
-    if (item.depth <= ancestorCheckDepth) {
-      ancestorChecked = false;
-      ancestorCheckDepth = -1;
+  const parentSelectedMap = useMemo(() => {
+    const map: Record<string, boolean> = {};
+    let ancestorChecked = false;
+    let ancestorCheckDepth = -1;
+    for (const item of items) {
+      if (item.depth <= ancestorCheckDepth) {
+        ancestorChecked = false;
+        ancestorCheckDepth = -1;
+      }
+      map[item.id] = !item.isZip && !item.checked && !item.excluded && ancestorChecked;
+      if (item.checked) {
+        ancestorChecked = true;
+        ancestorCheckDepth = item.depth;
+      }
     }
-    parentSelectedMap[item.id] = !item.isZip && !item.checked && !item.excluded && ancestorChecked;
-    if (item.checked) {
-      ancestorChecked = true;
-      ancestorCheckDepth = item.depth;
-    }
-  }
+    return map;
+  }, [items]);
 
   return (
     <scrollbox flexGrow={1} border padding={1}>

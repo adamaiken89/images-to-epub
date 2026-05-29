@@ -41,6 +41,9 @@ export function HelpModal() {
         <span fg={colors.keyHighlight}>[f]</span>{t("modal.format")}
       </text>
       <text fg={colors.controlsText}>
+        <span fg={colors.keyHighlight}>[C]</span>{t("modal.toggleConfig")}
+      </text>
+      <text fg={colors.controlsText}>
 
       </text>
       <text fg={colors.controlsText}>

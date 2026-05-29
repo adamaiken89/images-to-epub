@@ -7,11 +7,7 @@ import {
 } from "@utils/fs";
 import type { AppState, TreeItem } from "@store/types";
 import { t } from "@utils/i18n";
-
-function getInitialDir(): string | null {
-  const arg = process.argv[2];
-  return arg ?? null;
-}
+import { parseArgs, loadConfig, writeDefaultConfig } from "@utils/config";
 
 export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "baseDir" | "folderCount" | "zipCount" | "loadFolders" | "init">> = (set, get, _store) => ({
   baseDir: "",
@@ -78,9 +74,31 @@ export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "bas
   },
 
   init: async () => {
-    const cliDir = getInitialDir();
-    const defaultDir = cliDir || (await findDefaultBaseDir());
-    set({ baseDir: defaultDir });
-    await get().loadFolders(defaultDir);
+    const args = parseArgs();
+
+    if (args.initConfig) {
+      await writeDefaultConfig(args.configPath);
+      set({ status: { type: "done", message: `Config written to ${args.configPath || "~/.img2epubrc"}` } });
+      return;
+    }
+
+    let config;
+    if (args.noConfig) {
+      config = { defaultBaseDir: "", outputFormat: "epub" as const, parallelism: 4, skipExisting: true, outputDir: "", authorDetection: "folder" as const, imageFormats: [".webp", ".jpg", ".jpeg", ".png"], theme: "default" };
+    } else {
+      config = await loadConfig(args.configPath);
+    }
+
+    const cliDir = args.dir;
+    const effectiveDir = cliDir || config.defaultBaseDir || (await findDefaultBaseDir());
+
+    const outputFormat = args.format || config.outputFormat;
+
+    set({
+      baseDir: effectiveDir,
+      outputFormat: outputFormat as "epub" | "kepub" | "both",
+    });
+
+    await get().loadFolders(effectiveDir);
   },
 });

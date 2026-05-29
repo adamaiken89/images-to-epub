@@ -1,9 +1,6 @@
-import { createTextAttributes } from "@opentui/core";
 import { useStore } from "@store";
-import { colors } from "@utils/colors";
+import { InputPrompt } from "@components/InputPrompt";
 import { t } from "@utils/i18n";
-
-const BOLD = createTextAttributes({ bold: true });
 
 export function AuthorPrompt() {
   const authorMode = useStore((s) => s.authorMode);
@@ -12,36 +9,15 @@ export function AuthorPrompt() {
 
   if (!authorMode) {return null;}
 
-  return <PromptInner submitAuthorName={submitAuthorName} cancelAuthorMode={cancelAuthorMode} />;
-}
-
-function PromptInner({
-  submitAuthorName,
-  cancelAuthorMode,
-}: {
-  submitAuthorName: (name: string) => void;
-  cancelAuthorMode: () => void;
-}) {
   return (
-    <box border borderColor={colors.keyHighlight} padding={1} marginBottom={1} flexDirection="column">
-      <text fg={colors.keyHighlight} attributes={BOLD}>
-        {t("author.title")}
-      </text>
-      <input
-        value=""
-        placeholder={t("author.placeholder")}
-        focused={true}
-        backgroundColor={colors.inputBg}
-        textColor={colors.inputText}
-        onSubmit={makeAuthorOnSubmit(submitAuthorName, cancelAuthorMode)}
-      />
-      <text marginTop={1} fg={colors.dim}>
-        {t("author.hint")}
-      </text>
-      <text marginTop={1} fg={colors.dim}>
-        {t("author.escCancel")}
-      </text>
-    </box>
+    <InputPrompt
+      title={t("author.title")}
+      placeholder={t("author.placeholder")}
+      hint={t("author.hint")}
+      escLabel={t("author.escCancel")}
+      onSubmit={makeAuthorOnSubmit(submitAuthorName, cancelAuthorMode)}
+      onCancel={cancelAuthorMode}
+    />
   );
 }
 

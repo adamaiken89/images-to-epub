@@ -2,6 +2,7 @@ import type { StateCreator } from "zustand";
 import { getSubfoldersWithImages } from "@utils/fs";
 import type { AppState, TreeItem } from "@store/types";
 import { t } from "@utils/i18n";
+import { ID_PREFIXES } from "@store/constants";
 
 export function getFoldersToProcess(
   selectedSet: Set<string>,
@@ -9,8 +10,8 @@ export function getFoldersToProcess(
 ): string[] {
   const result: string[] = [];
   for (const id of selectedSet) {
-    if (id.startsWith("folder:")) {
-      const path = id.slice(7);
+    if (id.startsWith(ID_PREFIXES.folder)) {
+      const path = id.slice(ID_PREFIXES.folder.length);
       const item = items.find((i) => i.id === id);
       if (item?.entry?.metadata.hasImages) {
         if (!item.excluded) {
@@ -18,15 +19,15 @@ export function getFoldersToProcess(
         }
       } else if (item?.entry) {
         const allFolderPaths = items
-          .filter((i) => i.id.startsWith("folder:"))
-          .map((i) => i.id.slice(7));
+          .filter((i) => i.id.startsWith(ID_PREFIXES.folder))
+          .map((i) => i.id.slice(ID_PREFIXES.folder.length));
         const imageFolders = allFolderPaths.filter((p) => {
-          const entry = items.find((i) => i.id === `folder:${p}`);
+          const entry = items.find((i) => i.id === `${ID_PREFIXES.folder}${p}`);
           return entry?.entry?.metadata.hasImages;
         });
         const subs = getSubfoldersWithImages(path, imageFolders);
         for (const sub of subs) {
-          const subItem = items.find((i) => i.id === `folder:${sub}`);
+          const subItem = items.find((i) => i.id === `${ID_PREFIXES.folder}${sub}`);
           if (!subItem?.excluded) {
             result.push(sub);
           }

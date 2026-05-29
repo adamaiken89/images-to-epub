@@ -13,7 +13,8 @@
     "toRename": "to rename,",
     "format": "format,",
     "hide": "hide",
-    "help": "help"
+    "help": "help",
+    "config": "config"
   },
   "tree": {
     "noFolders": "No folders found.",
@@ -21,7 +22,8 @@
     "checkboxOff": "[ ]",
     "checkboxImplicit": "[\u00B7]",
     "checkboxSkip": "[-]",
-    "zipPrefix": "\uD83D\uDCE6 "
+    "zipPrefix": "\uD83D\uDCE6 ",
+    "empty": "(empty)"
   },
   "format": {
     "epub": "EPUB",
@@ -43,7 +45,8 @@
     "quit": "Quit",
     "or": "or",
     "setAuthor": "Set author",
-    "closeHelp": "Close help"
+    "closeHelp": "Close help",
+    "toggleConfig": "Config overview"
   },
   "prompt": {
     "title": "Change Directory",
@@ -80,5 +83,18 @@
   "batch": {
     "progress": "{{current}}/{{total}}: {{name}}...",
     "done": "Done! Success: {{success}}, Failed: {{failed}}"
+  },
+  "progress": {
+    "title": "Processing {{count}} folders (mode: {{mode}})",
+    "overall": "Overall: {{pages}} pages \u00B7 {{elapsed}}s elapsed"
+  },
+  "summary": {
+    "title": "Batch Complete",
+    "elapsed": "Elapsed: {{seconds}}s",
+    "dismiss": "[Press any key to dismiss]"
+  },
+  "config": {
+    "title": "Config Overview",
+    "dismiss": "[ESC] or [C] to close"
   }
 }

@@ -70,26 +70,25 @@ export async function findFoldersWithImages(
 
   await scan(baseDir);
 
-  // Second pass: mark ancestors
-  const visibleFolders = Array.from(allFolders.entries())
-    .filter(([, m]) => m.hasImages || m.hasZips)
-    .map(([p]) => p);
+  const contentFolders = new Set<string>();
+  for (const [path, meta] of allFolders) {
+    if (meta.hasImages || meta.hasZips) {contentFolders.add(path);}
+  }
 
-  const baseDirNorm = normalize(baseDir);
-  for (const folderPath of visibleFolders) {
+  for (const folderPath of contentFolders) {
     let parent = dirname(folderPath);
-    while (parent) {
-      const parentNorm = normalize(parent);
-      if (parentNorm === baseDirNorm) {break;}
-      if (!parentNorm.startsWith(baseDirNorm + sep) && parentNorm !== baseDirNorm) {break;}
-
-      const meta = allFolders.get(parentNorm);
+    while (parent && parent.length >= baseDir.length) {
+      if (!parent.startsWith(baseDir)) {break;}
+      const meta = allFolders.get(parent);
       if (meta) {
         meta.hasSubfolders = true;
       } else {
-        allFolders.set(parentNorm, { hasImages: false, hasSubfolders: true, hasZips: false });
+        allFolders.set(parent, { hasImages: false, hasSubfolders: true, hasZips: false });
       }
-      parent = dirname(parent);
+      if (parent === baseDir) {break;}
+      const next = dirname(parent);
+      if (next === parent) {break;}
+      parent = next;
     }
   }
 

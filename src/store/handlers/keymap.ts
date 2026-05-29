@@ -15,6 +15,16 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
 
   if (store.isProcessing) {return;}
 
+  if (store.showSummary) {
+    store.dismissSummary();
+    return;
+  }
+
+  if (store.showConfig) {
+    if (key.name === "escape" || key.name === "C") {store.toggleConfig();}
+    return;
+  }
+
   if (store.changeDirMode) {
     if (key.name === "escape") {store.cancelChangeDir();}
     else if (key.name === "up") {
@@ -61,7 +71,13 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
       store.toggleItem(store.focusIndex);
       break;
     case "return":
-      store.processFolders();
+      if (key.shift) {
+        const prev = store.processingMode;
+        setState({ processingMode: "sequential" });
+        store.processFolders().finally(() => setState({ processingMode: prev }));
+      } else {
+        store.processFolders();
+      }
       break;
     case "a":
       store.selectAll();
@@ -83,6 +99,9 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
       break;
     case "n":
       store.openRename();
+      break;
+    case "C":
+      store.toggleConfig();
       break;
     case "f": {
       const cycle: Array<"epub" | "kepub" | "both"> = ["epub", "kepub", "both"];

@@ -28,4 +28,8 @@ export const colors = {
   checkboxOn: "#66ff66",
   checkboxImplicit: "#55bb55",
   checkboxSkip: "#777777",
+
+  progressBorder: "#88ff88",
+  summaryBorder: "#ffcc00",
+  summaryBg: "#000000",
 } as const;
