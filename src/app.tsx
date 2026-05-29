@@ -17,11 +17,8 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 export default function App() {
   const renderer = useRenderer();
   const init = useStore((s) => s.init);
-  const showHelp = useStore((s) => s.showHelp);
-  const showConfig = useStore((s) => s.showConfig);
-  const changeDirMode = useStore((s) => s.changeDirMode);
-  const showSummary = useStore((s) => s.showSummary);
   const isProcessing = useStore((s) => s.isProcessing);
+  const showModal = useStore((s) => s.changeDirMode || s.showHelp || s.showConfig || s.showSummary);
 
   useEffect(() => {
     init();
@@ -41,16 +38,12 @@ export default function App() {
         <ChangeDirPrompt />
         <RenamePrompt />
         <AuthorPrompt />
-        {showSummary ? <SummaryModal />
-          : showConfig ? <ConfigModal />
-          : showHelp ? <HelpModal />
-          : (
-            <>
-              {isProcessing ? <ProgressDashboard /> : null}
-              <TreeView />
-            </>
-          )}
-        <box flexShrink={0}>{changeDirMode ? null : showSummary || showConfig || showHelp ? null : <InfoMessage />}</box>
+        <HelpModal />
+        <ConfigModal />
+        <SummaryModal />
+        {isProcessing ? <ProgressDashboard /> : null}
+        {showModal ? null : <TreeView />}
+        <box flexShrink={0}><InfoMessage /></box>
       </ErrorBoundary>
     </box>
   );

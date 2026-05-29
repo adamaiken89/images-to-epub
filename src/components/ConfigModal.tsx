@@ -13,7 +13,7 @@ export function ConfigModal() {
   if (!showConfig) {return null;}
 
   return (
-    <box border borderColor={colors.keyHighlight} padding={1} flexGrow={1} flexDirection="column">
+    <box border borderColor={colors.keyHighlight} padding={1} marginBottom={1} flexDirection="column">
       <text fg={colors.title} attributes={BOLD} marginBottom={1}>
         {t("config.title")}
       </text>

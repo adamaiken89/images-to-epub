@@ -37,9 +37,8 @@ export function SummaryModal() {
       border
       borderColor={colors.statusDone}
       padding={1}
-      flexGrow={1}
+      marginBottom={1}
       flexDirection="column"
-      backgroundColor={colors.summaryBg}
     >
       <text fg={colors.title} attributes={BOLD} marginBottom={1}>
         {t("summary.title")}

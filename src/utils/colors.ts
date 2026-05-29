@@ -29,7 +29,6 @@ export const colors = {
   checkboxSkip: "#777777",
 
   progressBorder: "#88ff88",
-  summaryBg: "#1a1a2e",
 
   dynamicValue: "#3399ff",
   separator: "#555555",

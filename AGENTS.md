@@ -112,29 +112,15 @@ Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ t
 - Interpolation: `t("batch.progress", { current, total, name })`
 - Add a locale: create `fr.json`, add to `i18n.ts` resources
 
-## Modal design guide
+## Inline panel guide
 
-There are two categories of modal surfaces:
+All modals/prompts are inline panels that sit between Header and TreeView (never replace it). Each uses its own store flag and returns `null` when hidden.
 
-### Category A — Full-height overlay (replaces TreeView)
-- **Components:** HelpModal, ConfigModal, SummaryModal
-- **Outer box:** `border borderColor={colors.keyHighlight} padding={1} flexGrow={1} flexDirection="column"`
-- **Title:** `<text fg={colors.title} attributes={BOLD} marginBottom={1}>`
-- **Content lines:** stacked `<text>` elements, no extra margins between lines
-- **Dismiss hint:** single `<text fg={colors.dim} marginTop={1}>` at the bottom
-
-### Category B — Inline compact (sits between Header and TreeView)
-- **Components:** InputPrompt (used by RenamePrompt, AuthorPrompt), ChangeDirPrompt
 - **Outer box:** `border borderColor={colors.keyHighlight} padding={1} marginBottom={1} flexDirection="column"` (no `flexGrow`)
 - **Title:** `<text fg={colors.title} attributes={BOLD} marginBottom={1}>`
 - **Dismiss / nav hint:** single `<text marginTop={1} fg={colors.dim}>` at the bottom
-
-### Shared rules (both categories)
-1. All titles use `colors.title` (#cc88ff purple) with `BOLD` attributes and `marginBottom={1}`
-2. All outer boxes use `border borderColor={colors.keyHighlight} padding={1} ... flexDirection="column"`
-3. All dismiss/nav hints are a single `<text>` line with `fg={colors.dim} marginTop={1}`
-4. InputPrompt must merge `{hint}` and `{escLabel}` into one line with a `{'\u2022'}` separator — never two separate `<text>` elements with `marginTop`
-5. No `marginTop` on inner container boxes — use `marginBottom` on the preceding title element instead to avoid double gaps
+- **Input prompt (InputPrompt):** must merge `{hint}` and `{escLabel}` into one line with a `{'\u2022'}` separator
+- No `marginTop` on inner container boxes — use `marginBottom` on the preceding title element instead
 
 ## Keyboard handling
 

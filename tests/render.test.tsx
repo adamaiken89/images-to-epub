@@ -149,6 +149,7 @@ describe("InfoMessage", () => {
 
 describe("HelpModal", () => {
   it("shows keyboard shortcuts", async () => {
+    useStore.setState({ showHelp: true });
     const frame = await render(<HelpModal />, 60, 20);
     expect(frame).toContain("Keyboard Shortcuts");
     expect(frame).toContain("[Space]");
@@ -352,6 +353,7 @@ describe("snapshots", () => {
   });
 
   it("HelpModal", async () => {
+    useStore.setState({ showHelp: true });
     const frame = await render(<HelpModal />, 60, 20);
     expect(frame).toMatchSnapshot();
   });

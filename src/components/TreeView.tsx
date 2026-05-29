@@ -7,6 +7,10 @@ import { t } from "@utils/i18n";
 export function TreeView() {
   const items = useStore((s) => s.items);
   const focusIndex = useStore((s) => s.focusIndex);
+  const changeDirMode = useStore((s) => s.changeDirMode);
+  const showHelp = useStore((s) => s.showHelp);
+  const showConfig = useStore((s) => s.showConfig);
+  const showSummary = useStore((s) => s.showSummary);
 
   const parentSelectedMap = useMemo(() => {
     const map: Record<string, boolean> = {};
@@ -25,6 +29,10 @@ export function TreeView() {
     }
     return map;
   }, [items]);
+
+  if (changeDirMode || showHelp || showConfig || showSummary) {
+    return null;
+  }
 
   return (
     <scrollbox flexGrow={1} border padding={1}>

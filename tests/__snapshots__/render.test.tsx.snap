@@ -19,21 +19,21 @@ exports[`snapshots HelpModal 1`] = `
 │                                                          │
 │ Keyboard Shortcuts                                       │
 │                                                          │
-│ [Space] Toggle selection                                 │
-│ [a] Select All (toggle)                                  │
-│ [Enter] Process EPUB                                     │
+│ [\`] Config overview                                    █ │
+│ [a] Select All                                         █ │
+│ [c] Change dir                                         █ │
+│ [Enter] Process EPUB                                   █ │
+│ [f] Toggle output format                               █ │
+│ [m] Set author                                         █ │
+│ [n] Rename folder                                      █ │
 │ [p] Pad filenames                                        │
-│ [u] Unzip                                                │
-│ [c] Change dir                                           │
-│ [r] Refresh                                              │
-│ [n] Rename folder                                        │
-│ [m] Set author                                           │
-│ [f] Toggle output format                                 │
-│ [\`] Config overview                                      │
 │ [q] Quit                                                 │
+│ [r] Refresh                                              │
+│ [Space] Toggle selection                                 │
 │                                                          │
 │ [Esc] or [h] Close help                                  │
 │                                                          │
 └──────────────────────────────────────────────────────────┘
+                                                            
 "
 `;
