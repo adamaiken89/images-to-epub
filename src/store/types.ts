@@ -10,7 +10,7 @@ export interface TreeItem {
   excluded: boolean;
 }
 
-export interface StatusMessage {
+interface StatusMessage {
   type: "info" | "progress" | "error" | "done" | null;
   message: string;
 }
@@ -26,13 +26,13 @@ export interface ProgressItem {
 
 export type ProcessingMode = "sequential" | "parallel";
 
-export interface BrowserState {
+interface BrowserState {
   dir: string;
   cursor: number;
   items: SubdirInfo[];
 }
 
-export interface SummaryData {
+interface SummaryData {
   results: string[];
   totalPages: number;
   totalSize: number;

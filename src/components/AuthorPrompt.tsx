@@ -1,5 +1,5 @@
-import { useStore } from "@store";
 import { InputPrompt } from "@components/InputPrompt";
+import { useStore } from "@store";
 import { t } from "@utils/i18n";
 
 export function AuthorPrompt() {
@@ -7,7 +7,9 @@ export function AuthorPrompt() {
   const submitAuthorName = useStore((s) => s.submitAuthorName);
   const cancelAuthorMode = useStore((s) => s.cancelAuthorMode);
 
-  if (!authorMode) {return null;}
+  if (!authorMode) {
+    return null;
+  }
 
   return (
     <InputPrompt
@@ -21,13 +23,23 @@ export function AuthorPrompt() {
   );
 }
 
-export function handleAuthorSubmit(value: string, submitAuthorName: (name: string) => void, cancelAuthorMode: () => void): void {
+export function handleAuthorSubmit(
+  value: string,
+  submitAuthorName: (name: string) => void,
+  cancelAuthorMode: () => void,
+): void {
   const val = value.trim();
-  if (val) {submitAuthorName(val);}
-  else {cancelAuthorMode();}
+  if (val) {
+    submitAuthorName(val);
+  } else {
+    cancelAuthorMode();
+  }
 }
 
-export function makeAuthorOnSubmit(submitAuthorName: (name: string) => void, cancelAuthorMode: () => void): ((event: object) => void) & ((value: string) => void) {
+export function makeAuthorOnSubmit(
+  submitAuthorName: (name: string) => void,
+  cancelAuthorMode: () => void,
+): ((event: object) => void) & ((value: string) => void) {
   return ((value: string) => {
     handleAuthorSubmit(value, submitAuthorName, cancelAuthorMode);
   }) as unknown as ((event: object) => void) & ((value: string) => void);

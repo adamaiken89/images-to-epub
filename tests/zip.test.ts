@@ -1,10 +1,9 @@
+import { unzipFile } from "@utils/zip";
 import { afterEach, describe, expect, it } from "bun:test";
-import { existsSync, mkdtempSync, writeFileSync, rmSync } from "fs";
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from "fs";
 import JSZip from "jszip";
 import { tmpdir } from "os";
 import { join } from "path";
-
-import { unzipFile } from "@utils/zip";
 
 function cleanup(base: string) {
   try {
@@ -27,10 +26,7 @@ async function createZip(path: string, files: Record<string, string>) {
  *  encoding flag set. This simulates legacy Windows zips that write UTF-8
  *  bytes but don't set bit 11 of the general purpose bit flag.
  */
-async function createZipWithNoUtf8Flag(
-  path: string,
-  files: Record<string, string>,
-) {
+async function createZipWithNoUtf8Flag(path: string, files: Record<string, string>) {
   const zip = new JSZip();
   for (const [name, content] of Object.entries(files)) {
     zip.file(name, content);
@@ -59,7 +55,9 @@ describe("unzipFile", () => {
   let base: string;
 
   afterEach(() => {
-    if (base) {cleanup(base);}
+    if (base) {
+      cleanup(base);
+    }
   });
 
   it("extracts a valid zip file", async () => {

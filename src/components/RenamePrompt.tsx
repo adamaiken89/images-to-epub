@@ -1,7 +1,7 @@
-import { basename } from "path";
-import { useStore } from "@store";
 import { InputPrompt } from "@components/InputPrompt";
+import { useStore } from "@store";
 import { t } from "@utils/i18n";
+import { basename } from "path";
 
 export function RenamePrompt() {
   const renameMode = useStore((s) => s.renameMode);
@@ -9,7 +9,9 @@ export function RenamePrompt() {
   const renameSubmit = useStore((s) => s.renameSubmit);
   const cancelRename = useStore((s) => s.cancelRename);
 
-  if (!renameMode) {return null;}
+  if (!renameMode) {
+    return null;
+  }
 
   return (
     <InputPrompt
@@ -24,13 +26,23 @@ export function RenamePrompt() {
   );
 }
 
-export function handleRenameSubmit(value: string, renameSubmit: (name: string) => void, cancelRename: () => void): void {
+export function handleRenameSubmit(
+  value: string,
+  renameSubmit: (name: string) => void,
+  cancelRename: () => void,
+): void {
   const val = value.trim();
-  if (val) {renameSubmit(val);}
-  else {cancelRename();}
+  if (val) {
+    renameSubmit(val);
+  } else {
+    cancelRename();
+  }
 }
 
-export function makeOnSubmit(renameSubmit: (name: string) => void, cancelRename: () => void): ((event: object) => void) & ((value: string) => void) {
+export function makeOnSubmit(
+  renameSubmit: (name: string) => void,
+  cancelRename: () => void,
+): ((event: object) => void) & ((value: string) => void) {
   return ((value: string) => {
     handleRenameSubmit(value, renameSubmit, cancelRename);
   }) as unknown as ((event: object) => void) & ((value: string) => void);

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "project": ["src/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}"],
+  "ignoreDependencies": ["bun-types"],
+  "paths": {
+    "@/*": ["src/*"],
+    "@components/*": ["src/components/*"],
+    "@utils/*": ["src/utils/*"],
+    "@store": ["src/store/index.ts"],
+    "@store/*": ["src/store/*"],
+    "@tests/*": ["tests/*"]
+  }
+}

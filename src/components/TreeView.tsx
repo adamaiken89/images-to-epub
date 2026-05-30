@@ -1,8 +1,9 @@
-import { useMemo } from "react";
 import { useStore } from "@store";
-import { TreeItemRow } from "./TreeItemRow";
 import { colors } from "@utils/colors";
 import { t } from "@utils/i18n";
+import { useMemo } from "react";
+
+import { TreeItemRow } from "./TreeItemRow";
 
 export function TreeView() {
   const items = useStore((s) => s.items);
@@ -17,12 +18,10 @@ export function TreeView() {
       ancestorCheckDepth: number;
     }>(
       (acc, item) => {
-        const ancestorChecked =
-          item.depth <= acc.ancestorCheckDepth ? false : acc.ancestorChecked;
+        const ancestorChecked = item.depth <= acc.ancestorCheckDepth ? false : acc.ancestorChecked;
         const ancestorCheckDepth =
           item.depth <= acc.ancestorCheckDepth ? -1 : acc.ancestorCheckDepth;
-        const value =
-          !item.isZip && !item.checked && !item.excluded && ancestorChecked;
+        const value = !item.isZip && !item.checked && !item.excluded && ancestorChecked;
         if (item.checked) {
           return {
             map: { ...acc.map, [item.id]: value },
@@ -50,7 +49,12 @@ export function TreeView() {
         <text fg={colors.dim}>{t("tree.noFolders")}</text>
       ) : (
         items.map((item, idx) => (
-          <TreeItemRow key={item.id} item={item} isFocused={idx === focusIndex} parentSelected={!!parentSelectedMap[item.id]} />
+          <TreeItemRow
+            key={item.id}
+            item={item}
+            isFocused={idx === focusIndex}
+            parentSelected={!!parentSelectedMap[item.id]}
+          />
         ))
       )}
     </scrollbox>

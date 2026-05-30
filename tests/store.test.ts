@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach } from "bun:test";
-import { mkdtempSync, writeFileSync, rmSync, mkdirSync } from "fs";
-import { tmpdir } from "os";
-import { join, dirname } from "path";
-import { useStore, getFoldersToProcess } from "@store";
 import type { TreeItem } from "@store";
+import { getFoldersToProcess, useStore } from "@store";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs";
+import { tmpdir } from "os";
+import { dirname, join } from "path";
 
 describe("store navigation actions", () => {
   beforeEach(() => {
@@ -42,7 +42,10 @@ describe("store navigation actions", () => {
 
   it("cancelChangeDir resets mode and browse state", () => {
     const b = useStore.getState().browser;
-    useStore.setState({ changeDirMode: true, browser: { ...b, dir: "/test", cursor: 2, items: [{ name: "a", hasContent: true }] } });
+    useStore.setState({
+      changeDirMode: true,
+      browser: { ...b, dir: "/test", cursor: 2, items: [{ name: "a", hasContent: true }] },
+    });
     useStore.getState().cancelChangeDir();
     const state = useStore.getState();
     expect(state.changeDirMode).toBe(false);
@@ -60,7 +63,20 @@ describe("store navigation actions", () => {
   });
 
   it("refresh does nothing when baseDir is empty", async () => {
-    useStore.setState({ baseDir: "", items: [{ id: "stale", label: "stale", depth: 0, isZip: false, entry: null, checked: false, excluded: false }] });
+    useStore.setState({
+      baseDir: "",
+      items: [
+        {
+          id: "stale",
+          label: "stale",
+          depth: 0,
+          isZip: false,
+          entry: null,
+          checked: false,
+          excluded: false,
+        },
+      ],
+    });
     await useStore.getState().refresh();
     expect(useStore.getState().items).toHaveLength(1);
   });
@@ -82,9 +98,17 @@ describe("store navigation actions", () => {
 
   it("toggleRename does nothing when focused item is a zip", () => {
     useStore.setState({
-      items: [{
-        id: "zip:/test/file.zip", label: "file.zip", depth: 0, isZip: true, entry: null, checked: false, excluded: false,
-      }],
+      items: [
+        {
+          id: "zip:/test/file.zip",
+          label: "file.zip",
+          depth: 0,
+          isZip: true,
+          entry: null,
+          checked: false,
+          excluded: false,
+        },
+      ],
       focusIndex: 0,
     });
     useStore.getState().toggleRename();
@@ -93,15 +117,21 @@ describe("store navigation actions", () => {
 
   it("toggleRename sets rename mode for a folder item", () => {
     useStore.setState({
-      items: [{
-        id: "folder:/test/manga",
-        label: "manga",
-        depth: 0,
-        isZip: false,
-        entry: { parts: ["manga"], path: "/test/manga", metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
-        checked: false,
-        excluded: false,
-      }],
+      items: [
+        {
+          id: "folder:/test/manga",
+          label: "manga",
+          depth: 0,
+          isZip: false,
+          entry: {
+            parts: ["manga"],
+            path: "/test/manga",
+            metadata: { hasImages: true, hasSubfolders: false, hasZips: false },
+          },
+          checked: false,
+          excluded: false,
+        },
+      ],
       focusIndex: 0,
     });
     useStore.getState().toggleRename();
@@ -124,15 +154,17 @@ describe("store navigation actions", () => {
 
   it("renameSubmit with zip item does nothing", () => {
     useStore.setState({
-      items: [{
-        id: "zip:/test/manga.zip",
-        label: "[zip] manga.zip",
-        depth: 0,
-        isZip: true,
-        entry: null,
-        checked: false,
-        excluded: false,
-      }],
+      items: [
+        {
+          id: "zip:/test/manga.zip",
+          label: "[zip] manga.zip",
+          depth: 0,
+          isZip: true,
+          entry: null,
+          checked: false,
+          excluded: false,
+        },
+      ],
       focusIndex: 0,
     });
     useStore.getState().toggleRename();
@@ -222,7 +254,11 @@ describe("getFoldersToProcess", () => {
         label: "parent",
         depth: 0,
         isZip: false,
-        entry: { parts: ["parent"], path: "/parent", metadata: { hasImages: false, hasSubfolders: true, hasZips: false } },
+        entry: {
+          parts: ["parent"],
+          path: "/parent",
+          metadata: { hasImages: false, hasSubfolders: true, hasZips: false },
+        },
         checked: true,
         excluded: false,
       },
@@ -231,7 +267,11 @@ describe("getFoldersToProcess", () => {
         label: "child1",
         depth: 1,
         isZip: false,
-        entry: { parts: ["parent", "child1"], path: "/parent/child1", metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
+        entry: {
+          parts: ["parent", "child1"],
+          path: "/parent/child1",
+          metadata: { hasImages: true, hasSubfolders: false, hasZips: false },
+        },
         checked: false,
         excluded: false,
       },
@@ -240,7 +280,11 @@ describe("getFoldersToProcess", () => {
         label: "child2",
         depth: 1,
         isZip: false,
-        entry: { parts: ["parent", "child2"], path: "/parent/child2", metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
+        entry: {
+          parts: ["parent", "child2"],
+          path: "/parent/child2",
+          metadata: { hasImages: true, hasSubfolders: false, hasZips: false },
+        },
         checked: false,
         excluded: false,
       },
@@ -256,7 +300,11 @@ describe("getFoldersToProcess", () => {
         label: "parent",
         depth: 0,
         isZip: false,
-        entry: { parts: ["parent"], path: "/parent", metadata: { hasImages: false, hasSubfolders: true, hasZips: false } },
+        entry: {
+          parts: ["parent"],
+          path: "/parent",
+          metadata: { hasImages: false, hasSubfolders: true, hasZips: false },
+        },
         checked: true,
         excluded: false,
       },
@@ -265,7 +313,11 @@ describe("getFoldersToProcess", () => {
         label: "child1",
         depth: 1,
         isZip: false,
-        entry: { parts: ["parent", "child1"], path: "/parent/child1", metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
+        entry: {
+          parts: ["parent", "child1"],
+          path: "/parent/child1",
+          metadata: { hasImages: true, hasSubfolders: false, hasZips: false },
+        },
         checked: false,
         excluded: true,
       },
@@ -274,7 +326,11 @@ describe("getFoldersToProcess", () => {
         label: "child2",
         depth: 1,
         isZip: false,
-        entry: { parts: ["parent", "child2"], path: "/parent/child2", metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
+        entry: {
+          parts: ["parent", "child2"],
+          path: "/parent/child2",
+          metadata: { hasImages: true, hasSubfolders: false, hasZips: false },
+        },
         checked: false,
         excluded: false,
       },
@@ -290,7 +346,11 @@ describe("getFoldersToProcess", () => {
         label: "test",
         depth: 0,
         isZip: false,
-        entry: { parts: ["test"], path: "/test", metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
+        entry: {
+          parts: ["test"],
+          path: "/test",
+          metadata: { hasImages: true, hasSubfolders: false, hasZips: false },
+        },
         checked: true,
         excluded: true,
       },
@@ -304,7 +364,9 @@ describe("scan loadFolders", () => {
   let dir: string;
 
   afterEach(() => {
-    if (dir) {rmSync(dir, { recursive: true, force: true });}
+    if (dir) {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it("produces items with expected TreeItem fields", async () => {
@@ -315,8 +377,24 @@ describe("scan loadFolders", () => {
     await useStore.getState().loadFolders(dir);
 
     const [folder, zip] = useStore.getState().items;
-    expect(Object.keys(folder).sort()).toEqual(["checked", "depth", "entry", "excluded", "id", "isZip", "label"]);
-    expect(Object.keys(zip).sort()).toEqual(["checked", "depth", "entry", "excluded", "id", "isZip", "label"]);
+    expect(Object.keys(folder).sort()).toEqual([
+      "checked",
+      "depth",
+      "entry",
+      "excluded",
+      "id",
+      "isZip",
+      "label",
+    ]);
+    expect(Object.keys(zip).sort()).toEqual([
+      "checked",
+      "depth",
+      "entry",
+      "excluded",
+      "id",
+      "isZip",
+      "label",
+    ]);
     expect(folder.checked).toBe(false);
     expect(folder.excluded).toBe(false);
     expect(zip.checked).toBe(false);
@@ -366,7 +444,7 @@ describe("scan loadFolders", () => {
     dir = orderingDir();
     await useStore.getState().loadFolders(dir);
 
-    expect(useStore.getState().items.map(i => ({ label: i.label, depth: i.depth }))).toEqual([
+    expect(useStore.getState().items.map((i) => ({ label: i.label, depth: i.depth }))).toEqual([
       { label: "alpha", depth: 0 },
       { label: "beta", depth: 0 },
       { label: "\uD83D\uDCE6 m.zip", depth: 0 },
@@ -383,10 +461,16 @@ describe("scan loadFolders", () => {
     dir = orderingDir();
     await useStore.getState().loadFolders(dir);
 
-    expect(useStore.getState().items.map(i => i.label)).toEqual([
-      "alpha", "beta",
-      "\uD83D\uDCE6 m.zip", "\uD83D\uDCE6 n.zip",
-      "parent 1", "children file", "parent 2", "parent 3", "zeta",
+    expect(useStore.getState().items.map((i) => i.label)).toEqual([
+      "alpha",
+      "beta",
+      "\uD83D\uDCE6 m.zip",
+      "\uD83D\uDCE6 n.zip",
+      "parent 1",
+      "children file",
+      "parent 2",
+      "parent 3",
+      "zeta",
     ]);
   });
 
@@ -394,7 +478,7 @@ describe("scan loadFolders", () => {
     dir = orderingDir();
     await useStore.getState().loadFolders(dir);
 
-    expect(useStore.getState().items.map(i => ({ label: i.label, isZip: i.isZip }))).toEqual([
+    expect(useStore.getState().items.map((i) => ({ label: i.label, isZip: i.isZip }))).toEqual([
       { label: "alpha", isZip: false },
       { label: "beta", isZip: false },
       { label: "\uD83D\uDCE6 m.zip", isZip: true },
@@ -423,7 +507,9 @@ describe("scan loadFolders", () => {
 
 describe("error handling paths", () => {
   const origLoadFolders = useStore.getState().loadFolders;
-  const throwingLoad = async () => { throw new Error("fail"); };
+  const throwingLoad = async () => {
+    throw new Error("fail");
+  };
 
   afterEach(() => {
     useStore.setState({ loadFolders: origLoadFolders });
@@ -436,7 +522,11 @@ describe("error handling paths", () => {
   });
 
   it("refresh sets error status when loadFolders fails", async () => {
-    useStore.setState({ loadFolders: throwingLoad, baseDir: "/test", status: { type: "info", message: "" } });
+    useStore.setState({
+      loadFolders: throwingLoad,
+      baseDir: "/test",
+      status: { type: "info", message: "" },
+    });
     await useStore.getState().refresh();
     expect(useStore.getState().status.type).toBe("error");
   });
@@ -455,15 +545,21 @@ describe("batch slice uncovered branches", () => {
 
   it("unzipSelected does nothing when no zips selected", async () => {
     useStore.setState({
-      items: [{
-        id: "folder:/test",
-        label: "test",
-        depth: 0,
-        isZip: false,
-        entry: { parts: ["test"], path: "/test", metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
-        checked: true,
-        excluded: false,
-      }],
+      items: [
+        {
+          id: "folder:/test",
+          label: "test",
+          depth: 0,
+          isZip: false,
+          entry: {
+            parts: ["test"],
+            path: "/test",
+            metadata: { hasImages: true, hasSubfolders: false, hasZips: false },
+          },
+          checked: true,
+          excluded: false,
+        },
+      ],
       selectedIds: new Set(["folder:/test"]),
     });
     await useStore.getState().unzipSelected();
@@ -477,15 +573,21 @@ describe("batch slice uncovered branches", () => {
 
   it("processFolders does nothing when selected items have no processable folders", async () => {
     useStore.setState({
-      items: [{
-        id: "folder:/test",
-        label: "test",
-        depth: 0,
-        isZip: false,
-        entry: { parts: ["test"], path: "/test", metadata: { hasImages: false, hasSubfolders: false, hasZips: false } },
-        checked: true,
-        excluded: false,
-      }],
+      items: [
+        {
+          id: "folder:/test",
+          label: "test",
+          depth: 0,
+          isZip: false,
+          entry: {
+            parts: ["test"],
+            path: "/test",
+            metadata: { hasImages: false, hasSubfolders: false, hasZips: false },
+          },
+          checked: true,
+          excluded: false,
+        },
+      ],
       selectedIds: new Set(["folder:/test"]),
     });
     await useStore.getState().processFolders();
@@ -510,7 +612,9 @@ describe("browse actions", () => {
   let dir: string;
 
   afterEach(() => {
-    if (dir) {rmSync(dir, { recursive: true, force: true });}
+    if (dir) {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it("toggleChangeDir sets browseDir and loads browseItems", async () => {

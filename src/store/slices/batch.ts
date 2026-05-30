@@ -1,18 +1,16 @@
-import { basename } from "path";
-
+import { ID_PREFIXES } from "@store/constants";
+import type { AppState, ProcessingMode, ProgressItem } from "@store/types";
+import { clampParallelism, loadConfig } from "@utils/config";
 import type { EpubResult } from "@utils/epub";
 import { createEpubFromFolder } from "@utils/epub";
 import { t } from "@utils/i18n";
 import { padImageFilenames } from "@utils/pad";
-import { unzipFile } from "@utils/zip";
-import { clampParallelism, loadConfig } from "@utils/config";
 import { runWorkerPool, type WorkerPoolResult } from "@utils/worker-pool";
+import { unzipFile } from "@utils/zip";
+import { basename } from "path";
+import type { StateCreator } from "zustand";
 
 import { getFoldersToProcess } from "./selection";
-
-import type { StateCreator } from "zustand";
-import type { AppState, ProcessingMode, ProgressItem } from "@store/types";
-import { ID_PREFIXES } from "@store/constants";
 
 function createProgressItems(targets: string[]): ProgressItem[] {
   return targets.map((p) => ({
@@ -25,43 +23,44 @@ function createProgressItems(targets: string[]): ProgressItem[] {
 }
 
 function markProcessing(items: ProgressItem[], idx: number): ProgressItem[] {
-  return items.map((p, i) =>
-    i === idx ? { ...p, status: "processing" as const } : p,
-  );
+  return items.map((p, i) => (i === idx ? { ...p, status: "processing" as const } : p));
 }
 
-function markProgress(items: ProgressItem[], idx: number, done: number, total: number): ProgressItem[] {
-  return items.map((p, i) =>
-    i === idx ? { ...p, pagesCompleted: done, pagesTotal: total } : p,
-  );
+function markProgress(
+  items: ProgressItem[],
+  idx: number,
+  done: number,
+  total: number,
+): ProgressItem[] {
+  return items.map((p, i) => (i === idx ? { ...p, pagesCompleted: done, pagesTotal: total } : p));
 }
 
-function markDone(items: ProgressItem[], idx: number, pagesCompleted: number, pagesTotal: number, message?: string): ProgressItem[] {
+function markDone(
+  items: ProgressItem[],
+  idx: number,
+  pagesCompleted: number,
+  pagesTotal: number,
+  message?: string,
+): ProgressItem[] {
   return items.map((p, i) =>
-    i === idx
-      ? { ...p, status: "done" as const, pagesCompleted, pagesTotal, message }
-      : p,
+    i === idx ? { ...p, status: "done" as const, pagesCompleted, pagesTotal, message } : p,
   );
 }
 
 function markError(items: ProgressItem[], idx: number, message: string): ProgressItem[] {
-  return items.map((p, i) =>
-    i === idx ? { ...p, status: "error" as const, message } : p,
-  );
+  return items.map((p, i) => (i === idx ? { ...p, status: "error" as const, message } : p));
 }
 
-function computeSummary(
-  startTime: number,
-  endTime: number,
-  poolResult: WorkerPoolResult,
-) {
+function computeSummary(startTime: number, endTime: number, poolResult: WorkerPoolResult) {
   const elapsed = ((endTime - startTime) / 1000).toFixed(1);
   return {
     isProcessing: false,
     batchEndTime: endTime,
     status: {
       type: "done" as const,
-      message: t("batch.done", { success: poolResult.successCount, failed: poolResult.failCount }) + ` (${elapsed}s)`,
+      message:
+        t("batch.done", { success: poolResult.successCount, failed: poolResult.failCount }) +
+        ` (${elapsed}s)`,
     },
     showSummary: true,
     summary: {
@@ -119,12 +118,23 @@ export const createBatchSlice: StateCreator<
     const wrappedProcessor = async (folder: string, _folderName: string) => {
       const idx = idxMap.get(folder)!;
       set((state) => ({ progressItems: markProcessing(state.progressItems, idx) }));
-      const result = await createEpubFromFolder(folder, undefined, get().outputFormat, (done, total) => {
-        set((state) => ({ progressItems: markProgress(state.progressItems, idx, done, total) }));
-      });
+      const result = await createEpubFromFolder(
+        folder,
+        undefined,
+        get().outputFormat,
+        (done, total) => {
+          set((state) => ({ progressItems: markProgress(state.progressItems, idx, done, total) }));
+        },
+      );
       if (result.success) {
         set((state) => ({
-          progressItems: markDone(state.progressItems, idx, result.pagesCompleted || 0, result.pagesTotal || 0, result.message),
+          progressItems: markDone(
+            state.progressItems,
+            idx,
+            result.pagesCompleted || 0,
+            result.pagesTotal || 0,
+            result.message,
+          ),
         }));
       } else {
         set((state) => ({ progressItems: markError(state.progressItems, idx, result.message) }));
@@ -141,7 +151,9 @@ export const createBatchSlice: StateCreator<
     const zips = Array.from(selectedIds)
       .filter((id) => id.startsWith(ID_PREFIXES.zip))
       .map((id) => id.slice(ID_PREFIXES.zip.length));
-    if (zips.length === 0) {return;}
+    if (zips.length === 0) {
+      return;
+    }
 
     const progressItems = createProgressItems(zips);
     const startTime = Date.now();
@@ -154,9 +166,11 @@ export const createBatchSlice: StateCreator<
     const wrappedProcessor = async (target: string, _folderName: string) => {
       const idx = zipIdxMap.get(target)!;
       set((state) => ({ progressItems: markProcessing(state.progressItems, idx) }));
-      const result = await unzipFile(target) as EpubResult;
+      const result = (await unzipFile(target)) as EpubResult;
       if (result.success) {
-        set((state) => ({ progressItems: markDone(state.progressItems, idx, 0, 0, result.message) }));
+        set((state) => ({
+          progressItems: markDone(state.progressItems, idx, 0, 0, result.message),
+        }));
       } else {
         set((state) => ({ progressItems: markError(state.progressItems, idx, result.message) }));
       }
@@ -173,7 +187,9 @@ export const createBatchSlice: StateCreator<
   padSelected: async () => {
     const { selectedIds, items } = get();
     const folders = getFoldersToProcess(selectedIds, items);
-    if (folders.length === 0) {return;}
+    if (folders.length === 0) {
+      return;
+    }
 
     const progressItems = createProgressItems(folders);
     const startTime = Date.now();
@@ -188,7 +204,9 @@ export const createBatchSlice: StateCreator<
       set((state) => ({ progressItems: markProcessing(state.progressItems, idx) }));
       const result = await padImageFilenames(target);
       if (result.success) {
-        set((state) => ({ progressItems: markDone(state.progressItems, idx, 0, 0, result.message) }));
+        set((state) => ({
+          progressItems: markDone(state.progressItems, idx, 0, 0, result.message),
+        }));
       } else {
         set((state) => ({ progressItems: markError(state.progressItems, idx, result.message) }));
       }

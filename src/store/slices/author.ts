@@ -1,6 +1,7 @@
-import type { StateCreator } from "zustand";
 import type { AppState } from "@store/types";
 import { batchSetAuthorWithProgress } from "@utils/fs";
+import type { StateCreator } from "zustand";
+
 import { getFoldersToProcess } from "./selection";
 
 export const createAuthorSlice: StateCreator<

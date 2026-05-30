@@ -1,7 +1,7 @@
-import { Component, type ErrorInfo, type ReactNode } from "react";
 import { createTextAttributes } from "@opentui/core";
 import { colors } from "@utils/colors";
 import { t } from "@utils/i18n";
+import { Component, type ErrorInfo, type ReactNode } from "react";
 
 const BOLD = createTextAttributes({ bold: true });
 

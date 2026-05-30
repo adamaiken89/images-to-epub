@@ -1,13 +1,10 @@
-import type { StateCreator } from "zustand";
-import { getSubfoldersWithImages } from "@utils/fs";
-import type { AppState, TreeItem } from "@store/types";
-import { t } from "@utils/i18n";
 import { ID_PREFIXES } from "@store/constants";
+import type { AppState, TreeItem } from "@store/types";
+import { getSubfoldersWithImages } from "@utils/fs";
+import { t } from "@utils/i18n";
+import type { StateCreator } from "zustand";
 
-export function getFoldersToProcess(
-  selectedSet: Set<string>,
-  items: TreeItem[]
-): string[] {
+export function getFoldersToProcess(selectedSet: Set<string>, items: TreeItem[]): string[] {
   const allFolderPaths = items
     .filter((i) => i.id.startsWith(ID_PREFIXES.folder))
     .map((i) => i.id.slice(ID_PREFIXES.folder.length));
@@ -17,17 +14,21 @@ export function getFoldersToProcess(
     return entry?.entry?.metadata.hasImages;
   });
 
-  const results = Array.from(selectedSet).flatMap(id => {
-    if (!id.startsWith(ID_PREFIXES.folder)) {return [];}
+  const results = Array.from(selectedSet).flatMap((id) => {
+    if (!id.startsWith(ID_PREFIXES.folder)) {
+      return [];
+    }
     const path = id.slice(ID_PREFIXES.folder.length);
     const item = items.find((i) => i.id === id);
-    if (!item?.entry) {return [];}
+    if (!item?.entry) {
+      return [];
+    }
     if (item.entry.metadata.hasImages) {
       return item.excluded ? [] : [path];
     }
     const subs = getSubfoldersWithImages(path, imageFolders);
-    return subs.filter(sub => {
-      const subItem = items.find(i => i.id === `${ID_PREFIXES.folder}${sub}`);
+    return subs.filter((sub) => {
+      const subItem = items.find((i) => i.id === `${ID_PREFIXES.folder}${sub}`);
       return !subItem?.excluded;
     });
   });
@@ -39,7 +40,9 @@ function collectDescendantIds(items: TreeItem[], parentIndex: number): string[] 
   const parentDepth = items[parentIndex].depth;
   const ids: string[] = [];
   for (let i = parentIndex + 1; i < items.length; i++) {
-    if (items[i].depth <= parentDepth) {break;}
+    if (items[i].depth <= parentDepth) {
+      break;
+    }
     ids.push(items[i].id);
   }
   return ids;
@@ -49,7 +52,9 @@ function hasCheckedAncestor(items: TreeItem[], targetId: string, targetDepth: nu
   let checked = false;
   let checkDepth = -1;
   for (const it of items) {
-    if (it.id === targetId) {break;}
+    if (it.id === targetId) {
+      break;
+    }
     if (it.depth <= checkDepth) {
       checked = false;
       checkDepth = -1;
@@ -66,7 +71,10 @@ export const createSelectionSlice: StateCreator<
   AppState,
   [],
   [],
-  Pick<AppState, "items" | "selectedIds" | "focusIndex" | "toggleItem" | "selectAll" | "deselectAll">
+  Pick<
+    AppState,
+    "items" | "selectedIds" | "focusIndex" | "toggleItem" | "selectAll" | "deselectAll"
+  >
 > = (set, get, _store) => ({
   items: [],
   selectedIds: new Set(),
@@ -74,7 +82,9 @@ export const createSelectionSlice: StateCreator<
 
   toggleItem: (index: number) => {
     const { items, selectedIds } = get();
-    if (index < 0 || index >= items.length) {return;}
+    if (index < 0 || index >= items.length) {
+      return;
+    }
     const item = items[index];
 
     const branch = item.checked ? "checked" : item.excluded ? "excluded" : "default";
@@ -90,8 +100,12 @@ export const createSelectionSlice: StateCreator<
         return {
           newSelected,
           newItems: items.map((it, i) => {
-            if (i === index) { return { ...it, checked: false, excluded: false }; }
-            if (descendantSet.has(it.id)) { return { ...it, excluded: false }; }
+            if (i === index) {
+              return { ...it, checked: false, excluded: false };
+            }
+            if (descendantSet.has(it.id)) {
+              return { ...it, excluded: false };
+            }
             return it;
           }),
         };
@@ -101,9 +115,7 @@ export const createSelectionSlice: StateCreator<
         newSelected.delete(item.id);
         return {
           newSelected,
-          newItems: items.map((it, i) =>
-            i === index ? { ...it, excluded: false } : it,
-          ),
+          newItems: items.map((it, i) => (i === index ? { ...it, excluded: false } : it)),
         };
       },
       default: () => {
@@ -114,9 +126,7 @@ export const createSelectionSlice: StateCreator<
         return {
           newSelected,
           newItems: items.map((it, i) =>
-            i === index
-              ? { ...it, [ancestorChecked ? "excluded" : "checked"]: true }
-              : it,
+            i === index ? { ...it, [ancestorChecked ? "excluded" : "checked"]: true } : it,
           ),
         };
       },

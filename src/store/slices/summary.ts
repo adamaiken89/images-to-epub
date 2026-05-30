@@ -1,5 +1,5 @@
-import type { StateCreator } from "zustand";
 import type { AppState } from "@store/types";
+import type { StateCreator } from "zustand";
 
 export const createSummarySlice: StateCreator<
   AppState,

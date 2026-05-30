@@ -1,6 +1,6 @@
-import type { StateCreator } from "zustand";
 import type { AppState } from "@store/types";
 import { getSubdirsWithMetadata } from "@utils/fs";
+import type { StateCreator } from "zustand";
 
 export const createNavigationSlice: StateCreator<
   AppState,
@@ -44,7 +44,9 @@ export const createNavigationSlice: StateCreator<
 
   browserConfirm: async () => {
     const { browser } = get();
-    if (!browser.dir) {return;}
+    if (!browser.dir) {
+      return;
+    }
     set({ changeDirMode: false, browser: { dir: "", cursor: 0, items: [] } });
     set({ baseDir: browser.dir });
     try {
@@ -96,7 +98,9 @@ export const createNavigationSlice: StateCreator<
 
   refresh: async () => {
     const { baseDir } = get();
-    if (!baseDir) {return;}
+    if (!baseDir) {
+      return;
+    }
     try {
       await get().loadFolders(baseDir);
     } catch {

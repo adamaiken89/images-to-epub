@@ -1,8 +1,8 @@
-import { readdir, stat, rename } from "fs/promises";
-import { basename, join, relative, normalize, dirname, sep } from "path";
+import { readdir, rename, stat } from "fs/promises";
 import { homedir } from "os";
+import { basename, dirname, join, normalize, relative, sep } from "path";
 
-export const VALID_IMAGE_EXTS = new Set([".webp", ".jpg", ".jpeg", ".png"]);
+const VALID_IMAGE_EXTS = new Set([".webp", ".jpg", ".jpeg", ".png"]);
 
 export interface FolderMetadata {
   hasImages: boolean;
@@ -17,7 +17,7 @@ export interface FolderEntry {
 }
 
 export async function findFoldersWithImages(
-  baseDir: string
+  baseDir: string,
 ): Promise<{ foldersWithImages: string[]; allFolders: Map<string, FolderMetadata> }> {
   const foldersWithImages: string[] = [];
   const allFolders = new Map<string, FolderMetadata>();
@@ -38,8 +38,12 @@ export async function findFoldersWithImages(
 
     try {
       const entries = await readdir(dir, { withFileTypes: true });
-      hasImages = entries.some(e => e.isFile() && VALID_IMAGE_EXTS.has(e.name.toLowerCase().slice(e.name.toLowerCase().lastIndexOf("."))));
-      hasZips = entries.some(e => e.isFile() && e.name.toLowerCase().endsWith(".zip"));
+      hasImages = entries.some(
+        (e) =>
+          e.isFile() &&
+          VALID_IMAGE_EXTS.has(e.name.toLowerCase().slice(e.name.toLowerCase().lastIndexOf("."))),
+      );
+      hasZips = entries.some((e) => e.isFile() && e.name.toLowerCase().endsWith(".zip"));
     } catch {
       // permission denied or error reading
     }
@@ -66,22 +70,30 @@ export async function findFoldersWithImages(
 
   const contentFolders = new Set<string>();
   for (const [path, meta] of allFolders) {
-    if (meta.hasImages || meta.hasZips) {contentFolders.add(path);}
+    if (meta.hasImages || meta.hasZips) {
+      contentFolders.add(path);
+    }
   }
 
   for (const folderPath of contentFolders) {
     let parent = dirname(folderPath);
     while (parent && parent.length >= baseDir.length) {
-      if (!parent.startsWith(baseDir)) {break;}
+      if (!parent.startsWith(baseDir)) {
+        break;
+      }
       const meta = allFolders.get(parent);
       if (meta) {
         meta.hasSubfolders = true;
       } else {
         allFolders.set(parent, { hasImages: false, hasSubfolders: true, hasZips: false });
       }
-      if (parent === baseDir) {break;}
+      if (parent === baseDir) {
+        break;
+      }
       const next = dirname(parent);
-      if (next === parent) {break;}
+      if (next === parent) {
+        break;
+      }
       parent = next;
     }
   }
@@ -91,13 +103,15 @@ export async function findFoldersWithImages(
 
 export function organizeFoldersByHierarchy(
   allFolders: Map<string, FolderMetadata>,
-  baseDir: string
+  baseDir: string,
 ): Map<string, FolderEntry> {
   const result = new Map<string, FolderEntry>();
   for (const [folderPath, metadata] of allFolders) {
     if (metadata.hasImages || metadata.hasSubfolders || metadata.hasZips) {
       const relPath = relative(baseDir, folderPath);
-      if (relPath === "") {continue;} // Skip the base dir itself
+      if (relPath === "") {
+        continue;
+      } // Skip the base dir itself
       const parts = relPath.split(sep);
       result.set(relPath, { parts, path: folderPath, metadata });
     }
@@ -107,7 +121,9 @@ export function organizeFoldersByHierarchy(
 
 export async function findZipFiles(baseDir: string): Promise<string[]> {
   const zipFiles: string[] = [];
-  if (!baseDir) {return zipFiles;}
+  if (!baseDir) {
+    return zipFiles;
+  }
 
   try {
     await stat(baseDir);
@@ -134,29 +150,12 @@ export async function findZipFiles(baseDir: string): Promise<string[]> {
   return zipFiles.sort();
 }
 
-export function getSubfoldersWithImages(
-  folderPath: string,
-  foldersWithImages: string[]
-): string[] {
+export function getSubfoldersWithImages(folderPath: string, foldersWithImages: string[]): string[] {
   const folderPathNorm = normalize(folderPath);
   return foldersWithImages.filter((imgFolder) => {
     const imgFolderNorm = normalize(imgFolder);
-    return (
-      imgFolderNorm !== folderPathNorm && imgFolderNorm.startsWith(folderPathNorm + sep)
-    );
+    return imgFolderNorm !== folderPathNorm && imgFolderNorm.startsWith(folderPathNorm + sep);
   });
-}
-
-export async function getSubdirs(dir: string): Promise<string[]> {
-  try {
-    const entries = await readdir(dir, { withFileTypes: true });
-    return entries
-      .filter((e) => e.isDirectory() && !e.name.startsWith("."))
-      .map((e) => e.name)
-      .sort();
-  } catch {
-    return [];
-  }
 }
 
 export interface SubdirInfo {
@@ -171,9 +170,13 @@ async function dirHasContent(dir: string, maxDepth: number): Promise<boolean> {
       const name = entry.name.toLowerCase();
       if (entry.isFile()) {
         const ext = name.slice(name.lastIndexOf("."));
-        if (VALID_IMAGE_EXTS.has(ext) || name.endsWith(".zip")) {return true;}
+        if (VALID_IMAGE_EXTS.has(ext) || name.endsWith(".zip")) {
+          return true;
+        }
       } else if (maxDepth > 1 && entry.isDirectory() && !name.startsWith(".")) {
-        if (await dirHasContent(join(dir, entry.name), maxDepth - 1)) {return true;}
+        if (await dirHasContent(join(dir, entry.name), maxDepth - 1)) {
+          return true;
+        }
       }
     }
   } catch {}
@@ -185,7 +188,9 @@ export async function getSubdirsWithMetadata(dir: string): Promise<SubdirInfo[]>
     const entries = await readdir(dir, { withFileTypes: true });
     const results: SubdirInfo[] = [];
     for (const entry of entries) {
-      if (!entry.isDirectory() || entry.name.startsWith(".")) {continue;}
+      if (!entry.isDirectory() || entry.name.startsWith(".")) {
+        continue;
+      }
       const hasContent = await dirHasContent(join(dir, entry.name), 3);
       results.push({ name: entry.name, hasContent });
     }
@@ -199,7 +204,10 @@ export async function findDefaultBaseDir(): Promise<string> {
   return join(homedir(), "Downloads");
 }
 
-export async function renameFolder(oldPath: string, newName: string): Promise<{ success: boolean; message: string }> {
+export async function renameFolder(
+  oldPath: string,
+  newName: string,
+): Promise<{ success: boolean; message: string }> {
   const parent = dirname(oldPath);
   const newPath = join(parent, newName);
   try {

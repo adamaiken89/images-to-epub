@@ -2,7 +2,7 @@
   "name": "images-to-epub",
   "version": "2.0.0",
   "description": "Convert folders of images to EPUB files using Bun + OpenTUI",
-  "module": "src/index.ts",
+  "module": "src/index.tsx",
   "type": "module",
   "scripts": {
     "start": "bun run src/index.tsx",
@@ -12,7 +12,11 @@
     "test:coverage": "bun test --coverage --coverage-reporter=lcov",
     "build": "bun build src/index.tsx --outdir dist --target bun",
     "lint": "tsc --noEmit && eslint src/ tests/",
-    "lint:eslint": "eslint src/ tests/"
+    "lint:eslint": "eslint src/ tests/",
+    "knip": "knip-bun",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"tests/**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"tests/**/*.{ts,tsx}\"",
+    "prepare": "husky"
   },
   "dependencies": {
     "@opentui/react": "^0.2.15",
@@ -31,8 +35,22 @@
     "@types/yauzl": "^2.10.0",
     "@wyattjoh/opentui-testing": "^1.0.1",
     "eslint": "^10.4.0",
+    "eslint-plugin-simple-import-sort": "^13.0.0",
+    "husky": "^9.1.7",
+    "knip": "^6.14.2",
+    "lint-staged": "^17.0.5",
+    "prettier": "^3.8.3",
     "typescript": "^5.8.0",
     "typescript-eslint": "^8.59.4"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.json": [
+      "prettier --write"
+    ]
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

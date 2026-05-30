@@ -1,6 +1,6 @@
-import type { StateCreator } from "zustand";
 import type { AppState } from "@store/types";
 import { renameFolder } from "@utils/fs";
+import type { StateCreator } from "zustand";
 
 export const createRenameSlice: StateCreator<
   AppState,
@@ -18,7 +18,9 @@ export const createRenameSlice: StateCreator<
     } else {
       const { items, focusIndex } = get();
       const item = items[focusIndex];
-      if (!item || item.isZip) {return;}
+      if (!item || item.isZip) {
+        return;
+      }
       set({ renameMode: true, renameTarget: item.entry?.path || null });
     }
   },

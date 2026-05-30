@@ -1,5 +1,6 @@
 // @ts-check
 import tseslint from "typescript-eslint";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -15,7 +16,12 @@ export default tseslint.config(
         project: false,
       },
     },
+    plugins: {
+      "simple-import-sort": simpleImportSort,
+    },
     rules: {
+      "simple-import-sort/imports": "error",
+      "simple-import-sort/exports": "error",
       complexity: ["error", 30],
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
       "@typescript-eslint/no-explicit-any": "error",

@@ -1,14 +1,14 @@
-import { describe, it, expect, afterEach } from "bun:test";
-import { mkdtempSync, mkdirSync, writeFileSync, readdirSync, rmdirSync, rmSync } from "fs";
-import { tmpdir } from "os";
-import { join, dirname } from "path";
 import {
+  findDefaultBaseDir,
   findFoldersWithImages,
-  organizeFoldersByHierarchy,
   findZipFiles,
   getSubfoldersWithImages,
-  findDefaultBaseDir,
+  organizeFoldersByHierarchy,
 } from "@utils/fs";
+import { afterEach, describe, expect, it } from "bun:test";
+import { mkdirSync, mkdtempSync, readdirSync, rmdirSync, rmSync, writeFileSync } from "fs";
+import { tmpdir } from "os";
+import { dirname, join } from "path";
 
 function createTestDir(structure: Record<string, string | null>): string {
   const base = mkdtempSync(join(tmpdir(), "epub-test-"));
@@ -40,7 +40,9 @@ describe("findFoldersWithImages", () => {
   let base: string;
 
   afterEach(() => {
-    if (base) {cleanup(base);}
+    if (base) {
+      cleanup(base);
+    }
   });
 
   it("returns empty for nonexistent directory", async () => {
@@ -97,7 +99,9 @@ describe("findFoldersWithImages", () => {
       "folder1/img.jpg": "",
     });
     const result = await findFoldersWithImages(base);
-    const folder1Meta = Array.from(result.allFolders.entries()).find(([p]) => p.endsWith("folder1"));
+    const folder1Meta = Array.from(result.allFolders.entries()).find(([p]) =>
+      p.endsWith("folder1"),
+    );
     expect(folder1Meta?.[1]).toEqual({
       hasImages: true,
       hasSubfolders: false,
@@ -114,10 +118,26 @@ describe("organizeFoldersByHierarchy", () => {
     ]);
     const result = organizeFoldersByHierarchy(allFolders, "/base");
 
-    expect(result).toEqual(new Map([
-      ["folder1", { parts: ["folder1"], path: "/base/folder1", metadata: { hasImages: true, hasSubfolders: false, hasZips: false } }],
-      ["folder2", { parts: ["folder2"], path: "/base/folder2", metadata: { hasImages: false, hasSubfolders: true, hasZips: false } }],
-    ]));
+    expect(result).toEqual(
+      new Map([
+        [
+          "folder1",
+          {
+            parts: ["folder1"],
+            path: "/base/folder1",
+            metadata: { hasImages: true, hasSubfolders: false, hasZips: false },
+          },
+        ],
+        [
+          "folder2",
+          {
+            parts: ["folder2"],
+            path: "/base/folder2",
+            metadata: { hasImages: false, hasSubfolders: true, hasZips: false },
+          },
+        ],
+      ]),
+    );
   });
 });
 
@@ -125,7 +145,9 @@ describe("findZipFiles", () => {
   let base: string;
 
   afterEach(() => {
-    if (base) {cleanup(base);}
+    if (base) {
+      cleanup(base);
+    }
   });
 
   it("finds zip files recursively", async () => {
@@ -136,10 +158,7 @@ describe("findZipFiles", () => {
     });
     const zips = await findZipFiles(base);
     expect(zips).toEqual(
-      expect.arrayContaining([
-        expect.stringMatching(/a\.zip$/),
-        expect.stringMatching(/b\.zip$/),
-      ]),
+      expect.arrayContaining([expect.stringMatching(/a\.zip$/), expect.stringMatching(/b\.zip$/)]),
     );
     expect(zips).toHaveLength(2);
   });
@@ -173,7 +192,9 @@ describe("batchSetAuthor", () => {
   let base: string;
 
   afterEach(() => {
-    if (base) {cleanup(base);}
+    if (base) {
+      cleanup(base);
+    }
   });
 
   it("appends ### author to folder names", async () => {
@@ -182,7 +203,10 @@ describe("batchSetAuthor", () => {
       "manga1/pic.webp": "",
       "manga2/pic.jpg": "",
     });
-    const result = await batchSetAuthor([join(base, "manga1"), join(base, "manga2")], "Test Author");
+    const result = await batchSetAuthor(
+      [join(base, "manga1"), join(base, "manga2")],
+      "Test Author",
+    );
     expect(result).toHaveLength(2);
     expect(result[0].success).toBe(true);
     expect(result[1].success).toBe(true);

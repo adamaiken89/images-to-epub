@@ -1,16 +1,17 @@
+import { saveConfig } from "@utils/config";
 import { create } from "zustand";
-import type { AppState } from "./types";
-import { createScanSlice } from "./slices/scan";
-import { createSelectionSlice } from "./slices/selection";
+
+import { createAuthorSlice } from "./slices/author";
 import { createBatchSlice } from "./slices/batch";
 import { createNavigationSlice } from "./slices/navigation";
 import { createRenameSlice } from "./slices/rename";
-import { createAuthorSlice } from "./slices/author";
-import { createSummarySlice } from "./slices/summary";
+import { createScanSlice } from "./slices/scan";
+import { createSelectionSlice } from "./slices/selection";
 import { getFoldersToProcess } from "./slices/selection";
-import { saveConfig } from "@utils/config";
+import { createSummarySlice } from "./slices/summary";
+import type { AppState } from "./types";
 
-export type { AppState, TreeItem, StatusMessage, ProgressItem } from "./types";
+export type { AppState, TreeItem } from "./types";
 export { getFoldersToProcess };
 
 export const useStore = create<AppState>()((set, get, api) => ({

@@ -82,8 +82,11 @@ Current state allocation:
 | `bun test:coverage` | Coverage report (lcov) |
 | `bun run lint` | Typecheck + ESLint |
 | `bun run lint:eslint` | ESLint only |
+| `bun run knip` | Dead code analysis |
+| `bun run format` | Format code with Prettier |
+| `bun run format:check` | Check formatting |
 
-Run `lint -> test` before committing (`lint` runs `tsc --noEmit && eslint src/ tests/`). Coverage threshold: project-wide ≥90% (configured in `bunfig.toml`).
+Pre-commit hook runs `lint-staged` (ESLint --fix + Prettier --write on staged files). Coverage threshold: project-wide ≥90% (configured in `bunfig.toml`).
 
 ## Zustand patterns
 
@@ -164,3 +167,7 @@ All modals/prompts are inline panels that sit between Header and TreeView (never
 
 - Use `context7` MCP tools for documentation lookups (configured in `opencode.json`)
 - `opencode-yaml-hooks` plugin fires `scripts/session-end.sh` on `session.deleted`:
+- Pre-commit: `husky` → `lint-staged` runs ESLint --fix + Prettier --write on staged `*.{ts,tsx,json}` files
+- `knip` (via `knip-bun`): dead code analysis; run `bun run knip` and address unused exports/types
+- `prettier` with `.prettierrc` for consistent formatting; `bun run format` to apply
+- `eslint-plugin-simple-import-sort` enforces import/export ordering; auto-fixable with `--fix`

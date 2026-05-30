@@ -1,18 +1,19 @@
-import { useEffect } from "react";
 import { useKeyboard, useRenderer } from "@opentui/react";
-import { useStore } from "./store";
-import { handleKey } from "./store/handlers/keymap";
+import { useEffect } from "react";
+
+import { AuthorPrompt } from "./components/AuthorPrompt";
+import { ChangeDirPrompt } from "./components/ChangeDirPrompt";
+import { ConfigModal } from "./components/ConfigModal";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Header } from "./components/Header";
 import { HelpModal } from "./components/HelpModal";
-import { ConfigModal } from "./components/ConfigModal";
-import { ChangeDirPrompt } from "./components/ChangeDirPrompt";
-import { RenamePrompt } from "./components/RenamePrompt";
-import { AuthorPrompt } from "./components/AuthorPrompt";
-import { TreeView } from "./components/TreeView";
 import { InfoMessage } from "./components/InfoMessage";
 import { ProgressDashboard } from "./components/ProgressDashboard";
+import { RenamePrompt } from "./components/RenamePrompt";
 import { SummaryModal } from "./components/SummaryModal";
-import { ErrorBoundary } from "./components/ErrorBoundary";
+import { TreeView } from "./components/TreeView";
+import { useStore } from "./store";
+import { handleKey } from "./store/handlers/keymap";
 
 export default function App() {
   const renderer = useRenderer();
@@ -28,13 +29,15 @@ export default function App() {
     (key) => {
       handleKey(key, { renderer, getState: useStore.getState, setState: useStore.setState });
     },
-    { release: false }
+    { release: false },
   );
 
   return (
     <box flexDirection="column" height="100%" padding={1}>
       <ErrorBoundary>
-        <box flexShrink={0}><Header /></box>
+        <box flexShrink={0}>
+          <Header />
+        </box>
         <ChangeDirPrompt />
         <RenamePrompt />
         <AuthorPrompt />
@@ -43,7 +46,9 @@ export default function App() {
         <SummaryModal />
         {isProcessing ? <ProgressDashboard /> : null}
         {showModal ? null : <TreeView />}
-        <box flexShrink={0}><InfoMessage /></box>
+        <box flexShrink={0}>
+          <InfoMessage />
+        </box>
       </ErrorBoundary>
     </box>
   );

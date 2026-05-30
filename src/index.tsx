@@ -1,7 +1,8 @@
 import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
-import { parseArgs, loadConfig, writeDefaultConfig } from "@utils/config";
 import { useStore } from "@store";
+import { loadConfig, parseArgs, writeDefaultConfig } from "@utils/config";
+
 import App from "./app";
 
 async function main() {

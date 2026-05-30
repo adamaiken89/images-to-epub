@@ -1,8 +1,8 @@
-import { describe, it, expect, afterEach } from "bun:test";
-import { mkdtempSync, writeFileSync, readdirSync, rmSync } from "fs";
+import { extractNumericPrefix, padImageFilenames } from "@utils/pad";
+import { afterEach, describe, expect, it } from "bun:test";
+import { mkdtempSync, readdirSync, rmSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
-import { extractNumericPrefix, padImageFilenames } from "@utils/pad";
 
 function createTestDir(files: string[]): string {
   const base = mkdtempSync(join(tmpdir(), "pad-test-"));
@@ -34,7 +34,9 @@ describe("padImageFilenames", () => {
   let base: string;
 
   afterEach(() => {
-    if (base) {cleanup(base);}
+    if (base) {
+      cleanup(base);
+    }
   });
 
   it("pads numeric prefixes to uniform width", async () => {

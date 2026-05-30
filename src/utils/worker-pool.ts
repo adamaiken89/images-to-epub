@@ -1,5 +1,5 @@
-import { basename } from "path";
 import type { EpubResult } from "@utils/epub";
+import { basename } from "path";
 
 export interface WorkerPoolResult {
   results: string[];

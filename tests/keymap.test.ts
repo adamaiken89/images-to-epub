@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach } from "bun:test";
-import { useStore } from "@store";
-import { handleKey } from "@store/handlers/keymap";
-import type { KeyHandlerContext } from "@store/handlers/keymap";
 import type { KeyEvent } from "@opentui/core";
 import type { CliRenderer } from "@opentui/core";
+import { useStore } from "@store";
+import type { KeyHandlerContext } from "@store/handlers/keymap";
+import { handleKey } from "@store/handlers/keymap";
+import { beforeEach, describe, expect, it } from "bun:test";
 
 function key(name: string): KeyEvent {
   return { name } as KeyEvent;
@@ -151,7 +151,9 @@ describe("handleKey", () => {
   });
 
   it("a deselects all when all already selected", () => {
-    useStore.setState({ selectedIds: new Set(["folder:/test/books/manga1", "folder:/test/books/manga2"]) });
+    useStore.setState({
+      selectedIds: new Set(["folder:/test/books/manga1", "folder:/test/books/manga2"]),
+    });
     handleKey(key("a"), ctx());
     expect(useStore.getState().selectedIds.size).toBe(0);
   });
@@ -255,13 +257,33 @@ describe("handleKey", () => {
   });
 
   it("changeDirMode handles down arrow", () => {
-    useStore.setState({ changeDirMode: true, browser: { dir: "", cursor: 0, items: [{ name: "a", hasContent: true }, { name: "b", hasContent: false }] } });
+    useStore.setState({
+      changeDirMode: true,
+      browser: {
+        dir: "",
+        cursor: 0,
+        items: [
+          { name: "a", hasContent: true },
+          { name: "b", hasContent: false },
+        ],
+      },
+    });
     handleKey(key("down"), ctx());
     expect(useStore.getState().browser.cursor).toBe(1);
   });
 
   it("changeDirMode down arrow does not exceed items length", () => {
-    useStore.setState({ changeDirMode: true, browser: { dir: "", cursor: 2, items: [{ name: "a", hasContent: true }, { name: "b", hasContent: false }] } });
+    useStore.setState({
+      changeDirMode: true,
+      browser: {
+        dir: "",
+        cursor: 2,
+        items: [
+          { name: "a", hasContent: true },
+          { name: "b", hasContent: false },
+        ],
+      },
+    });
     handleKey(key("down"), ctx());
     expect(useStore.getState().browser.cursor).toBe(2);
   });
@@ -270,17 +292,28 @@ describe("handleKey", () => {
     useStore.setState({ changeDirMode: true, browser: { dir: "", cursor: 0, items: [] } });
     const orig = useStore.getState().browserConfirm;
     let called = false;
-    useStore.setState({ browserConfirm: async () => { called = true; } });
+    useStore.setState({
+      browserConfirm: async () => {
+        called = true;
+      },
+    });
     handleKey(key("return"), ctx());
     expect(called).toBe(true);
     useStore.setState({ browserConfirm: orig });
   });
 
   it("changeDirMode enter at cursor >0 calls browserSetDir with subdir name", () => {
-    useStore.setState({ changeDirMode: true, browser: { dir: "/base", cursor: 1, items: [{ name: "sub1", hasContent: true }] } });
+    useStore.setState({
+      changeDirMode: true,
+      browser: { dir: "/base", cursor: 1, items: [{ name: "sub1", hasContent: true }] },
+    });
     const orig = useStore.getState().browserSetDir;
     let calledWith = "";
-    useStore.setState({ browserSetDir: (async (dir: string) => { calledWith = dir; }) as typeof orig });
+    useStore.setState({
+      browserSetDir: (async (dir: string) => {
+        calledWith = dir;
+      }) as typeof orig,
+    });
     handleKey(key("return"), ctx());
     expect(calledWith).toBe("/base/sub1");
     useStore.setState({ browserSetDir: orig });
@@ -290,7 +323,11 @@ describe("handleKey", () => {
     useStore.setState({ changeDirMode: true, browser: { dir: "/base/sub", cursor: 1, items: [] } });
     const orig = useStore.getState().browserSetDir;
     let calledWith = "";
-    useStore.setState({ browserSetDir: (async (dir: string) => { calledWith = dir; }) as typeof orig });
+    useStore.setState({
+      browserSetDir: (async (dir: string) => {
+        calledWith = dir;
+      }) as typeof orig,
+    });
     handleKey(key("backspace"), ctx());
     expect(calledWith).toBe("/base");
     useStore.setState({ browserSetDir: orig });
@@ -300,7 +337,11 @@ describe("handleKey", () => {
     useStore.setState({ changeDirMode: true, browser: { dir: "/", cursor: 1, items: [] } });
     const orig = useStore.getState().browserSetDir;
     let called = false;
-    useStore.setState({ browserSetDir: (async () => { called = true; }) as typeof orig });
+    useStore.setState({
+      browserSetDir: (async () => {
+        called = true;
+      }) as typeof orig,
+    });
     handleKey(key("backspace"), ctx());
     expect(called).toBe(false);
     useStore.setState({ browserSetDir: orig });

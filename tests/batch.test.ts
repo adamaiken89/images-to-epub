@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach } from "bun:test";
-import { mkdtempSync, writeFileSync, rmSync } from "fs";
+import { useStore } from "@store";
+import { beforeEach, describe, expect, it } from "bun:test";
+import { mkdtempSync, rmSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
-import { useStore } from "@store";
 
 describe("batch processing", () => {
   beforeEach(() => {
@@ -26,7 +26,11 @@ describe("batch processing", () => {
             label: "test-folder",
             depth: 0,
             isZip: false,
-            entry: { parts: ["test-folder"], path: dir, metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
+            entry: {
+              parts: ["test-folder"],
+              path: dir,
+              metadata: { hasImages: true, hasSubfolders: false, hasZips: false },
+            },
             checked: true,
             excluded: false,
           },
@@ -50,7 +54,9 @@ describe("batch processing", () => {
     const dir = mkdtempSync(join(tmpdir(), "batch-ok-"));
     try {
       const sharp = (await import("sharp")).default;
-      await sharp({ create: { width: 1, height: 1, channels: 3, background: { r: 255, g: 0, b: 0 } } })
+      await sharp({
+        create: { width: 1, height: 1, channels: 3, background: { r: 255, g: 0, b: 0 } },
+      })
         .webp()
         .toFile(join(dir, "001.webp"));
 
@@ -61,7 +67,11 @@ describe("batch processing", () => {
             label: "test-folder",
             depth: 0,
             isZip: false,
-            entry: { parts: ["test-folder"], path: dir, metadata: { hasImages: true, hasSubfolders: false, hasZips: false } },
+            entry: {
+              parts: ["test-folder"],
+              path: dir,
+              metadata: { hasImages: true, hasSubfolders: false, hasZips: false },
+            },
             checked: true,
             excluded: false,
           },

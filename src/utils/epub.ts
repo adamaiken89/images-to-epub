@@ -1,8 +1,8 @@
 import { mkdir, readdir, writeFile } from "fs/promises";
-import { join, basename, extname } from "path";
-import { homedir } from "os";
-import sharp from "sharp";
 import JSZip from "jszip";
+import { homedir } from "os";
+import { basename, extname, join } from "path";
+import sharp from "sharp";
 import { v4 as uuidv4 } from "uuid";
 
 const VALID_IMAGE_EXTS = new Set([".webp", ".jpg", ".jpeg", ".png"]);
@@ -29,11 +29,7 @@ async function convertToJpeg(imagePath: string): Promise<Buffer> {
   return sharp(imagePath).jpeg({ quality: 90 }).toBuffer();
 }
 
-function buildManifestItems(
-  pageIds: string[],
-  imgIds: string[],
-  imgFileNames: string[],
-): string[] {
+function buildManifestItems(pageIds: string[], imgIds: string[], imgFileNames: string[]): string[] {
   return pageIds.flatMap((_, i) => [
     `<item id="${imgIds[i]}" href="images/${imgFileNames[i]}" media-type="image/jpeg"/>`,
     `<item id="${pageIds[i]}" href="${pageIds[i]}.xhtml" media-type="application/xhtml+xml"/>`,
@@ -73,11 +69,7 @@ function buildContentOpf(ctx: {
 </package>`;
 }
 
-function buildTocNcx(
-  bookId: string,
-  title: string,
-  pageIds: string[],
-): string {
+function buildTocNcx(bookId: string, title: string, pageIds: string[]): string {
   const navPoints = pageIds
     .map(
       (id, i) =>
@@ -212,7 +204,9 @@ async function readAndConvertImages(
     try {
       imgData = await convertToJpeg(imgPath);
       pagesCompleted++;
-      if (onPage) { onPage(pagesCompleted, imgFiles.length); }
+      if (onPage) {
+        onPage(pagesCompleted, imgFiles.length);
+      }
     } catch (err) {
       errors.push(`${imgName}: ${(err as Error).message}`);
       continue;
@@ -238,7 +232,15 @@ async function readAndConvertImages(
     zip.file("OEBPS/images/cover.jpg", coverData);
   }
 
-  return { imgIds, imgFileNames, pageIds, coverData, pagesCompleted, errors, totalFiles: imgFiles.length };
+  return {
+    imgIds,
+    imgFileNames,
+    pageIds,
+    coverData,
+    pagesCompleted,
+    errors,
+    totalFiles: imgFiles.length,
+  };
 }
 
 async function writeEpubOutput(ctx: {
@@ -258,17 +260,26 @@ async function writeEpubOutput(ctx: {
   const outputEpub = join(outputDir, `${cleanName}${ext}`);
 
   if (images.errors.length === images.totalFiles) {
-    return { success: false, message: `All images failed in: ${folderName}`, pagesTotal: images.totalFiles, pagesCompleted: 0 };
+    return {
+      success: false,
+      message: `All images failed in: ${folderName}`,
+      pagesTotal: images.totalFiles,
+      pagesCompleted: 0,
+    };
   }
 
   const manifestItems: string[] = [];
   manifestItems.push(`<item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>`);
   if (images.coverData) {
-    manifestItems.push(`<item id="cover-image" href="images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>`);
+    manifestItems.push(
+      `<item id="cover-image" href="images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>`,
+    );
   }
   manifestItems.push(...buildManifestItems(images.pageIds, images.imgIds, images.imgFileNames));
   manifestItems.push(`<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>`);
-  manifestItems.push(`<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>`);
+  manifestItems.push(
+    `<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>`,
+  );
 
   const spineItems: string[] = [];
   spineItems.push(`<itemref idref="cover"/>`);
@@ -281,12 +292,24 @@ async function writeEpubOutput(ctx: {
 
   const includeKobo = format === "kepub" || format === "both";
   const koboMeta = includeKobo ? `    <meta name="kobo" content="kobonick"/>\n` : "";
-  zip.file("OEBPS/content.opf", buildContentOpf({ bookId: meta.bookId, title, author: meta.author, lang: meta.lang, manifestItems, spineItems, koboMeta }));
+  zip.file(
+    "OEBPS/content.opf",
+    buildContentOpf({
+      bookId: meta.bookId,
+      title,
+      author: meta.author,
+      lang: meta.lang,
+      manifestItems,
+      spineItems,
+      koboMeta,
+    }),
+  );
 
   const buffer = await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" });
   await mkdir(outputDir, { recursive: true });
 
-  const errorSuffix = images.errors.length > 0 ? ` (${images.errors.length} corrupt images skipped)` : "";
+  const errorSuffix =
+    images.errors.length > 0 ? ` (${images.errors.length} corrupt images skipped)` : "";
   const pagesCompleted = images.totalFiles - images.errors.length;
 
   if (format === "both") {
@@ -336,13 +359,28 @@ export async function createEpubFromFolder(
   } catch (err) {
     const msg = (err as Error).message;
     if (msg.includes("permission")) {
-      return { success: false, message: `Permission denied: ${imgDir}`, pagesTotal: 0, pagesCompleted: 0 };
+      return {
+        success: false,
+        message: `Permission denied: ${imgDir}`,
+        pagesTotal: 0,
+        pagesCompleted: 0,
+      };
     }
-    return { success: false, message: `Error reading folder: ${msg}`, pagesTotal: 0, pagesCompleted: 0 };
+    return {
+      success: false,
+      message: `Error reading folder: ${msg}`,
+      pagesTotal: 0,
+      pagesCompleted: 0,
+    };
   }
 
   if (imgFiles.length === 0) {
-    return { success: false, message: `No images found in: ${folderName}`, pagesTotal: 0, pagesCompleted: 0 };
+    return {
+      success: false,
+      message: `No images found in: ${folderName}`,
+      pagesTotal: 0,
+      pagesCompleted: 0,
+    };
   }
 
   try {
@@ -378,6 +416,11 @@ export async function createEpubFromFolder(
       outputDir,
     });
   } catch (err) {
-    return { success: false, message: `Error creating EPUB: ${(err as Error).message}`, pagesTotal: 0, pagesCompleted: 0 };
+    return {
+      success: false,
+      message: `Error creating EPUB: ${(err as Error).message}`,
+      pagesTotal: 0,
+      pagesCompleted: 0,
+    };
   }
 }

@@ -1,15 +1,15 @@
-import { describe, it, expect, beforeEach, afterEach } from "bun:test";
-import { render as renderWithCleanup } from "@wyattjoh/opentui-testing";
-import { Header } from "@components/Header";
-import { InfoMessage } from "@components/InfoMessage";
-import { HelpModal } from "@components/HelpModal";
-import { ErrorBoundary } from "@components/ErrorBoundary";
 import { ChangeDirPrompt } from "@components/ChangeDirPrompt";
+import { ErrorBoundary } from "@components/ErrorBoundary";
+import { Header } from "@components/Header";
+import { HelpModal } from "@components/HelpModal";
+import { InfoMessage } from "@components/InfoMessage";
 import { RenamePrompt } from "@components/RenamePrompt";
+import { handleRenameSubmit, makeOnSubmit } from "@components/RenamePrompt";
 import { TreeView } from "@components/TreeView";
 import { useStore } from "@store";
+import { render as renderWithCleanup } from "@wyattjoh/opentui-testing";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import type { ReactNode } from "react";
-import { handleRenameSubmit, makeOnSubmit } from "@components/RenamePrompt";
 
 const cleanupQueue: Array<{ cleanup: () => Promise<void> }> = [];
 
@@ -72,7 +72,11 @@ afterEach(async () => {
 
 describe("element rendering", () => {
   it("renders a box with text", async () => {
-    const frame = await render(<box><text>Hello World</text></box>);
+    const frame = await render(
+      <box>
+        <text>Hello World</text>
+      </box>,
+    );
     expect(frame).toContain("Hello World");
   });
 
@@ -81,20 +85,26 @@ describe("element rendering", () => {
       <box flexDirection="column">
         <text>Line One</text>
         <text>Line Two</text>
-      </box>
+      </box>,
     );
     expect(frame).toContain("Line One");
     expect(frame).toContain("Line Two");
   });
 
   it("renders text with underline", async () => {
-    const frame = await render(<text><u>/some/path</u></text>);
+    const frame = await render(
+      <text>
+        <u>/some/path</u>
+      </text>,
+    );
     expect(frame).toContain("/some/path");
   });
 
   it("renders text with colored spans", async () => {
     const frame = await render(
-      <text>Found <span fg="#ffcc00">3</span> folder(s)</text>
+      <text>
+        Found <span fg="#ffcc00">3</span> folder(s)
+      </text>,
     );
     expect(frame).toContain("Found 3 folder(s)");
   });
@@ -145,7 +155,6 @@ describe("InfoMessage", () => {
     expect(frame).toContain("[h]");
     expect(frame).toContain("hide");
   });
-
 });
 
 // ── HelpModal ─────────────────────────────────────────────────────
@@ -167,7 +176,9 @@ describe("HelpModal", () => {
 describe("ErrorBoundary", () => {
   it("renders children when no error", async () => {
     const frame = await render(
-      <ErrorBoundary><text>all good</text></ErrorBoundary>
+      <ErrorBoundary>
+        <text>all good</text>
+      </ErrorBoundary>,
     );
     expect(frame).toContain("all good");
   });
@@ -177,7 +188,9 @@ describe("ErrorBoundary", () => {
     let app: any;
     try {
       app = await renderWithCleanup(
-        <ErrorBoundary><ThrowingComponent /></ErrorBoundary>,
+        <ErrorBoundary>
+          <ThrowingComponent />
+        </ErrorBoundary>,
         { width: 60, height: 10 },
       );
       await app.captureCharFrame();
@@ -209,14 +222,14 @@ describe("ChangeDirPrompt", () => {
   it("shows subdirectory items with content indicators", async () => {
     useStore.setState({
       changeDirMode: true,
-        browser: {
-          dir: "/test",
-          cursor: 1,
-          items: [
-            { name: "manga1", hasContent: true },
-            { name: "empty-dir", hasContent: false },
-          ],
-        },
+      browser: {
+        dir: "/test",
+        cursor: 1,
+        items: [
+          { name: "manga1", hasContent: true },
+          { name: "empty-dir", hasContent: false },
+        ],
+      },
     });
     const frame = await render(<ChangeDirPrompt />, 60, 14);
     expect(frame).toContain("manga1");
@@ -250,13 +263,25 @@ describe("RenamePrompt", () => {
 describe("handleRenameSubmit", () => {
   it("calls renameSubmit with trimmed value", () => {
     let submitted = "";
-    handleRenameSubmit("  new-name  ", (v) => { submitted = v; }, () => {});
+    handleRenameSubmit(
+      "  new-name  ",
+      (v) => {
+        submitted = v;
+      },
+      () => {},
+    );
     expect(submitted).toBe("new-name");
   });
 
   it("calls cancelRename when value is empty after trim", () => {
     let cancelled = false;
-    handleRenameSubmit("  ", () => {}, () => { cancelled = true; });
+    handleRenameSubmit(
+      "  ",
+      () => {},
+      () => {
+        cancelled = true;
+      },
+    );
     expect(cancelled).toBe(true);
   });
 });
@@ -264,14 +289,24 @@ describe("handleRenameSubmit", () => {
 describe("makeOnSubmit", () => {
   it("returns a function that delegates to handleRenameSubmit", () => {
     let submitted = "";
-    const fn = makeOnSubmit((v) => { submitted = v; }, () => {});
+    const fn = makeOnSubmit(
+      (v) => {
+        submitted = v;
+      },
+      () => {},
+    );
     fn("test-value");
     expect(submitted).toBe("test-value");
   });
 
   it("calls cancelRename when returned function receives empty value", () => {
     let cancelled = false;
-    const fn = makeOnSubmit(() => {}, () => { cancelled = true; });
+    const fn = makeOnSubmit(
+      () => {},
+      () => {
+        cancelled = true;
+      },
+    );
     fn("");
     expect(cancelled).toBe(true);
   });
@@ -289,8 +324,24 @@ describe("TreeView", () => {
   it("renders tree items with checkboxes", async () => {
     useStore.setState({
       items: [
-        { id: "folder:/a", label: "Folder A", depth: 0, isZip: false, entry: null, checked: false, excluded: false },
-        { id: "folder:/b", label: "Folder B", depth: 1, isZip: false, entry: null, checked: true, excluded: false },
+        {
+          id: "folder:/a",
+          label: "Folder A",
+          depth: 0,
+          isZip: false,
+          entry: null,
+          checked: false,
+          excluded: false,
+        },
+        {
+          id: "folder:/b",
+          label: "Folder B",
+          depth: 1,
+          isZip: false,
+          entry: null,
+          checked: true,
+          excluded: false,
+        },
       ],
       focusIndex: 0,
     });
@@ -304,7 +355,15 @@ describe("TreeView", () => {
   it("renders zip items", async () => {
     useStore.setState({
       items: [
-        { id: "zip:/a.zip", label: "\uD83D\uDCE6 a.zip", depth: 0, isZip: true, entry: null, checked: false, excluded: false },
+        {
+          id: "zip:/a.zip",
+          label: "\uD83D\uDCE6 a.zip",
+          depth: 0,
+          isZip: true,
+          entry: null,
+          checked: false,
+          excluded: false,
+        },
       ],
       focusIndex: 0,
     });
@@ -316,8 +375,24 @@ describe("TreeView", () => {
   it("renders implicit checkbox for parent-selected children", async () => {
     useStore.setState({
       items: [
-        { id: "folder:/parent", label: "Parent", depth: 0, isZip: false, entry: null, checked: true, excluded: false },
-        { id: "folder:/parent/child", label: "Child", depth: 1, isZip: false, entry: null, checked: false, excluded: false },
+        {
+          id: "folder:/parent",
+          label: "Parent",
+          depth: 0,
+          isZip: false,
+          entry: null,
+          checked: true,
+          excluded: false,
+        },
+        {
+          id: "folder:/parent/child",
+          label: "Child",
+          depth: 1,
+          isZip: false,
+          entry: null,
+          checked: false,
+          excluded: false,
+        },
       ],
       focusIndex: 0,
     });
@@ -328,8 +403,24 @@ describe("TreeView", () => {
   it("renders skip checkbox for excluded children", async () => {
     useStore.setState({
       items: [
-        { id: "folder:/parent", label: "Parent", depth: 0, isZip: false, entry: null, checked: true, excluded: false },
-        { id: "folder:/parent/child", label: "Child", depth: 1, isZip: false, entry: null, checked: false, excluded: true },
+        {
+          id: "folder:/parent",
+          label: "Parent",
+          depth: 0,
+          isZip: false,
+          entry: null,
+          checked: true,
+          excluded: false,
+        },
+        {
+          id: "folder:/parent/child",
+          label: "Child",
+          depth: 1,
+          isZip: false,
+          entry: null,
+          checked: false,
+          excluded: true,
+        },
       ],
       focusIndex: 0,
     });
@@ -387,14 +478,26 @@ describe("handleAuthorSubmit", () => {
   it("calls submitAuthorName with trimmed value", async () => {
     const { handleAuthorSubmit } = await import("@components/AuthorPrompt");
     let submitted = "";
-    handleAuthorSubmit("  John Smith  ", (v) => { submitted = v; }, () => {});
+    handleAuthorSubmit(
+      "  John Smith  ",
+      (v) => {
+        submitted = v;
+      },
+      () => {},
+    );
     expect(submitted).toBe("John Smith");
   });
 
   it("calls cancelAuthorMode when value is empty after trim", async () => {
     const { handleAuthorSubmit } = await import("@components/AuthorPrompt");
     let cancelled = false;
-    handleAuthorSubmit("  ", () => {}, () => { cancelled = true; });
+    handleAuthorSubmit(
+      "  ",
+      () => {},
+      () => {
+        cancelled = true;
+      },
+    );
     expect(cancelled).toBe(true);
   });
 });
@@ -403,7 +506,12 @@ describe("makeAuthorOnSubmit", () => {
   it("returns a function that delegates to handleAuthorSubmit", async () => {
     const { makeAuthorOnSubmit } = await import("@components/AuthorPrompt");
     let submitted = "";
-    const fn = makeAuthorOnSubmit((v) => { submitted = v; }, () => {});
+    const fn = makeAuthorOnSubmit(
+      (v) => {
+        submitted = v;
+      },
+      () => {},
+    );
     fn("Test Author");
     expect(submitted).toBe("Test Author");
   });

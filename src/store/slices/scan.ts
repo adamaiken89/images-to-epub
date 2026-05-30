@@ -1,15 +1,20 @@
-import type { StateCreator } from "zustand";
+import type { AppState, TreeItem } from "@store/types";
+import { loadConfig, parseArgs, writeDefaultConfig } from "@utils/config";
 import {
   findDefaultBaseDir,
   findFoldersWithImages,
   findZipFiles,
   organizeFoldersByHierarchy,
 } from "@utils/fs";
-import type { AppState, TreeItem } from "@store/types";
 import { t } from "@utils/i18n";
-import { parseArgs, loadConfig, writeDefaultConfig } from "@utils/config";
+import type { StateCreator } from "zustand";
 
-export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "baseDir" | "folderCount" | "zipCount" | "loadFolders" | "init">> = (set, get, _store) => ({
+export const createScanSlice: StateCreator<
+  AppState,
+  [],
+  [],
+  Pick<AppState, "baseDir" | "folderCount" | "zipCount" | "loadFolders" | "init">
+> = (set, get, _store) => ({
   baseDir: "",
   folderCount: 0,
   zipCount: 0,
@@ -78,13 +83,27 @@ export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "bas
 
     if (args.initConfig) {
       await writeDefaultConfig(args.configPath);
-      set({ status: { type: "done", message: `Config written to ${args.configPath || "~/.img2epubrc"}` } });
+      set({
+        status: {
+          type: "done",
+          message: `Config written to ${args.configPath || "~/.img2epubrc"}`,
+        },
+      });
       return;
     }
 
     let config;
     if (args.noConfig) {
-      config = { defaultBaseDir: "", outputFormat: "epub" as const, parallelism: 4, skipExisting: true, outputDir: "", authorDetection: "folder" as const, imageFormats: [".webp", ".jpg", ".jpeg", ".png"], theme: "default" };
+      config = {
+        defaultBaseDir: "",
+        outputFormat: "epub" as const,
+        parallelism: 4,
+        skipExisting: true,
+        outputDir: "",
+        authorDetection: "folder" as const,
+        imageFormats: [".webp", ".jpg", ".jpeg", ".png"],
+        theme: "default",
+      };
     } else {
       config = await loadConfig(args.configPath);
     }

@@ -1,5 +1,5 @@
-import { readFile, writeFile, mkdir } from "fs/promises";
-import { homedir, cpus } from "os";
+import { mkdir, readFile, writeFile } from "fs/promises";
+import { cpus, homedir } from "os";
 import { join } from "path";
 
 export interface AppConfig {
@@ -24,14 +24,19 @@ const DEFAULT_CONFIG: AppConfig = {
   theme: "default",
 };
 
-export function getConfigPath(customPath?: string): string {
-  if (customPath) {return customPath;}
+function getConfigPath(customPath?: string): string {
+  if (customPath) {
+    return customPath;
+  }
   return join(homedir(), ".img2epubrc");
 }
 
 type ArgsResult = ReturnType<typeof parseArgs>;
 
-function parseArgValue(argv: string[], i: number): { key: string; value: string | undefined; skipNext: boolean } {
+function parseArgValue(
+  argv: string[],
+  i: number,
+): { key: string; value: string | undefined; skipNext: boolean } {
   const arg = argv[i];
   const eqIdx = arg.indexOf("=");
   const prefixLen = arg.startsWith("--") ? 2 : 1;
@@ -46,15 +51,21 @@ function applyFlag(key: string, value: string | undefined, result: ArgsResult): 
   switch (key) {
     case "output-dir":
     case "o":
-      if (value) {result.outputDir = value;}
+      if (value) {
+        result.outputDir = value;
+      }
       break;
     case "format":
     case "f":
-      if (value === "epub" || value === "kepub" || value === "both") {result.format = value;}
+      if (value === "epub" || value === "kepub" || value === "both") {
+        result.format = value;
+      }
       break;
     case "parallel":
     case "p":
-      if (value) {result.parallel = parseInt(value, 10);}
+      if (value) {
+        result.parallel = parseInt(value, 10);
+      }
       break;
     case "skip-existing":
       result.skipExisting = true;
@@ -66,7 +77,9 @@ function applyFlag(key: string, value: string | undefined, result: ArgsResult): 
       result.initConfig = true;
       break;
     case "config":
-      if (value) {result.configPath = value;}
+      if (value) {
+        result.configPath = value;
+      }
       break;
   }
 }
@@ -89,7 +102,9 @@ export function parseArgs(): {
     if (arg.startsWith("-") && arg.length >= 2) {
       const { key, value, skipNext } = parseArgValue(argv, i);
       applyFlag(key, value, result);
-      if (skipNext) {i++;}
+      if (skipNext) {
+        i++;
+      }
     } else if (!result.dir) {
       result.dir = arg;
     }
