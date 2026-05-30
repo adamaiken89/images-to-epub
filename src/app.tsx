@@ -19,7 +19,7 @@ export default function App() {
   const renderer = useRenderer();
   const init = useStore((s) => s.init);
   const isProcessing = useStore((s) => s.isProcessing);
-  const showModal = useStore((s) => s.changeDirMode || s.showHelp || s.showConfig);
+  const showModal = useStore((s) => s.changeDirMode || s.showHelp || s.showConfig || s.showSummary);
 
   useEffect(() => {
     init();
@@ -45,7 +45,7 @@ export default function App() {
         <ConfigModal />
         <SummaryModal />
         {isProcessing ? <ProgressDashboard /> : null}
-        {showModal ? null : <TreeView />}
+        {showModal || isProcessing ? null : <TreeView />}
         <box flexShrink={0}>
           <InfoMessage />
         </box>
