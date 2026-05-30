@@ -10,8 +10,6 @@ export function TreeView() {
   const changeDirMode = useStore((s) => s.changeDirMode);
   const showHelp = useStore((s) => s.showHelp);
   const showConfig = useStore((s) => s.showConfig);
-  const showSummary = useStore((s) => s.showSummary);
-
   const parentSelectedMap = useMemo(() => {
     const map: Record<string, boolean> = {};
     let ancestorChecked = false;
@@ -30,7 +28,7 @@ export function TreeView() {
     return map;
   }, [items]);
 
-  if (changeDirMode || showHelp || showConfig || showSummary) {
+  if (changeDirMode || showHelp || showConfig) {
     return null;
   }
 

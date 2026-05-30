@@ -9,7 +9,6 @@ export const createSummarySlice: StateCreator<
 > = (set, _get, _store) => ({
   showSummary: false,
   summary: {
-    show: false,
     results: [],
     totalPages: 0,
     totalSize: 0,

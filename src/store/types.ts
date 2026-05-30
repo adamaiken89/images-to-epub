@@ -30,12 +30,9 @@ export interface BrowserState {
   dir: string;
   cursor: number;
   items: SubdirInfo[];
-  setDir: (dir: string) => Promise<void>;
-  confirm: () => Promise<void>;
 }
 
 export interface SummaryData {
-  show: boolean;
   results: string[];
   totalPages: number;
   totalSize: number;
@@ -58,6 +55,7 @@ export interface AppState {
   focusIndex: number;
   toggleItem: (index: number) => void;
   selectAll: () => void;
+  deselectAll: () => void;
 
   // Batch
   status: StatusMessage;
@@ -66,7 +64,7 @@ export interface AppState {
   batchStartTime: number | null;
   batchEndTime: number | null;
   processingMode: ProcessingMode;
-  processFolders: () => Promise<void>;
+  processFolders: (mode?: ProcessingMode) => Promise<void>;
   unzipSelected: () => Promise<void>;
   padSelected: () => Promise<void>;
 
@@ -81,6 +79,8 @@ export interface AppState {
 
   // Directory browser
   browser: BrowserState;
+  browserSetDir: (dir: string) => Promise<void>;
+  browserConfirm: () => Promise<void>;
 
   // Rename
   renameMode: boolean;

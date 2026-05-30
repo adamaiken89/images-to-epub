@@ -12,6 +12,8 @@ export const createNavigationSlice: StateCreator<
     | "showHelp"
     | "showConfig"
     | "browser"
+    | "browserSetDir"
+    | "browserConfirm"
     | "toggleHelp"
     | "toggleConfig"
     | "toggleChangeDir"
@@ -28,28 +30,28 @@ export const createNavigationSlice: StateCreator<
     dir: "",
     cursor: 0,
     items: [],
+  },
 
-    setDir: async (dir: string) => {
-      set((state) => ({ browser: { ...state.browser, dir, cursor: 0 } }));
-      try {
-        const items = await getSubdirsWithMetadata(dir);
-        set((state) => ({ browser: { ...state.browser, items } }));
-      } catch {
-        set((state) => ({ browser: { ...state.browser, items: [] } }));
-      }
-    },
+  browserSetDir: async (dir: string) => {
+    set((state) => ({ browser: { ...state.browser, dir, cursor: 0 } }));
+    try {
+      const items = await getSubdirsWithMetadata(dir);
+      set((state) => ({ browser: { ...state.browser, items } }));
+    } catch {
+      set((state) => ({ browser: { ...state.browser, items: [] } }));
+    }
+  },
 
-    confirm: async () => {
-      const { browser } = get();
-      if (!browser.dir) {return;}
-      set({ changeDirMode: false, browser: { dir: "", cursor: 0, items: [], setDir: browser.setDir, confirm: browser.confirm } });
-      set({ baseDir: browser.dir });
-      try {
-        await get().loadFolders(browser.dir);
-      } catch {
-        set({ status: { type: "error", message: "Failed to load folders" } });
-      }
-    },
+  browserConfirm: async () => {
+    const { browser } = get();
+    if (!browser.dir) {return;}
+    set({ changeDirMode: false, browser: { dir: "", cursor: 0, items: [] } });
+    set({ baseDir: browser.dir });
+    try {
+      await get().loadFolders(browser.dir);
+    } catch {
+      set({ status: { type: "error", message: "Failed to load folders" } });
+    }
   },
 
   toggleHelp: () => {
@@ -69,7 +71,7 @@ export const createNavigationSlice: StateCreator<
       const { baseDir } = get();
       const dir = baseDir || "";
       set({ changeDirMode: true, browser: { ...get().browser, dir, cursor: 0 } });
-      get().browser.setDir(dir);
+      get().browserSetDir(dir);
     }
   },
 

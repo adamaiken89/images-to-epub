@@ -541,7 +541,7 @@ describe("browse actions", () => {
 
     const b1 = useStore.getState().browser;
     useStore.setState({ browser: { ...b1, dir: "", cursor: 99, items: [] } });
-    await useStore.getState().browser.setDir(dir);
+    await useStore.getState().browserSetDir(dir);
     await Bun.sleep(10);
 
     const state = useStore.getState();
@@ -556,7 +556,7 @@ describe("browse actions", () => {
   it("browseSetDir handles nonexistent path gracefully", async () => {
     const b2 = useStore.getState().browser;
     useStore.setState({ browser: { ...b2, dir: "", cursor: 99, items: [] } });
-    await useStore.getState().browser.setDir("/nonexistent/path");
+    await useStore.getState().browserSetDir("/nonexistent/path");
     await Bun.sleep(10);
 
     const state = useStore.getState();
@@ -576,7 +576,7 @@ describe("browse actions", () => {
       changeDirMode: true,
       browser: { ...b3, dir, cursor: 1, items: [{ name: "manga", hasContent: true }] },
     });
-    await useStore.getState().browser.confirm();
+    await useStore.getState().browserConfirm();
 
     const state = useStore.getState();
     expect(state.changeDirMode).toBe(false);
@@ -594,7 +594,7 @@ describe("browse actions", () => {
       changeDirMode: true,
       browser: { ...b4, dir: "", cursor: 0, items: [] },
     });
-    await useStore.getState().browser.confirm();
+    await useStore.getState().browserConfirm();
 
     const state = useStore.getState();
     expect(state.baseDir).toBe("/old");

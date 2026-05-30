@@ -18,7 +18,7 @@ export default function App() {
   const renderer = useRenderer();
   const init = useStore((s) => s.init);
   const isProcessing = useStore((s) => s.isProcessing);
-  const showModal = useStore((s) => s.changeDirMode || s.showHelp || s.showConfig || s.showSummary);
+  const showModal = useStore((s) => s.changeDirMode || s.showHelp || s.showConfig);
 
   useEffect(() => {
     init();

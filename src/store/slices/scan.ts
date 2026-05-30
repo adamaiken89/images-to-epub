@@ -92,11 +92,8 @@ export const createScanSlice: StateCreator<AppState, [], [], Pick<AppState, "bas
     const cliDir = args.dir;
     const effectiveDir = cliDir || config.defaultBaseDir || (await findDefaultBaseDir());
 
-    const outputFormat = args.format || config.outputFormat;
-
     set({
       baseDir: effectiveDir,
-      outputFormat: outputFormat as "epub" | "kepub" | "both",
     });
 
     await get().loadFolders(effectiveDir);

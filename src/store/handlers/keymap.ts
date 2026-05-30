@@ -34,14 +34,14 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
       setState({ browser: { ...store.browser, cursor: Math.min(store.browser.items.length, store.browser.cursor + 1) } });
     } else if (key.name === "return") {
       if (store.browser.cursor === 0) {
-        store.browser.confirm();
+        store.browserConfirm();
       } else {
         const item = store.browser.items[store.browser.cursor - 1];
-        if (item) {store.browser.setDir(join(store.browser.dir, item.name));}
+        if (item) {store.browserSetDir(join(store.browser.dir, item.name));}
       }
     } else if (key.name === "backspace") {
       const parent = dirname(store.browser.dir);
-      if (parent !== store.browser.dir) {store.browser.setDir(parent);}
+      if (parent !== store.browser.dir) {store.browserSetDir(parent);}
     }
     return;
   }
@@ -75,15 +75,16 @@ export function handleKey(key: KeyEvent, ctx: KeyHandlerContext): void {
       break;
     case "return":
       if (key.shift) {
-        const prev = store.processingMode;
-        setState({ processingMode: "sequential" });
-        store.processFolders().finally(() => setState({ processingMode: prev }));
+        store.processFolders("sequential");
       } else {
         store.processFolders();
       }
       break;
     case "a":
       store.selectAll();
+      break;
+    case "d":
+      store.deselectAll();
       break;
     case "p":
       store.padSelected();

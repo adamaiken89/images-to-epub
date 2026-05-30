@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { createTextAttributes } from "@opentui/core";
 import { useStore } from "@store";
 import { colors } from "@utils/colors";
@@ -19,10 +20,17 @@ export function ProgressDashboard() {
   const isProcessing = useStore((s) => s.isProcessing);
   const batchStartTime = useStore((s) => s.batchStartTime);
   const processingMode = useStore((s) => s.processingMode);
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    if (!isProcessing) {return;}
+    const id = setInterval(() => setNow(Date.now()), 500);
+    return () => clearInterval(id);
+  }, [isProcessing]);
 
   if (!isProcessing && progressItems.length === 0) {return null;}
 
-  const elapsed = batchStartTime ? ((Date.now() - batchStartTime) / 1000).toFixed(1) : "0.0";
+  const elapsed = batchStartTime ? ((now - batchStartTime) / 1000).toFixed(1) : "0.0";
   const totalPages = progressItems.reduce((sum, p) => sum + p.pagesCompleted, 0);
 
   const statusIcons: Record<string, string> = {

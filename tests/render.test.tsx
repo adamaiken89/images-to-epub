@@ -51,7 +51,6 @@ beforeEach(() => {
     batchEndTime: null,
     processingMode: "sequential",
     summary: {
-      show: false,
       results: [],
       totalPages: 0,
       totalSize: 0,
@@ -200,7 +199,7 @@ describe("ChangeDirPrompt", () => {
   });
 
   it("shows prompt, current directory, select option, and nav hint", async () => {
-    useStore.setState({ changeDirMode: true, browser: { dir: "/test", cursor: 0, items: [], setDir: async () => {}, confirm: async () => {} } });
+    useStore.setState({ changeDirMode: true, browser: { dir: "/test", cursor: 0, items: [] } });
     const frame = await render(<ChangeDirPrompt />, 60, 14);
     expect(frame).toContain("/test");
     expect(frame).toContain("Select this directory");
@@ -210,16 +209,14 @@ describe("ChangeDirPrompt", () => {
   it("shows subdirectory items with content indicators", async () => {
     useStore.setState({
       changeDirMode: true,
-      browser: {
-        dir: "/test",
-        cursor: 1,
-        items: [
-          { name: "manga1", hasContent: true },
-          { name: "empty-dir", hasContent: false },
-        ],
-        setDir: async () => {},
-        confirm: async () => {},
-      },
+        browser: {
+          dir: "/test",
+          cursor: 1,
+          items: [
+            { name: "manga1", hasContent: true },
+            { name: "empty-dir", hasContent: false },
+          ],
+        },
     });
     const frame = await render(<ChangeDirPrompt />, 60, 14);
     expect(frame).toContain("manga1");

@@ -11,7 +11,7 @@ import { runWorkerPool, type WorkerPoolResult } from "@utils/worker-pool";
 import { getFoldersToProcess } from "./selection";
 
 import type { StateCreator } from "zustand";
-import type { AppState, ProgressItem } from "@store/types";
+import type { AppState, ProcessingMode, ProgressItem } from "@store/types";
 import { ID_PREFIXES } from "@store/constants";
 
 function createProgressItems(targets: string[]): ProgressItem[] {
@@ -65,7 +65,6 @@ function computeSummary(
     },
     showSummary: true,
     summary: {
-      show: true,
       results: poolResult.results,
       totalPages: poolResult.totalPages,
       totalSize: poolResult.totalSize,
@@ -100,8 +99,9 @@ export const createBatchSlice: StateCreator<
   batchEndTime: null,
   processingMode: "parallel",
 
-  processFolders: async () => {
+  processFolders: async (mode?: ProcessingMode) => {
     const { selectedIds, items, processingMode } = get();
+    const effectiveMode = mode ?? processingMode;
     const folders = getFoldersToProcess(selectedIds, items);
     if (folders.length === 0) {
       set({ isProcessing: false });
@@ -113,10 +113,11 @@ export const createBatchSlice: StateCreator<
     set({ progressItems, batchStartTime: startTime, isProcessing: true });
 
     const pConfig = await loadConfig();
-    const parallelism = processingMode === "sequential" ? 1 : clampParallelism(pConfig.parallelism);
+    const parallelism = effectiveMode === "sequential" ? 1 : clampParallelism(pConfig.parallelism);
 
+    const idxMap = new Map(folders.map((f, i) => [f, i]));
     const wrappedProcessor = async (folder: string, _folderName: string) => {
-      const idx = folders.indexOf(folder);
+      const idx = idxMap.get(folder)!;
       set((state) => ({ progressItems: markProcessing(state.progressItems, idx) }));
       const result = await createEpubFromFolder(folder, undefined, get().outputFormat, (done, total) => {
         set((state) => ({ progressItems: markProgress(state.progressItems, idx, done, total) }));
@@ -149,8 +150,9 @@ export const createBatchSlice: StateCreator<
     const pConfig = await loadConfig();
     const parallelism = clampParallelism(pConfig.parallelism);
 
+    const zipIdxMap = new Map(zips.map((z, i) => [z, i]));
     const wrappedProcessor = async (target: string, _folderName: string) => {
-      const idx = zips.indexOf(target);
+      const idx = zipIdxMap.get(target)!;
       set((state) => ({ progressItems: markProcessing(state.progressItems, idx) }));
       const result = await unzipFile(target) as EpubResult;
       if (result.success) {
@@ -180,8 +182,9 @@ export const createBatchSlice: StateCreator<
     const pConfig = await loadConfig();
     const parallelism = clampParallelism(pConfig.parallelism);
 
+    const folderIdxMap = new Map(folders.map((f, i) => [f, i]));
     const wrappedProcessor = async (target: string, _folderName: string) => {
-      const idx = folders.indexOf(target);
+      const idx = folderIdxMap.get(target)!;
       set((state) => ({ progressItems: markProcessing(state.progressItems, idx) }));
       const result = await padImageFilenames(target);
       if (result.success) {

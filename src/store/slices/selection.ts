@@ -52,7 +52,7 @@ export const createSelectionSlice: StateCreator<
   AppState,
   [],
   [],
-  Pick<AppState, "items" | "selectedIds" | "focusIndex" | "toggleItem" | "selectAll">
+  Pick<AppState, "items" | "selectedIds" | "focusIndex" | "toggleItem" | "selectAll" | "deselectAll">
 > = (set, get, _store) => ({
   items: [],
   selectedIds: new Set(),
@@ -137,5 +137,13 @@ export const createSelectionSlice: StateCreator<
         status: { type: "info", message: t("selection.item", { count: allIds.size }) },
       });
     }
+  },
+
+  deselectAll: () => {
+    set({
+      selectedIds: new Set(),
+      items: get().items.map((it) => ({ ...it, checked: false, excluded: false })),
+      status: { type: "info" as const, message: t("selection.item", { count: 0 }) },
+    });
   },
 });
