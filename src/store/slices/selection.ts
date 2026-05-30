@@ -45,6 +45,23 @@ function collectDescendantIds(items: TreeItem[], parentIndex: number): string[] 
   return ids;
 }
 
+function hasCheckedAncestor(items: TreeItem[], targetId: string, targetDepth: number): boolean {
+  let checked = false;
+  let checkDepth = -1;
+  for (const it of items) {
+    if (it.id === targetId) {break;}
+    if (it.depth <= checkDepth) {
+      checked = false;
+      checkDepth = -1;
+    }
+    if (it.depth < targetDepth && it.checked) {
+      checked = true;
+      checkDepth = it.depth;
+    }
+  }
+  return checked;
+}
+
 export const createSelectionSlice: StateCreator<
   AppState,
   [],
@@ -60,62 +77,57 @@ export const createSelectionSlice: StateCreator<
     if (index < 0 || index >= items.length) {return;}
     const item = items[index];
 
-    const newSelected = new Set(selectedIds);
+    const branch = item.checked ? "checked" : item.excluded ? "excluded" : "default";
 
-    if (item.checked) {
-      newSelected.delete(item.id);
-      const descendantIds = collectDescendantIds(items, index);
-      for (const did of descendantIds) {
-        newSelected.delete(did);
-      }
-      const descendantSet = new Set(descendantIds);
-      set({
-        selectedIds: newSelected,
-        items: items.map((it, i) => {
-          if (i === index) {return { ...it, checked: false, excluded: false };}
-          if (descendantSet.has(it.id)) {return { ...it, excluded: false };}
-          return it;
-        }),
-        status: { type: "info", message: t("selection.item", { count: newSelected.size }) },
-      });
-    } else if (item.excluded) {
-      newSelected.delete(item.id);
-      set({
-        selectedIds: newSelected,
-        items: items.map((it, i) => i === index ? { ...it, excluded: false } : it),
-        status: { type: "info", message: t("selection.item", { count: newSelected.size }) },
-      });
-    } else {
-      const targetDepth = item.depth;
-      let ancestorChecked = false;
-      let ancestorCheckDepth = -1;
-      for (const it of items) {
-        if (it.id === item.id) {break;}
-        if (it.depth <= ancestorCheckDepth) {
-          ancestorChecked = false;
-          ancestorCheckDepth = -1;
-        }
-        if (it.depth < targetDepth && it.checked) {
-          ancestorChecked = true;
-          ancestorCheckDepth = it.depth;
-        }
-      }
-      if (ancestorChecked) {
+    const dispatch: Record<string, () => { newSelected: Set<string>; newItems: TreeItem[] }> = {
+      checked: () => {
+        const descendantIds = collectDescendantIds(items, index);
+        const newSelected = new Set(selectedIds);
+        newSelected.delete(item.id);
+        descendantIds.forEach((id) => newSelected.delete(id));
+        const descendantSet = new Set(descendantIds);
+
+        return {
+          newSelected,
+          newItems: items.map((it, i) => {
+            if (i === index) { return { ...it, checked: false, excluded: false }; }
+            if (descendantSet.has(it.id)) { return { ...it, excluded: false }; }
+            return it;
+          }),
+        };
+      },
+      excluded: () => {
+        const newSelected = new Set(selectedIds);
+        newSelected.delete(item.id);
+        return {
+          newSelected,
+          newItems: items.map((it, i) =>
+            i === index ? { ...it, excluded: false } : it,
+          ),
+        };
+      },
+      default: () => {
+        const ancestorChecked = hasCheckedAncestor(items, item.id, item.depth);
+        const newSelected = new Set(selectedIds);
         newSelected.add(item.id);
-        set({
-          selectedIds: newSelected,
-          items: items.map((it, i) => i === index ? { ...it, excluded: true } : it),
-          status: { type: "info", message: t("selection.item", { count: newSelected.size }) },
-        });
-      } else {
-        newSelected.add(item.id);
-        set({
-          selectedIds: newSelected,
-          items: items.map((it, i) => i === index ? { ...it, checked: true } : it),
-          status: { type: "info", message: t("selection.item", { count: newSelected.size }) },
-        });
-      }
-    }
+
+        return {
+          newSelected,
+          newItems: items.map((it, i) =>
+            i === index
+              ? { ...it, [ancestorChecked ? "excluded" : "checked"]: true }
+              : it,
+          ),
+        };
+      },
+    };
+
+    const result = dispatch[branch]();
+    set({
+      selectedIds: result.newSelected,
+      items: result.newItems,
+      status: { type: "info", message: t("selection.item", { count: result.newSelected.size }) },
+    });
   },
 
   selectAll: () => {

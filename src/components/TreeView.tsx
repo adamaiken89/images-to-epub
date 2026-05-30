@@ -11,21 +11,33 @@ export function TreeView() {
   const showHelp = useStore((s) => s.showHelp);
   const showConfig = useStore((s) => s.showConfig);
   const parentSelectedMap = useMemo(() => {
-    const map: Record<string, boolean> = {};
-    let ancestorChecked = false;
-    let ancestorCheckDepth = -1;
-    for (const item of items) {
-      if (item.depth <= ancestorCheckDepth) {
-        ancestorChecked = false;
-        ancestorCheckDepth = -1;
-      }
-      map[item.id] = !item.isZip && !item.checked && !item.excluded && ancestorChecked;
-      if (item.checked) {
-        ancestorChecked = true;
-        ancestorCheckDepth = item.depth;
-      }
-    }
-    return map;
+    return items.reduce<{
+      map: Record<string, boolean>;
+      ancestorChecked: boolean;
+      ancestorCheckDepth: number;
+    }>(
+      (acc, item) => {
+        const ancestorChecked =
+          item.depth <= acc.ancestorCheckDepth ? false : acc.ancestorChecked;
+        const ancestorCheckDepth =
+          item.depth <= acc.ancestorCheckDepth ? -1 : acc.ancestorCheckDepth;
+        const value =
+          !item.isZip && !item.checked && !item.excluded && ancestorChecked;
+        if (item.checked) {
+          return {
+            map: { ...acc.map, [item.id]: value },
+            ancestorChecked: true,
+            ancestorCheckDepth: item.depth,
+          };
+        }
+        return {
+          map: { ...acc.map, [item.id]: value },
+          ancestorChecked,
+          ancestorCheckDepth,
+        };
+      },
+      { map: {}, ancestorChecked: false, ancestorCheckDepth: -1 },
+    ).map;
   }, [items]);
 
   if (changeDirMode || showHelp || showConfig) {
