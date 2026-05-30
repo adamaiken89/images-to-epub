@@ -157,7 +157,7 @@ describe("HelpModal", () => {
     expect(frame).toContain("Keyboard Shortcuts");
     expect(frame).toContain("[Space]");
     expect(frame).toContain("[p]");
-    expect(frame).toContain("[Esc]");
+    expect(frame).toContain("[q]");
     expect(frame).toContain("[n]");
   });
 });
@@ -243,8 +243,7 @@ describe("RenamePrompt", () => {
     const frame = await render(<RenamePrompt />, 60, 20);
     expect(frame).toContain("manga-vol1");
     expect(frame).toContain("EPUB metadata");
-    expect(frame).toContain("\u00B7 Esc cancel");
-    expect(frame).toContain("cancel");
+    expect(frame).toContain("\u00B7 q cancel");
   });
 });
 
@@ -380,7 +379,7 @@ describe("AuthorPrompt", () => {
     const frame = await render(<AuthorPrompt />, 60, 10);
     expect(frame).toContain("Enter author name...");
     expect(frame).toContain("Author");
-    expect(frame).toContain("Esc cancel");
+    expect(frame).toContain("q cancel");
   });
 });
 

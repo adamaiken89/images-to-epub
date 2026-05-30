@@ -44,15 +44,16 @@ function buildSpineItems(pageIds: string[]): string[] {
   return pageIds.map((id) => `<itemref idref="${id}"/>`);
 }
 
-function buildContentOpf(
-  bookId: string,
-  title: string,
-  author: string | null,
-  lang: string,
-  manifestItems: string[],
-  spineItems: string[],
-  koboMeta: string,
-): string {
+function buildContentOpf(ctx: {
+  bookId: string;
+  title: string;
+  author: string | null;
+  lang: string;
+  manifestItems: string[];
+  spineItems: string[];
+  koboMeta: string;
+}): string {
+  const { bookId, title, author, lang, manifestItems, spineItems, koboMeta } = ctx;
   return `<?xml version="1.0" encoding="UTF-8"?>
 <package version="3.0" xmlns="http://www.idpf.org/2007/opf" unique-identifier="book-id">
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
@@ -166,6 +167,154 @@ function buildPageHtml(pageNum: number, imgFileName: string, lang: string): stri
 </html>`;
 }
 
+interface ImageConversionResult {
+  imgIds: string[];
+  imgFileNames: string[];
+  pageIds: string[];
+  coverData: Buffer | null;
+  pagesCompleted: number;
+  errors: string[];
+  totalFiles: number;
+}
+
+interface EpubMeta {
+  author: string | null;
+  lang: string;
+  bookId: string;
+  folderName: string;
+}
+
+async function readAndConvertImages(
+  imgDir: string,
+  imgFiles: string[],
+  lang: string,
+  zip: JSZip,
+  onPage?: (completed: number, total: number) => void,
+): Promise<ImageConversionResult> {
+  const imgIds: string[] = [];
+  const imgFileNames: string[] = [];
+  const pageIds: string[] = [];
+  const errors: string[] = [];
+  let pagesCompleted = 0;
+  let coverData: Buffer | null = null;
+
+  try {
+    coverData = await convertToJpeg(join(imgDir, imgFiles[0]));
+  } catch (err) {
+    errors.push(`${imgFiles[0]}: ${(err as Error).message}`);
+  }
+
+  for (let idx = 0; idx < imgFiles.length; idx++) {
+    const imgName = imgFiles[idx];
+    const imgPath = join(imgDir, imgName);
+
+    let imgData: Buffer;
+    try {
+      imgData = await convertToJpeg(imgPath);
+      pagesCompleted++;
+      if (onPage) { onPage(pagesCompleted, imgFiles.length); }
+    } catch (err) {
+      errors.push(`${imgName}: ${(err as Error).message}`);
+      continue;
+    }
+
+    const imgId = `img${String(idx).padStart(3, "0")}`;
+    const imgFileName = `${imgId}.jpg`;
+
+    if (idx === 0 && !coverData) {
+      coverData = imgData;
+    }
+
+    zip.file(`OEBPS/images/${imgFileName}`, imgData);
+    imgIds.push(imgId);
+    imgFileNames.push(imgFileName);
+
+    const pageId = `page_${idx + 1}`;
+    pageIds.push(pageId);
+    zip.file(`OEBPS/${pageId}.xhtml`, buildPageHtml(idx + 1, imgFileName, lang));
+  }
+
+  if (coverData) {
+    zip.file("OEBPS/images/cover.jpg", coverData);
+  }
+
+  return { imgIds, imgFileNames, pageIds, coverData, pagesCompleted, errors, totalFiles: imgFiles.length };
+}
+
+async function writeEpubOutput(ctx: {
+  zip: JSZip;
+  images: ImageConversionResult;
+  meta: EpubMeta;
+  navPageIds: string[];
+  format: "epub" | "kepub" | "both";
+  outputDir: string;
+}): Promise<EpubResult> {
+  const { zip, images, meta, navPageIds, format, outputDir } = ctx;
+  const { folderName } = meta;
+  const delimIndex = folderName.indexOf("###");
+  const cleanName = delimIndex >= 0 ? folderName.slice(0, delimIndex).trim() : folderName;
+  const title = cleanName;
+  const ext = format === "kepub" ? ".kepub.epub" : ".epub";
+  const outputEpub = join(outputDir, `${cleanName}${ext}`);
+
+  if (images.errors.length === images.totalFiles) {
+    return { success: false, message: `All images failed in: ${folderName}`, pagesTotal: images.totalFiles, pagesCompleted: 0 };
+  }
+
+  const manifestItems: string[] = [];
+  manifestItems.push(`<item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>`);
+  if (images.coverData) {
+    manifestItems.push(`<item id="cover-image" href="images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>`);
+  }
+  manifestItems.push(...buildManifestItems(images.pageIds, images.imgIds, images.imgFileNames));
+  manifestItems.push(`<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>`);
+  manifestItems.push(`<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>`);
+
+  const spineItems: string[] = [];
+  spineItems.push(`<itemref idref="cover"/>`);
+  spineItems.push(...buildSpineItems(images.pageIds));
+
+  zip.file("OEBPS/cover.xhtml", buildCoverHtml(!!images.coverData, title, meta.lang));
+  zip.file("OEBPS/toc.ncx", buildTocNcx(meta.bookId, title, images.pageIds));
+
+  zip.file("OEBPS/nav.xhtml", buildNavDoc(title, navPageIds, meta.lang));
+
+  const includeKobo = format === "kepub" || format === "both";
+  const koboMeta = includeKobo ? `    <meta name="kobo" content="kobonick"/>\n` : "";
+  zip.file("OEBPS/content.opf", buildContentOpf({ bookId: meta.bookId, title, author: meta.author, lang: meta.lang, manifestItems, spineItems, koboMeta }));
+
+  const buffer = await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" });
+  await mkdir(outputDir, { recursive: true });
+
+  const errorSuffix = images.errors.length > 0 ? ` (${images.errors.length} corrupt images skipped)` : "";
+  const pagesCompleted = images.totalFiles - images.errors.length;
+
+  if (format === "both") {
+    const epubPath = join(outputDir, `${cleanName}.epub`);
+    const kepubPath = join(outputDir, `${cleanName}.kepub.epub`);
+    await writeFile(epubPath, buffer);
+    await writeFile(kepubPath, buffer);
+    return {
+      success: true,
+      message: `EPUB + KEPUB created: ${cleanName}${errorSuffix}`,
+      pagesTotal: images.totalFiles,
+      pagesCompleted,
+      outputSize: buffer.length,
+    };
+  }
+
+  await writeFile(outputEpub, buffer);
+  const label = format === "kepub" ? "KEPUB" : "EPUB";
+  return {
+    success: true,
+    message: `${label} created: ${outputEpub}${errorSuffix}`,
+    pagesTotal: images.totalFiles,
+    pagesCompleted,
+    outputPath: outputEpub,
+    outputSize: buffer.length,
+  };
+}
+
 export async function createEpubFromFolder(
   imgDir: string,
   outputDir?: string,
@@ -178,9 +327,6 @@ export async function createEpubFromFolder(
 
   const folderName = basename(imgDir);
   const delimIndex = folderName.indexOf("###");
-  const cleanName = delimIndex >= 0 ? folderName.slice(0, delimIndex).trim() : folderName;
-  const ext = format === "kepub" ? ".kepub.epub" : ".epub";
-  const outputEpub = join(outputDir, `${cleanName}${ext}`);
 
   let imgFiles: string[];
   try {
@@ -201,18 +347,11 @@ export async function createEpubFromFolder(
 
   try {
     const bookId = `urn:uuid:${uuidv4()}`;
-    const title = cleanName;
     const author = delimIndex >= 0 ? folderName.slice(delimIndex + 3).trim() : null;
     const lang = "zh";
 
-    const totalImages = imgFiles.length;
-    let pagesCompleted = 0;
-    const errors: string[] = [];
-
     const zip = new JSZip();
-
     zip.file("mimetype", "application/epub+zip", { compression: "STORE" });
-
     zip.file(
       "META-INF/container.xml",
       `<?xml version="1.0"?>
@@ -223,119 +362,21 @@ export async function createEpubFromFolder(
 </container>`,
     );
 
-    const imgIds: string[] = [];
-    const imgFileNames: string[] = [];
-    const pageIds: string[] = [];
-    let coverData: Buffer | null = null;
+    const images = await readAndConvertImages(imgDir, imgFiles, lang, zip, onPage);
 
-    try {
-      coverData = await convertToJpeg(join(imgDir, imgFiles[0]));
-    } catch (err) {
-      errors.push(`${imgFiles[0]}: ${(err as Error).message}`);
-    }
-
-    for (let idx = 0; idx < imgFiles.length; idx++) {
-      const imgName = imgFiles[idx];
-      const imgPath = join(imgDir, imgName);
-
-      let imgData: Buffer;
-      try {
-        imgData = await convertToJpeg(imgPath);
-        pagesCompleted++;
-        if (onPage) { onPage(pagesCompleted, totalImages); }
-      } catch (err) {
-        errors.push(`${imgName}: ${(err as Error).message}`);
-        continue;
-      }
-
-      const imgId = `img${String(idx).padStart(3, "0")}`;
-      const imgFileName = `${imgId}.jpg`;
-
-      if (idx === 0 && !coverData) {
-        coverData = imgData;
-      }
-
-      zip.file(`OEBPS/images/${imgFileName}`, imgData);
-      imgIds.push(imgId);
-      imgFileNames.push(imgFileName);
-
-      const pageId = `page_${idx + 1}`;
-      pageIds.push(pageId);
-      zip.file(`OEBPS/${pageId}.xhtml`, buildPageHtml(idx + 1, imgFileName, lang));
-    }
-
-    if (coverData) {
-      zip.file("OEBPS/images/cover.jpg", coverData);
-    }
-
-    const manifestItems: string[] = [];
-    manifestItems.push(
-      `<item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>`,
-    );
-    if (coverData) {
-      manifestItems.push(
-        `<item id="cover-image" href="images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>`,
-      );
-    }
-    manifestItems.push(...buildManifestItems(pageIds, imgIds, imgFileNames));
-    manifestItems.push(
-      `<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>`,
-    );
-    manifestItems.push(
-      `<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>`,
-    );
-
-    const spineItems: string[] = [];
-    spineItems.push(`<itemref idref="cover"/>`);
-    spineItems.push(...buildSpineItems(pageIds));
-
-    zip.file("OEBPS/cover.xhtml", buildCoverHtml(!!coverData, title, lang));
-
-    if (errors.length === totalImages) {
-      return { success: false, message: `All images failed in: ${folderName}`, pagesTotal: totalImages, pagesCompleted: 0 };
-    }
-
-    zip.file("OEBPS/toc.ncx", buildTocNcx(bookId, title, pageIds));
-
-    const lastGoodIdx = imgFiles.length - errors.length;
+    const lastGoodIdx = images.totalFiles - images.errors.length;
     const navPageIds = imgFiles
-      .filter((_, i) => i < lastGoodIdx || !errors.some((e) => e.startsWith(imgFiles[i])))
+      .filter((_, i) => i < lastGoodIdx || !images.errors.some((e) => e.startsWith(imgFiles[i])))
       .map((_, i) => `page_${i + 1}`);
-    zip.file("OEBPS/nav.xhtml", buildNavDoc(title, navPageIds, lang));
 
-    const includeKobo = format === "kepub" || format === "both";
-    const koboMeta = includeKobo ? `    <meta name="kobo" content="kobonick"/>\n` : "";
-    zip.file("OEBPS/content.opf", buildContentOpf(bookId, title, author, lang, manifestItems, spineItems, koboMeta));
-
-    const buffer = await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" });
-    await mkdir(outputDir, { recursive: true });
-
-    const errorSuffix = errors.length > 0 ? ` (${errors.length} corrupt images skipped)` : "";
-
-    if (format === "both") {
-      const epubPath = join(outputDir, `${cleanName}.epub`);
-      const kepubPath = join(outputDir, `${cleanName}.kepub.epub`);
-      await writeFile(epubPath, buffer);
-      await writeFile(kepubPath, buffer);
-      return {
-        success: true,
-        message: `EPUB + KEPUB created: ${cleanName}${errorSuffix}`,
-        pagesTotal: totalImages,
-        pagesCompleted,
-        outputSize: buffer.length,
-      };
-    }
-
-    await writeFile(outputEpub, buffer);
-    const label = format === "kepub" ? "KEPUB" : "EPUB";
-    return {
-      success: true,
-      message: `${label} created: ${outputEpub}${errorSuffix}`,
-      pagesTotal: totalImages,
-      pagesCompleted,
-      outputPath: outputEpub,
-      outputSize: buffer.length,
-    };
+    return await writeEpubOutput({
+      zip,
+      images,
+      meta: { author, lang, bookId, folderName },
+      navPageIds,
+      format,
+      outputDir,
+    });
   } catch (err) {
     return { success: false, message: `Error creating EPUB: ${(err as Error).message}`, pagesTotal: 0, pagesCompleted: 0 };
   }

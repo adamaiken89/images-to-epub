@@ -50,19 +50,19 @@
     "empty": "(no subfolders)",
     "hasContent": "[!]",
     "noContent": "[ ]",
-    "navHint": "\u2191\u2193 nav \u00B7 Enter select \u00B7 Bksp up \u00B7 c close"
+    "navHint": "\u2191\u2193 nav \u00B7 Enter select \u00B7 Bksp up \u00B7 q close"
   },
   "rename": {
     "title": "Rename Folder:",
     "placeholder": "Enter new folder name...",
     "hint": "###Author sets EPUB metadata",
-    "escCancel": "Esc cancel"
+    "escCancel": "q cancel"
   },
   "author": {
     "title": "Set author for selected folders:",
     "placeholder": "Enter author name...",
     "hint": "###Author appended to name",
-    "escCancel": "Esc cancel"
+    "escCancel": "q cancel"
   },
   "error": {
     "unexpected": "Unexpected Error"
@@ -91,6 +91,6 @@
   },
   "config": {
     "title": "Config Overview",
-    "dismiss": "[`] toggle"
+    "dismiss": "[q] close"
   }
 }

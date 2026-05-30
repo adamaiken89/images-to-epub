@@ -29,6 +29,48 @@ export function getConfigPath(customPath?: string): string {
   return join(homedir(), ".img2epubrc");
 }
 
+type ArgsResult = ReturnType<typeof parseArgs>;
+
+function parseArgValue(argv: string[], i: number): { key: string; value: string | undefined; skipNext: boolean } {
+  const arg = argv[i];
+  const eqIdx = arg.indexOf("=");
+  const prefixLen = arg.startsWith("--") ? 2 : 1;
+  if (eqIdx >= 0) {
+    return { key: arg.slice(prefixLen, eqIdx), value: arg.slice(eqIdx + 1), skipNext: false };
+  }
+  const nextVal = i + 1 < argv.length && !argv[i + 1].startsWith("-") ? argv[i + 1] : undefined;
+  return { key: arg.slice(prefixLen), value: nextVal, skipNext: !!nextVal };
+}
+
+function applyFlag(key: string, value: string | undefined, result: ArgsResult): void {
+  switch (key) {
+    case "output-dir":
+    case "o":
+      if (value) {result.outputDir = value;}
+      break;
+    case "format":
+    case "f":
+      if (value === "epub" || value === "kepub" || value === "both") {result.format = value;}
+      break;
+    case "parallel":
+    case "p":
+      if (value) {result.parallel = parseInt(value, 10);}
+      break;
+    case "skip-existing":
+      result.skipExisting = true;
+      break;
+    case "no-config":
+      result.noConfig = true;
+      break;
+    case "init-config":
+      result.initConfig = true;
+      break;
+    case "config":
+      if (value) {result.configPath = value;}
+      break;
+  }
+}
+
 export function parseArgs(): {
   dir?: string;
   outputDir?: string;
@@ -40,71 +82,17 @@ export function parseArgs(): {
   initConfig: boolean;
 } {
   const argv = process.argv.slice(2);
-  const result: ReturnType<typeof parseArgs> = {
-    noConfig: false,
-    initConfig: false,
-  };
+  const result: ArgsResult = { noConfig: false, initConfig: false };
 
-  let i = 0;
-  while (i < argv.length) {
+  for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
-    const eqIdx = arg.indexOf("=");
-    if (arg.startsWith("--")) {
-      const key = eqIdx >= 0 ? arg.slice(2, eqIdx) : arg.slice(2);
-      const val = eqIdx >= 0 ? arg.slice(eqIdx + 1) : (i + 1 < argv.length && !argv[i + 1].startsWith("-") ? argv[i + 1] : undefined);
-
-      switch (key) {
-        case "output-dir":
-        case "o":
-          if (val) {result.outputDir = val;}
-          if (!eqIdx) {i++;}
-          break;
-        case "format":
-        case "f":
-          if (val === "epub" || val === "kepub" || val === "both") {result.format = val;}
-          if (!eqIdx) {i++;}
-          break;
-        case "parallel":
-        case "p":
-          if (val) {result.parallel = parseInt(val, 10);}
-          if (!eqIdx) {i++;}
-          break;
-        case "skip-existing":
-          result.skipExisting = true;
-          break;
-        case "no-config":
-          result.noConfig = true;
-          break;
-        case "init-config":
-          result.initConfig = true;
-          break;
-        case "config":
-          if (val) {result.configPath = val;}
-          if (!eqIdx) {i++;}
-          break;
-      }
-    } else if (arg.startsWith("-") && arg.length === 2) {
-      const key = arg.slice(1);
-      const val = i + 1 < argv.length && !argv[i + 1].startsWith("-") ? argv[i + 1] : undefined;
-
-      switch (key) {
-        case "o":
-          if (val) {result.outputDir = val;}
-          i++;
-          break;
-        case "f":
-          if (val === "epub" || val === "kepub" || val === "both") {result.format = val;}
-          i++;
-          break;
-        case "p":
-          if (val) {result.parallel = parseInt(val, 10);}
-          i++;
-          break;
-      }
+    if (arg.startsWith("-") && arg.length >= 2) {
+      const { key, value, skipNext } = parseArgValue(argv, i);
+      applyFlag(key, value, result);
+      if (skipNext) {i++;}
     } else if (!result.dir) {
       result.dir = arg;
     }
-    i++;
   }
 
   return result;

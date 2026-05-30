@@ -16,6 +16,7 @@ export default tseslint.config(
       },
     },
     rules: {
+      complexity: ["error", 30],
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/consistent-type-imports": [
@@ -24,6 +25,7 @@ export default tseslint.config(
       ],
       curly: ["error", "all"],
       eqeqeq: ["error", "always", { null: "ignore" }],
+      "max-params": ["error", 9],
       "no-console": ["warn", { allow: ["error", "warn"] }],
       "no-restricted-imports": [
         "error",

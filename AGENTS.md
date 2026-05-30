@@ -126,10 +126,10 @@ All modals/prompts are inline panels that sit between Header and TreeView (never
 
 - `store/handlers/keymap.ts` exports `handleKey(key, ctx)` — pure function
 - Context is `{ renderer, getState, setState }` — all other values read from `getState()`
-- Every modal/panel uses its own key as a toggle: `c` for change-dir, `h` for help, `` ` `` for config, `n` for rename, `m` for author
-- Prompts (`*Mode` state keys — rename, author) can be cancelled with `escape`; this triggers the store's `cancel*` method on their InputPrompt
-- Modals (`show*` state keys — help, config) are dismissed by pressing their toggle key again. `escape` only quits the app
-- Summary (`showSummary`) is dismissed on any key press
+- Each panel is opened by its own key (`c`, `h`, `` ` ``, `n`, `m`) and dismissed by pressing `q`
+- Prompts (`*Mode` state keys — rename, author) are also cancellable with `escape` (both `q` and `escape` call the store's `cancel*` method; `q` is consumed by the handler before reaching the input)
+- Modals (`show*` state keys — help, config) are dismissed exclusively by `q`; `escape` falls through to the default handler and quits the app
+- Summary (`showSummary`) is the only exception — any key press dismisses it
 
 ## TypeScript and toolchain
 

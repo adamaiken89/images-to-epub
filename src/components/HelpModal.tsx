@@ -38,7 +38,7 @@ export function HelpModal() {
         </box>
       </scrollbox>
       <text fg={colors.dim} marginTop={1}>
-        <span fg={colors.keyHighlight}>[Esc]</span> {'\u00B7'} <span fg={colors.keyHighlight}>[h]</span> {t("modal.closeHelp")}
+        <span fg={colors.keyHighlight}>[q]</span> {t("modal.closeHelp")}
       </text>
     </box>
   );

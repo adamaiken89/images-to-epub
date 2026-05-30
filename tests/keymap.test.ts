@@ -97,15 +97,21 @@ describe("handleKey", () => {
     expect(useStore.getState().showHelp).toBe(true);
   });
 
-  it("h toggles help", () => {
+  it("h opens help", () => {
     useStore.setState({ showHelp: false });
     handleKey(key("h"), ctx());
     expect(useStore.getState().showHelp).toBe(true);
   });
 
-  it("h closes help when open", () => {
+  it("h does nothing when help is open", () => {
     useStore.setState({ showHelp: true });
     handleKey(key("h"), ctx());
+    expect(useStore.getState().showHelp).toBe(true);
+  });
+
+  it("q closes help", () => {
+    useStore.setState({ showHelp: true });
+    handleKey(key("q"), ctx());
     expect(useStore.getState().showHelp).toBe(false);
   });
 
@@ -132,6 +138,12 @@ describe("handleKey", () => {
     expect(useStore.getState().authorMode).toBe(false);
   });
 
+  it("q cancels author mode", () => {
+    useStore.setState({ authorMode: true });
+    handleKey(key("q"), ctx());
+    expect(useStore.getState().authorMode).toBe(false);
+  });
+
   it("a selects all", () => {
     handleKey(key("a"), ctx());
     const state = useStore.getState();
@@ -144,14 +156,20 @@ describe("handleKey", () => {
     expect(useStore.getState().selectedIds.size).toBe(0);
   });
 
-  it("c toggles change dir on", () => {
+  it("c opens change dir", () => {
     handleKey(key("c"), ctx());
     expect(useStore.getState().changeDirMode).toBe(true);
   });
 
-  it("c toggles change dir off", () => {
+  it("c does nothing when change dir is open", () => {
     useStore.setState({ changeDirMode: true });
     handleKey(key("c"), ctx());
+    expect(useStore.getState().changeDirMode).toBe(true);
+  });
+
+  it("q cancels change dir", () => {
+    useStore.setState({ changeDirMode: true });
+    handleKey(key("q"), ctx());
     expect(useStore.getState().changeDirMode).toBe(false);
   });
 
@@ -167,14 +185,20 @@ describe("handleKey", () => {
     handleKey(key("p"), ctx());
   });
 
-  it("n toggles rename on", () => {
+  it("n opens rename mode", () => {
     handleKey(key("n"), ctx());
     expect(useStore.getState().renameMode).toBe(true);
   });
 
-  it("n toggles rename off", () => {
+  it("n does nothing when rename mode is open", () => {
     useStore.setState({ renameMode: true });
     handleKey(key("n"), ctx());
+    expect(useStore.getState().renameMode).toBe(true);
+  });
+
+  it("q cancels rename mode", () => {
+    useStore.setState({ renameMode: true });
+    handleKey(key("q"), ctx());
     expect(useStore.getState().renameMode).toBe(false);
   });
 
@@ -282,33 +306,39 @@ describe("handleKey", () => {
     useStore.setState({ browserSetDir: orig });
   });
 
-  it("renameMode blocks non-n keys", () => {
+  it("renameMode blocks non-q/escape keys", () => {
     useStore.setState({ renameMode: true, focusIndex: 0 });
     handleKey(key("space"), ctx());
     expect(useStore.getState().selectedIds.size).toBe(0);
   });
 
-  it("authorMode blocks non-m keys", () => {
+  it("authorMode blocks non-q/escape keys", () => {
     useStore.setState({ authorMode: true, focusIndex: 0 });
     handleKey(key("space"), ctx());
     expect(useStore.getState().selectedIds.size).toBe(0);
   });
 
-  it("help mode blocks non-escape/h keys", () => {
+  it("help mode blocks non-q keys", () => {
     useStore.setState({ showHelp: true, focusIndex: 0 });
     handleKey(key("space"), ctx());
     expect(useStore.getState().selectedIds.size).toBe(0);
   });
 
-  it("` toggles config", () => {
+  it("` opens config", () => {
     useStore.setState({ showConfig: false });
     handleKey(key("`"), ctx());
     expect(useStore.getState().showConfig).toBe(true);
   });
 
-  it("` closes config when open", () => {
+  it("` does nothing when config is open", () => {
     useStore.setState({ showConfig: true });
     handleKey(key("`"), ctx());
+    expect(useStore.getState().showConfig).toBe(true);
+  });
+
+  it("q closes config", () => {
+    useStore.setState({ showConfig: true });
+    handleKey(key("q"), ctx());
     expect(useStore.getState().showConfig).toBe(false);
   });
 

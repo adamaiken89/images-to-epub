@@ -31,7 +31,7 @@ exports[`snapshots HelpModal 1`] = `
 │ [r] Refresh                                              │
 │ [Space] Toggle selection                                 │
 │                                                          │
-│ [Esc] · [h] close                                        │
+│ [q] close                                                │
 │                                                          │
 └──────────────────────────────────────────────────────────┘
                                                             
