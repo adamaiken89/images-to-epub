@@ -34,16 +34,10 @@ function buildManifestItems(
   imgIds: string[],
   imgFileNames: string[],
 ): string[] {
-  const items: string[] = [];
-  for (let i = 0; i < pageIds.length; i++) {
-    items.push(
-      `<item id="${imgIds[i]}" href="images/${imgFileNames[i]}" media-type="image/jpeg"/>`,
-    );
-    items.push(
-      `<item id="${pageIds[i]}" href="${pageIds[i]}.xhtml" media-type="application/xhtml+xml"/>`,
-    );
-  }
-  return items;
+  return pageIds.flatMap((_, i) => [
+    `<item id="${imgIds[i]}" href="images/${imgFileNames[i]}" media-type="image/jpeg"/>`,
+    `<item id="${pageIds[i]}" href="${pageIds[i]}.xhtml" media-type="application/xhtml+xml"/>`,
+  ]);
 }
 
 function buildSpineItems(pageIds: string[]): string[] {

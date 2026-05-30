@@ -38,14 +38,8 @@ export async function findFoldersWithImages(
 
     try {
       const entries = await readdir(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        const name = entry.name.toLowerCase();
-        if (entry.isFile()) {
-          const ext = name.slice(name.lastIndexOf("."));
-          if (VALID_IMAGE_EXTS.has(ext)) {hasImages = true;}
-          if (name.endsWith(".zip")) {hasZips = true;}
-        }
-      }
+      hasImages = entries.some(e => e.isFile() && VALID_IMAGE_EXTS.has(e.name.toLowerCase().slice(e.name.toLowerCase().lastIndexOf("."))));
+      hasZips = entries.some(e => e.isFile() && e.name.toLowerCase().endsWith(".zip"));
     } catch {
       // permission denied or error reading
     }

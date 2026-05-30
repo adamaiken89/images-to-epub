@@ -27,17 +27,13 @@ export async function padImageFilenames(imgDir: string): Promise<{ success: bool
   }
 
   const allFiles = await readdir(imgDir);
-  const numericImages: Array<[string, string, string, string]> = [];
-
-  for (const f of allFiles) {
+  const numericImages: Array<[string, string, string, string]> = allFiles.flatMap(f => {
     const ext = extname(f).toLowerCase();
-    if (!VALID_IMAGE_EXTS.has(ext)) {continue;}
+    if (!VALID_IMAGE_EXTS.has(ext)) {return [];}
     const name = basename(f, ext);
     const [prefix, suffix] = extractNumericPrefix(name);
-    if (prefix !== null) {
-      numericImages.push([f, prefix, suffix ?? "", ext]);
-    }
-  }
+    return prefix !== null ? [[f, prefix, suffix ?? "", ext] as [string, string, string, string]] : [];
+  });
 
   if (numericImages.length === 0) {
     return { success: true, message: `Skipped (no numeric-prefixed images): ${basename(imgDir)}` };
@@ -49,13 +45,10 @@ export async function padImageFilenames(imgDir: string): Promise<{ success: bool
     return { success: true, message: `Already padded: ${basename(imgDir)}` };
   }
 
-  const renamePlan: Array<[string, string]> = [];
-  for (const [original, prefix, suffix, ext] of numericImages) {
+  const renamePlan: Array<[string, string]> = numericImages.flatMap(([original, prefix, suffix, ext]) => {
     const paddedName = prefix.padStart(maxWidth, "0") + suffix + ext;
-    if (original !== paddedName) {
-      renamePlan.push([original, paddedName]);
-    }
-  }
+    return original !== paddedName ? [[original, paddedName] as [string, string]] : [];
+  });
 
   // Two-pass rename via temp names to avoid collisions
   const tmpNames = new Map<string, string>();

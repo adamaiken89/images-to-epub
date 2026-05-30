@@ -8,34 +8,31 @@ export function getFoldersToProcess(
   selectedSet: Set<string>,
   items: TreeItem[]
 ): string[] {
-  const result: string[] = [];
-  for (const id of selectedSet) {
-    if (id.startsWith(ID_PREFIXES.folder)) {
-      const path = id.slice(ID_PREFIXES.folder.length);
-      const item = items.find((i) => i.id === id);
-      if (item?.entry?.metadata.hasImages) {
-        if (!item.excluded) {
-          result.push(path);
-        }
-      } else if (item?.entry) {
-        const allFolderPaths = items
-          .filter((i) => i.id.startsWith(ID_PREFIXES.folder))
-          .map((i) => i.id.slice(ID_PREFIXES.folder.length));
-        const imageFolders = allFolderPaths.filter((p) => {
-          const entry = items.find((i) => i.id === `${ID_PREFIXES.folder}${p}`);
-          return entry?.entry?.metadata.hasImages;
-        });
-        const subs = getSubfoldersWithImages(path, imageFolders);
-        for (const sub of subs) {
-          const subItem = items.find((i) => i.id === `${ID_PREFIXES.folder}${sub}`);
-          if (!subItem?.excluded) {
-            result.push(sub);
-          }
-        }
-      }
+  const allFolderPaths = items
+    .filter((i) => i.id.startsWith(ID_PREFIXES.folder))
+    .map((i) => i.id.slice(ID_PREFIXES.folder.length));
+
+  const imageFolders = allFolderPaths.filter((p) => {
+    const entry = items.find((i) => i.id === `${ID_PREFIXES.folder}${p}`);
+    return entry?.entry?.metadata.hasImages;
+  });
+
+  const results = Array.from(selectedSet).flatMap(id => {
+    if (!id.startsWith(ID_PREFIXES.folder)) {return [];}
+    const path = id.slice(ID_PREFIXES.folder.length);
+    const item = items.find((i) => i.id === id);
+    if (!item?.entry) {return [];}
+    if (item.entry.metadata.hasImages) {
+      return item.excluded ? [] : [path];
     }
-  }
-  return [...new Set(result)];
+    const subs = getSubfoldersWithImages(path, imageFolders);
+    return subs.filter(sub => {
+      const subItem = items.find(i => i.id === `${ID_PREFIXES.folder}${sub}`);
+      return !subItem?.excluded;
+    });
+  });
+
+  return [...new Set(results)];
 }
 
 function collectDescendantIds(items: TreeItem[], parentIndex: number): string[] {
